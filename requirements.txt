@@ -1,0 +1,5 @@
+requests
+google-genai
+python-dotenv
+pillow
+browser-use-sdk
