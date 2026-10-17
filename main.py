@@ -69,11 +69,21 @@ def show_section(params):
             return {"error": "Pass next, previous, or a section number."}
     return section_payload(n)
 
+def as_tool(fn):
+    # ElevenLabs only accepts a string tool result, so send the dict as JSON text.
+    # The SDK swallows tool exceptions without logging them, so report them to Sentry here.
+    def handler(params):
+        try:
+            return json.dumps(fn(params))
+        except Exception as e:
+            sentry_sdk.capture_exception(e)
+            raise
+    return handler
+
 def build_tools():
-    # ElevenLabs only accepts a string tool result, so send the dicts as JSON text.
     tools = ClientTools()
-    tools.register("open_painting", lambda params: json.dumps(open_painting(params)))
-    tools.register("show_section", lambda params: json.dumps(show_section(params)))
+    tools.register("open_painting", as_tool(open_painting))
+    tools.register("show_section", as_tool(show_section))
     return tools
 
 if __name__ == "__main__":

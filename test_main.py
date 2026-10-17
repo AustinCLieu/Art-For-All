@@ -95,6 +95,25 @@ def test_registered_tools_return_json_text():
     assert isinstance(out, str), type(out)
     assert json.loads(out)["now_showing"].startswith("Now showing section 2 of 3")
 
+def test_tool_errors_reach_sentry():
+    # The ElevenLabs SDK swallows tool exceptions, so main.py must report them itself.
+    import asyncio
+    m = fresh_main()
+    captured = []
+    original = m.sentry_sdk.capture_exception
+    m.sentry_sdk.capture_exception = captured.append
+    def broken_lookup(name):
+        raise RuntimeError("wikipedia down")
+    m.load_painting = broken_lookup
+    try:
+        asyncio.run(m.build_tools().handle("open_painting", {"name": "Mona Lisa"}))
+        raise AssertionError("the error must still reach ElevenLabs as a tool error")
+    except RuntimeError as e:
+        assert str(e) == "wikipedia down"
+    finally:
+        m.sentry_sdk.capture_exception = original
+    assert [str(e) for e in captured] == ["wikipedia down"]
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_") and callable(fn):
