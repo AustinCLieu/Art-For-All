@@ -19,7 +19,10 @@ It's the program the team runs for the demo. You also do two quick prizes: Sentr
    Teammate 3's `board.py` with the real board (tonight).
 6. **Test early:** open a painting that isn't cached and time it. If ElevenLabs gives up on the tool
    call before the painting loads, tell Austin right away.
-7. **Quick prizes:** create a Sentry project and put its DSN in `.env` as `SENTRY_DSN`. Register a
+7. **Test Creao live (once Austin's `creao.py` lands):** open a painting that isn't cached. The terminal
+   should print `Creao run started`, the tour should start without waiting, and Creao's `guide_notes`
+   should show up in later parts. This is what the judges see in the demo.
+8. **Quick prizes:** create a Sentry project and put its DSN in `.env` as `SENTRY_DSN`. Register a
    GoDaddy domain for the Devpost link.
 
 **Done when:** by voice alone you can run a whole tour, jump around, ask questions, and switch paintings.
@@ -74,6 +77,11 @@ try:
     from board import show_grid, to_ascii  # Teammate 3
 except ImportError:
     from stubs import show_grid, to_ascii
+try:
+    from creao import start_tour_writer  # Austin: Creao agent writes guide notes in the background
+except ImportError:
+    def start_tour_writer(p):
+        pass
 
 sentry_sdk.init(dsn=os.getenv("SENTRY_DSN"))
 state = {"painting": None, "index": 0}
@@ -97,6 +105,7 @@ def open_painting(params):
     if not p:
         return {"found": False}
     state["painting"] = p
+    start_tour_writer(p)  # no-op if the painting already has guide notes
     sections = [{"number": s["number"], "name": s["name"], "location": s["location"]} for s in p["sections"]]
     return {"found": True, "title": p["title"], "artist": p["artist"], "year": p["year"],
             "summary": p["summary"], "sections": sections, **section_payload(0)}
