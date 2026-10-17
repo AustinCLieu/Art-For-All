@@ -93,6 +93,13 @@ def load_painting(name):
     p = from_cache(name)
     if p:
         return p
+    try:
+        return fetch_painting(name)
+    except Exception as e:  # network stall, Gemini error, bad JSON: the agent says it couldn't find it
+        print(f"load_painting failed for {name!r}: {e!r}")
+        return None
+
+def fetch_painting(name):
     wiki = find_on_wikipedia(name)
     if not wiki:
         return None
@@ -106,14 +113,14 @@ def load_painting(name):
     if not data.get("sections"):
         return None  # the image wasn't the painting
     image_path = f"{CACHE}/{slug(wiki['title'])}.jpg"
-    with open(image_path, "wb") as f:
-        f.write(resp.content)
     sections = []
     for i, s in enumerate(data["sections"], start=1):
         y0, x0, y1, x1 = [v / 1000 for v in s["box_2d"]]
         bbox = [x0, y0, x1, y1]
         sections.append({"number": i, "name": s["name"], "bbox": bbox, "location": to_location(bbox),
                          "description": s["description"], "grid": fix_grid(s["grid"])})
+    with open(image_path, "wb") as f:  # only after parsing worked, so a failure leaves no stray files
+        f.write(resp.content)
     p = {"title": wiki["title"], "artist": data.get("artist", ""), "year": data.get("year", ""),
          "summary": wiki["summary"], "image": image_path, "sections": sections}
     save_painting(p)
