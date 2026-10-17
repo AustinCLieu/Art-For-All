@@ -1,5 +1,5 @@
 # Env: AGENT_ID, ELEVENLABS_API_KEY, BOARD, SERIAL_PORT, SENTRY_DSN
-import os, signal
+import os, signal, json
 from dotenv import load_dotenv
 import sentry_sdk  # Sentry prize: catches any tool error during the demo
 from elevenlabs.client import ElevenLabs
@@ -69,10 +69,15 @@ def show_section(params):
             return {"error": "Pass next, previous, or a section number."}
     return section_payload(n)
 
-if __name__ == "__main__":
+def build_tools():
+    # ElevenLabs only accepts a string tool result, so send the dicts as JSON text.
     tools = ClientTools()
-    tools.register("open_painting", open_painting)
-    tools.register("show_section", show_section)
+    tools.register("open_painting", lambda params: json.dumps(open_painting(params)))
+    tools.register("show_section", lambda params: json.dumps(show_section(params)))
+    return tools
+
+if __name__ == "__main__":
+    tools = build_tools()
 
     api_key = os.getenv("ELEVENLABS_API_KEY")
     conversation = Conversation(

@@ -82,6 +82,19 @@ def test_switch_painting_resets_tour():
     m.open_painting({"name": "Mona Lisa"})
     assert m.state["index"] == 0
 
+def test_registered_tools_return_json_text():
+    # ElevenLabs rejects a non-string tool result (1008 policy violation), so the
+    # registered handlers must return JSON text even though the functions return dicts.
+    import asyncio, json
+    m = fresh_main()
+    tools = m.build_tools()
+    out = asyncio.run(tools.handle("open_painting", {"name": "Mona Lisa"}))
+    assert isinstance(out, str), type(out)
+    assert json.loads(out)["found"] is True
+    out = asyncio.run(tools.handle("show_section", {"section": "next"}))
+    assert isinstance(out, str), type(out)
+    assert json.loads(out)["now_showing"].startswith("Now showing section 2 of 3")
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_") and callable(fn):
