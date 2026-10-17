@@ -3,7 +3,8 @@ from dotenv import load_dotenv
 from paintings import save_painting
 
 load_dotenv()
-API = "https://developer.creao.ai/v1"
+API = "https://developer.creao.ai/v1"  # docs.creao.ai/developer-api: Account API key (cr_sk_...), personal agent runs
+MAX_WAIT = 300  # seconds; prepare_demo.py waits on this, so a stuck run can't hang forever
 
 def parse_json(text):
     m = re.search(r"\{.*\}", text or "", re.S)  # agents sometimes wrap JSON in prose
@@ -15,23 +16,32 @@ def parse_json(text):
 def run_tour_writer(p):
     """Blocking. Runs the Creao agent for painting p, saves its notes into p, returns the run_id."""
     h = {"Authorization": f"Bearer {os.environ['CREAO_API_KEY']}"}
-    run = requests.post(f"{API}/runs", headers=h, json={
+    res = requests.post(f"{API}/runs", headers=h, timeout=30, json={
         "agent_id": os.environ["CREAO_AGENT_ID"],
         # match these input names to what the Developer Console shows for your agent
         "input": {"painting": f"{p['title']} by {p['artist']}",
-                  "sections": [s["name"] for s in p["sections"]]}}).json()
-    print(f"Creao run started: {run['run_id']} for {p['title']}")
-    while True:
-        r = requests.get(f"{API}/runs/{run['run_id']}", headers=h).json()
-        if r["status"] in ("completed", "failed", "cancelled"):
-            break
+                  "sections": [s["name"] for s in p["sections"]]}})
+    res.raise_for_status()  # 202 on success; 401 bad key, 402 no credits, 404 agent not found
+    run_id = res.json()["run_id"]
+    print(f"Creao run started: {run_id} for {p['title']}")
+    deadline = time.time() + MAX_WAIT
+    while time.time() < deadline:
         time.sleep(3)
+        try:
+            r = requests.get(f"{API}/runs/{run_id}", headers=h, timeout=30).json()
+        except (requests.RequestException, ValueError):
+            continue  # flaky Wi-Fi: try again next poll
+        if r.get("status") in ("completed", "failed", "cancelled"):  # else pending / running
+            break
+    else:
+        r = {"status": "timed out"}
     notes = parse_json((r.get("result") or {}).get("text")).get("sections", [])
-    if notes:
+    if r.get("status") == "completed" and notes:
         p["guide_notes"] = {n["name"]: n["guide_notes"] for n in notes}
         save_painting(p)
-    print(f"Creao run {r['status']}: {run['run_id']} ({len(notes)} notes)")
-    return run["run_id"]
+    err = (r.get("error") or {}).get("code", "")
+    print(f"Creao run {r.get('status')}: {run_id} ({len(notes)} notes) {err}".rstrip())
+    return run_id
 
 def start_tour_writer(p):
     """Non-blocking. Starts the Creao agent in the background unless p already has notes."""
