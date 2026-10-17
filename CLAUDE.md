@@ -5,9 +5,12 @@ tour of a painting, part by part. A 10x10 board of balls raises the shape of the
 Goal: the simplest thing that works for the demo. Don't add features that aren't in these docs.
 
 ## Files and owners (only edit your own files)
-- `main.py` - Harvey. ElevenLabs conversation + the two client tools. Brief: `docs/harvey.md`
-- `paintings.py`, `prepare_demo.py` - Austin. Painting lookup (Wikipedia + one Gemini call + cache) and the
-  one-time Browser Use / Creao script. Brief: `docs/austin.md`
+- `main.py`, `stubs.py`, `test_main.py` - Harvey. ElevenLabs conversation + the two client tools; `stubs.py`
+  is a fake Mona Lisa + print-only board that `main.py` falls back to until the real parts import.
+  Brief: `docs/harvey.md`
+- `paintings.py`, `creao.py`, `prepare_demo.py`, `test_paintings.py`, `check.py`, `cache/` - Austin. Painting
+  lookup (Wikipedia + one Gemini call + cache), the live Creao tour writer, and the one-time
+  Browser Use / Creao script. Brief: `docs/austin.md`
 - `board.py`, `send_frame.py`, `sim.py` - Teammate 3. Serial link to the board (+ optional simulation).
 - `firmware/` - hardware partner.
 - Change the contract below only after telling the whole team.
@@ -53,6 +56,12 @@ Goal: the simplest thing that works for the demo. Don't add features that aren't
 ## Environment (`.env`, never commit)
 `AGENT_ID`, `ELEVENLABS_API_KEY`, `GEMINI_API_KEY`, `BROWSER_USE_API_KEY`, `CREAO_API_KEY`,
 `CREAO_AGENT_ID`, `SENTRY_DSN`, `BOARD=sim|serial`, `SERIAL_PORT`
+
+## Run
+- Setup once: `brew install portaudio`, `python3 -m venv .venv`, `source .venv/bin/activate`,
+  `pip install -r requirements.txt`
+- Demo: `source .venv/bin/activate && python main.py` (Ctrl+C ends the conversation)
+- Tests are plain scripts, no pytest: `python test_main.py`, `python test_paintings.py`
 
 ## Rules
 - Demo paintings (must load instantly from cache): Mona Lisa, The Starry Night,

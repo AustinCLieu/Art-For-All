@@ -3,3 +3,5 @@ google-genai
 python-dotenv
 pillow
 browser-use-sdk
+elevenlabs[pyaudio]
+sentry-sdk
