@@ -1,4 +1,4 @@
-import os
+import os, sys
 from dotenv import load_dotenv
 from paintings import load_painting, save_painting
 from creao import run_tour_writer
@@ -12,11 +12,12 @@ for name in DEMO:
     if not p:
         print(name, "not found, skipped")
         continue
-    try:
-        p["museum_facts"] = museum_facts(p)
-        save_painting(p)
-    except Exception as e:  # keep the old facts
-        print(f"Browser Use failed for {name}: {e}")
+    if not p.get("museum_facts") or "--refresh" in sys.argv:  # checked facts cost credits to redo
+        try:
+            p["museum_facts"] = museum_facts(p)
+            save_painting(p)
+        except Exception as e:  # keep the old facts
+            print(f"Browser Use failed for {name}: {e}")
     if not p.get("guide_notes"):
         if os.getenv("CREAO_API_KEY") and os.getenv("CREAO_AGENT_ID"):
             try:

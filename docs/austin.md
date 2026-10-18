@@ -236,9 +236,11 @@ for name in DEMO:
 ## Creao agent prompt (paste at agent.creao.ai)
 ```text
 Create an agent named "Tactile Tour Writer" with two inputs: painting (title and artist)
-and sections (a list of section names, most important first). For each section, research
-the painting and write what a museum guide would tell a blind visitor whose fingers are on
-that part: two or three concrete sentences plus one surprising fact. Return only JSON:
+and sections (a list of section names, most important first). The visitor is blind and feels
+each section on a 10x10 grid of raised balls showing a simple outline of that part, nothing more:
+no texture, colour, gloss or relief. For each section, research the painting and write at most
+three short plain sentences: where the shape is and what it is, then one surprising fact. No
+markdown, no links. Keep each name exactly as given. Return only JSON:
 {"sections": [{"name": "...", "guide_notes": "..."}]}
 ```
 
