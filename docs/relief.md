@@ -7,6 +7,8 @@ simulation.
 
 ## Where the data is
 
+Built: press `P` on the audience screen (`screen/src/components/PinModal.tsx`, three.js in `src/lib/pinScene.ts`).
+
 `/api/state` -> `section.relief` and `section.relief_color`: URLs, or `null` when a section has none
 (stub paintings, or a relief that failed). They change with the section, like `grid`.
 

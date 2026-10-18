@@ -72,7 +72,7 @@ Note: `npm test` in `screen/` needs Node 22.6 or newer (it runs the TypeScript t
 5. **The choice.** A, with B's typographic discipline.
 6. **Paper.** We designed it in Paper alongside the code: story, research, design system,
    components, screens and the flow storyboard. Export:
-   [`paper/artforall-design.pdf`](paper/artforall-design.pdf) (20 pages, plus one PNG per
+   [`paper/artforall-design.pdf`](paper/artforall-design.pdf) (22 pages, plus one PNG per
    page in [`paper/`](paper/)). The PDF is assembled from the page images, so its text can't be
    selected. Some detail text in the Paper screens is mockup copy we wrote for the design (the agent
    detail lines in the drawer and the Starry Night captions), not output from the live app.
@@ -91,7 +91,7 @@ Note: `npm test` in `screen/` needs Node 22.6 or newer (it runs the TypeScript t
 | Legibility | Text colours meet AAA on the ink background: paper 16.7:1, paper-dim 8.8:1. 13px is the smallest text anywhere. Captions show the newest line largest and step older lines down. While the guide answers, the visitor's last words stay pinned above the answer under "Visitor said", so anyone walking up mid-answer can see what was asked. Type is sized to be read from about 3 m away (our target; not measured on site). | `tokens.css`; Task 16 check found 0 text elements under 13px |
 | Consistency | One shape language: the ball (wells, raised balls, rail stops, speaking dots, live dot). One token set shared by Paper and CSS with identical names. A 4/8px spacing scale (`--spacing-1…10` = 4 to 128px). | `tokens.css`; `paper/3-space-shape-motion-voice.png` |
 | Contrast | See the ratios table in section 8. `paper-faint` (4.5:1) is restricted to decoration and text 24px and larger (the outline numeral, hairlines). | `paper/3-colour.png` |
-| Ease of use | Nothing to click: the screen follows the voice tour on its own. One key, `S`, opens the agent drawer (`Esc` closes it). Every status has a word as well as a colour (WORKING, DONE, FAILED; speaking, listening, thinking). The offline and idle screens say what is going on and what to do ("The guide is on a break. Start main.py to open the gallery."). | `after-drawer-1920.png`, `after-offline-1920.png`; `copy.ts` |
+| Ease of use | Nothing to click: the screen follows the voice tour on its own. Two keys: `S` opens the agent drawer and `P` opens the 10,000-pin simulation of the current part (`Esc` closes either). Every status has a word as well as a colour (WORKING, DONE, FAILED; speaking, listening, thinking). The offline and idle screens say what is going on and what to do ("The guide is on a break. Start main.py to open the gallery."). | `after-drawer-1920.png`, `after-offline-1920.png`, `after-pins-1920.png`; `copy.ts` |
 | Craft and character | The Lantern Water palette, where every colour is an object in the teamLab water room. A hand-drawn hook that hangs the part name on the spotlight. The Borderless flow (section 6). Raised balls take the colour of the painting under them. Copy in a museum voice. | `paper/3-colour.png`; `after-flow-1920.png`; section 5 |
 
 ## 5. Design system decisions ("Lantern Water")
