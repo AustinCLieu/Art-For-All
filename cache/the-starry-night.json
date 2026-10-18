@@ -137,7 +137,9 @@
      0,
      0
     ]
-   ]
+   ],
+   "relief": "cache/the-starry-night-1-relief.png",
+   "relief_color": "cache/the-starry-night-1-relief-color.png"
   },
   {
    "number": 2,
@@ -271,7 +273,9 @@
      0,
      0
     ]
-   ]
+   ],
+   "relief": "cache/the-starry-night-2-relief.png",
+   "relief_color": "cache/the-starry-night-2-relief-color.png"
   },
   {
    "number": 3,
@@ -405,7 +409,9 @@
      0,
      0
     ]
-   ]
+   ],
+   "relief": "cache/the-starry-night-3-relief.png",
+   "relief_color": "cache/the-starry-night-3-relief-color.png"
   },
   {
    "number": 4,
@@ -539,7 +545,9 @@
      1,
      1
     ]
-   ]
+   ],
+   "relief": "cache/the-starry-night-4-relief.png",
+   "relief_color": "cache/the-starry-night-4-relief-color.png"
   },
   {
    "number": 5,
@@ -673,7 +681,9 @@
      1,
      0
     ]
-   ]
+   ],
+   "relief": "cache/the-starry-night-5-relief.png",
+   "relief_color": "cache/the-starry-night-5-relief-color.png"
   },
   {
    "number": 6,
@@ -807,7 +817,9 @@
      1,
      0
     ]
-   ]
+   ],
+   "relief": "cache/the-starry-night-6-relief.png",
+   "relief_color": "cache/the-starry-night-6-relief-color.png"
   }
  ],
  "museum_facts": [

@@ -7,3 +7,6 @@ browser-use-sdk==3.12.1
 elevenlabs[pyaudio]==2.73.1
 sentry-sdk==2.72.0
 pyserial==3.5  # board.py (BOARD=serial)
+numpy==2.5.4         # relief.py: 10,000-pin heightmaps for the audience screen
+torch==2.14.1        # relief.py depth model; optional: without it reliefs fall back to brightness
+transformers==5.20.1

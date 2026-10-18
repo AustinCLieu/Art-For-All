@@ -67,6 +67,16 @@ def _agent_chip(p, source, key, noun):
         return {"status": "done", "detail": f"{len(p[key])} {noun}"}
     return dict(IDLE)
 
+def _cache_url(path):
+    """/cache/<file>?v=<mtime>, or None: a relief made again under the same name must not come from the browser's cache."""
+    if not path:
+        return None
+    name = os.path.basename(path)
+    try:
+        return f"/cache/{name}?v={int(os.path.getmtime(os.path.join(CACHE, name)))}"
+    except OSError:
+        return None
+
 def _views(p, i):
     s = p["sections"][i]
     image = p.get("image")
@@ -76,6 +86,7 @@ def _views(p, i):
                              for x in p["sections"]]}
     section = {"index": i, "number": s["number"], "name": s["name"], "location": s["location"],
                "bbox": s["bbox"], "grid": s["grid"],
+               "relief": _cache_url(s.get("relief")), "relief_color": _cache_url(s.get("relief_color")),
                "frame": "F" + "".join("1" if v else "0" for row in s["grid"] for v in row)}
     return painting, section
 

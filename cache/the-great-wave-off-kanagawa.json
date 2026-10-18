@@ -137,7 +137,9 @@
      1,
      1
     ]
-   ]
+   ],
+   "relief": "cache/the-great-wave-off-kanagawa-1-relief.png",
+   "relief_color": "cache/the-great-wave-off-kanagawa-1-relief-color.png"
   },
   {
    "number": 2,
@@ -271,7 +273,9 @@
      0,
      0
     ]
-   ]
+   ],
+   "relief": "cache/the-great-wave-off-kanagawa-2-relief.png",
+   "relief_color": "cache/the-great-wave-off-kanagawa-2-relief-color.png"
   },
   {
    "number": 3,
@@ -405,7 +409,9 @@
      1,
      1
     ]
-   ]
+   ],
+   "relief": "cache/the-great-wave-off-kanagawa-3-relief.png",
+   "relief_color": "cache/the-great-wave-off-kanagawa-3-relief-color.png"
   },
   {
    "number": 4,
@@ -539,7 +545,9 @@
      0,
      0
     ]
-   ]
+   ],
+   "relief": "cache/the-great-wave-off-kanagawa-4-relief.png",
+   "relief_color": "cache/the-great-wave-off-kanagawa-4-relief-color.png"
   }
  ],
  "museum_facts": [

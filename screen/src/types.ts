@@ -26,6 +26,9 @@ export interface Section extends SectionSummary {
   bbox: [number, number, number, number];
   grid: number[][];
   frame: string;
+  // 10,000-pin simulation (docs/relief.md): 100x100 PNG URLs, or null if this section has none.
+  relief: string | null;       // grayscale: brightness = pin height, 0 = down, 255 = fully up
+  relief_color: string | null; // the painting under each pin, black outside the painting
 }
 
 export type Status = "idle" | "working" | "done" | "failed";

@@ -8,10 +8,11 @@ Goal: the simplest thing that works for the demo. Don't add features that aren't
 - `main.py`, `stubs.py`, `test_main.py` - Harvey. ElevenLabs conversation + the two client tools; `stubs.py`
   is a fake Mona Lisa + print-only board that `main.py` falls back to until the real parts import.
   Brief: `docs/harvey.md`
-- `paintings.py`, `creao.py`, `museum.py`, `prepare_demo.py`, `test_paintings.py`, `test_pipeline.py`,
+- `paintings.py`, `creao.py`, `museum.py`, `prepare_demo.py`, `relief.py`, `test_paintings.py`, `test_pipeline.py`,
   `test_sponsors.py`, `check.py`, `cache/` - Austin. Painting lookup (Wikipedia + Gemini + cache: one
   call picks the parts, then one call per part draws its pattern, in parallel), the live Creao tour
-  writer, live Browser Use museum facts, and the one-time Browser Use / Creao script. Brief: `docs/austin.md`
+  writer, live Browser Use museum facts, the one-time Browser Use / Creao script, and the 100x100
+  heightmaps for the screen's 10,000-pin simulation (`docs/relief.md`). Brief: `docs/austin.md`
 - `board.py`, `send_frame.py`, `sim.py` - Teammate 3. Serial link to the board (+ optional simulation).
 - `screen.py`, `screen/`, `test_screen.py` - Austin. Optional audience screen at http://127.0.0.1:8000:
   the conversation, the board (mirrored or simulated) and what each sponsor's agent is doing. The tour
@@ -44,7 +45,8 @@ Goal: the simplest thing that works for the demo. Don't add features that aren't
   "summary": "From Wikipedia.", "image": "cache/mona-lisa.jpg",
   "sections": [
     {"number": 1, "name": "her face", "bbox": [0.38, 0.12, 0.62, 0.38], "location": "top center",
-     "description": "One or two sentences.", "grid": [[0,0,0,1,1,1,1,0,0,0], "...10 rows of 10..."]}
+     "description": "One or two sentences.", "grid": [[0,0,0,1,1,1,1,0,0,0], "...10 rows of 10..."],
+     "relief": "cache/mona-lisa-1-relief.png", "relief_color": "cache/mona-lisa-1-relief-color.png"}
   ],
   "museum_facts": ["optional, from Browser Use"],
   "guide_notes": {"her face": "optional, from Creao"}
@@ -55,6 +57,8 @@ Goal: the simplest thing that works for the demo. Don't add features that aren't
 - `location` = the 3x3 cell of the bbox center: top left, top center, top right, center left, center,
   center right, bottom left, bottom center, bottom right.
 - `grid` = 10 rows of 10. Row 0 = top (edge farthest from the user), column 0 = user's left, 1 = ball up.
+- `relief`, `relief_color` = optional, screen only: 100x100 PNGs of the same part for the 10,000-pin
+  simulation (gray = pin height 0-255, and the painting's colour per pin). Format: `docs/relief.md`.
 
 ### Board serial protocol (115200 baud, one line per message)
 - `F` + 100 digits (row by row) + newline -> board replies `OK` once the balls have settled

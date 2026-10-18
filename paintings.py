@@ -10,6 +10,11 @@ try:
 except Exception:  # nothing here depends on the screen
     def activity(*args, **kwargs):
         pass
+try:
+    from relief import make_all as make_reliefs, save as save_relief, warm as warm_reliefs  # 10,000-pin heightmaps
+except ImportError as e:  # optional: the tour and the real board never need them
+    print(f"Reliefs off: {e!r}")
+    make_reliefs = None
 
 load_dotenv()
 UA = {"User-Agent": "ArtForAll/0.1 (LA Hacks hackathon; https://github.com/AustinCLieu/LAHACKSAI_NEED_A_NAME_LMAO)"}  # Wikimedia blocks generic agents
@@ -244,6 +249,7 @@ def load_painting(name):
     p = from_cache(name)
     if p:
         activity("gemini", "done", f"{p['title']}: ready from cache")
+        start_reliefs(p)  # no-op once every section has one
         return p
     try:
         p = fetch_painting(name)
@@ -252,6 +258,7 @@ def load_painting(name):
         p = None
     if p:
         activity("gemini", "done", f"{p['title']}: {len(p['sections'])} parts ready")
+        start_reliefs(p)
     else:
         activity("gemini", "failed", f"Couldn't find {name}")
     return p
@@ -276,11 +283,47 @@ def redraw(p):
     save_painting(p)
     return p
 
+def add_reliefs(p, force=False):
+    """Make the 10,000-pin heightmaps of p's sections that have none (all with force), in tour order.
+    A section whose relief fails is left without one. Saves and returns p."""
+    with Image.open(p["image"]) as img:
+        img = img.convert("RGB")
+    for s in p["sections"]:
+        if force or not s.get("relief"):
+            m, = make_reliefs(img, [s])
+            if m:  # one at a time: the screen shows each relief as soon as it lands
+                s.update(save_relief(m, f"{CACHE}/{slug(p['title'])}-{s['number']}"))
+    save_painting(p)
+    return p
+
+_reliefs_running, _reliefs_lock = set(), threading.Lock()
+
+def start_reliefs(p):
+    """Non-blocking. Makes p's missing heightmaps in the background, into the same dict main.py and the
+    screen hold, so they appear on screen as they land. The tour never waits for them."""
+    if not make_reliefs or all(s.get("relief") for s in p["sections"]):
+        return
+    with _reliefs_lock:  # opening the same painting twice must not make its reliefs twice
+        if p["title"] in _reliefs_running:
+            return
+        _reliefs_running.add(p["title"])
+    def run():
+        try:
+            add_reliefs(p)
+        except Exception as e:  # never break the tour
+            print(f"Reliefs failed for {p['title']}: {e!r}")
+        finally:
+            with _reliefs_lock:
+                _reliefs_running.discard(p["title"])
+    threading.Thread(target=run, daemon=True).start()
+
 def fetch_painting(name):
     activity("gemini", "working", f"Searching Wikipedia for {name}")
     wiki = find_on_wikipedia(name)
     if not wiki:
         return None
+    if make_reliefs:  # load the depth model (~9 s) while Gemini works, so the first reliefs come sooner
+        threading.Thread(target=warm_reliefs, daemon=True).start()
     path = f"{CACHE}/{slug(wiki['title'])}.json"
     if os.path.exists(path):  # cached under its Wikipedia title
         with open(path) as f:

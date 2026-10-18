@@ -45,6 +45,16 @@ def test_show_on_screen():
     assert len(sec["grid"]) == 10 and sec["bbox"] == [0.30, 0.70, 0.75, 0.92]
     assert sec["frame"][0] == "F" and len(sec["frame"]) == 101 and set(sec["frame"][1:]) <= {"0", "1"}
     assert sec["frame"][1:11] == "0000000000" and sec["frame"][21:31] == "0011110000"
+    assert sec["relief"] is None and sec["relief_color"] is None  # the stub has no 10,000-pin reliefs
+
+def test_relief_urls():
+    reset()
+    p = mona()
+    p["sections"][0].update(relief="cache/mona-lisa.jpg", relief_color="cache/missing.png")
+    screen.show_on_screen(p, 0)
+    sec = screen.snapshot()["section"]
+    assert sec["relief"].startswith("/cache/mona-lisa.jpg?v=")  # versioned: a remade relief skips the browser cache
+    assert sec["relief_color"] is None  # a missing file is no relief, not a broken image
 
 def test_agent_chips():
     reset()
@@ -136,16 +146,17 @@ def test_port_in_use():
 def test_paintings_report_to_screen():
     import paintings
     reset()
-    assert paintings.load_painting("Mona Lisa")["title"] == "Mona Lisa"
-    assert screen.snapshot()["activity"]["gemini"] == {"status": "done", "detail": "Mona Lisa: ready from cache"}
-    old = paintings.fetch_painting
+    old = paintings.fetch_painting, paintings.start_reliefs
+    paintings.start_reliefs = lambda p: None  # never write reliefs into cache/ from a test
     def offline(name):
         raise RuntimeError("no Wi-Fi")
-    paintings.fetch_painting = offline
     try:
+        assert paintings.load_painting("Mona Lisa")["title"] == "Mona Lisa"
+        assert screen.snapshot()["activity"]["gemini"] == {"status": "done", "detail": "Mona Lisa: ready from cache"}
+        paintings.fetch_painting = offline
         assert paintings.load_painting("zz no such painting") is None
     finally:
-        paintings.fetch_painting = old
+        paintings.fetch_painting, paintings.start_reliefs = old
     assert screen.snapshot()["activity"]["gemini"]["status"] == "failed"
 
 def fresh_main():

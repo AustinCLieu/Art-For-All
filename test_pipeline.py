@@ -1,8 +1,11 @@
 # Offline tests for the two-step painting pipeline. No network or API key needed.
-import glob, json, os
+import glob, json, os, threading, time
 from io import BytesIO
 from PIL import Image
-import paintings
+import paintings, relief
+
+relief._pipe = False  # offline: reliefs come from brightness, the depth model is never loaded
+start_reliefs, paintings.start_reliefs = paintings.start_reliefs, lambda p: None  # loads never write reliefs into cache/
 
 DEMO = ["Mona Lisa", "The Starry Night", "The Great Wave off Kanagawa", "Girl with a Pearl Earring"]
 OUTLINE = ["...####...", ".##....##.", "#........#", "#.##..##.#", "#........#",
@@ -120,6 +123,10 @@ def test_demo_cache_is_valid():
             assert any(map(any, s["grid"])), (path, s["name"])
             if os.path.basename(path)[:-5] in DEMO_SLUGS:  # a live lookup may cache a least-bad grid on purpose
                 assert not paintings.grid_problems(s["grid"]), (path, s["name"], paintings.grid_problems(s["grid"]))
+            for key in ("relief", "relief_color"):
+                if s.get(key) or os.path.basename(path)[:-5] in DEMO_SLUGS:  # every demo part has its 10,000 pins
+                    assert os.path.exists(s[key]), (path, s["name"], key)
+                    assert Image.open(s[key]).size == (relief.SIZE, relief.SIZE), (path, s["name"], key)
         assert set(p.get("guide_notes") or {}) <= {s["name"] for s in p["sections"]}, path
         facts = p.get("museum_facts") or []
         assert all(isinstance(f, str) and "*" not in f for f in facts), path
@@ -157,15 +164,16 @@ def test_fetch_painting():
         p = paintings.fetch_painting("zz test painting")
     finally:
         paintings.find_on_wikipedia, paintings.http.get, paintings.ask_gemini = old
-        for ext in ("json", "jpg"):
-            if os.path.exists(f"cache/zz-test-painting.{ext}"):
-                os.remove(f"cache/zz-test-painting.{ext}")
+        files = sorted(glob.glob("cache/zz-test-painting*"))
+        for path in files:
+            os.remove(path)
 
     assert p["artist"] == "Test Artist" and p["year"] == "2026"
     assert [s["name"] for s in p["sections"]] == ["her face", "the sky"]
     assert [s["number"] for s in p["sections"]] == [1, 2]
     face = p["sections"][0]
-    assert list(face) == ["number", "name", "bbox", "location", "description", "grid"]
+    assert list(face) == ["number", "name", "bbox", "location", "description", "grid"]  # reliefs come later
+    assert [os.path.basename(f) for f in files] == ["zz-test-painting.jpg", "zz-test-painting.json"]
     assert face["bbox"] == [0.3, 0.1, 0.6, 0.5] and face["location"] == "top center"
     assert face["grid"][0] == [0, 0, 1, 1, 1, 1, 0, 0, 0, 0] and len(face["grid"]) == 10
     first, draws = prompts[0], prompts[1:]
@@ -205,9 +213,9 @@ def test_fetch_painting_drops_bad_sections():
         p = paintings.fetch_painting("zz test painting")
     finally:
         paintings.find_on_wikipedia, paintings.http.get, paintings.ask_gemini = old
-        for ext in ("json", "jpg"):
-            if os.path.exists(f"cache/zz-test-painting.{ext}"):
-                os.remove(f"cache/zz-test-painting.{ext}")
+        files = sorted(glob.glob("cache/zz-test-painting*"))
+        for path in files:
+            os.remove(path)
     assert [s["name"] for s in p["sections"]] == ["good", "inverted"]
     assert [s["number"] for s in p["sections"]] == [1, 2]
     b = p["sections"][1]["bbox"]
@@ -301,6 +309,70 @@ def test_redraw():
     assert saved["sections"][0]["grid"] == paintings.fix_grid(OUTLINE)
     assert saved["sections"][1]["grid"] == old_grid  # failed redraw keeps the old grid
     assert saved["guide_notes"] == {"good": "keep me"}
+
+def test_heightmap():
+    img = Image.new("RGB", (200, 100), "black")
+    img.paste((255, 255, 255), (40, 20, 80, 60))  # a bright square inside a tall box
+    height, color = relief.heightmap(img, [0.25, 0.1, 0.35, 0.9])
+    assert height.mode == "L" and height.size == (100, 100)
+    assert color.mode == "RGB" and color.size == (100, 100)
+    assert height.getpixel((0, 50)) == 0 and color.getpixel((0, 50)) == (0, 0, 0)  # letterbox bar: pin down
+    assert height.getpixel((50, 50)) >= relief.FLOOR * 255  # inside the painting: at least the floor
+    assert max(height.getdata()) > 200  # the part uses the full height
+    flat, _ = relief.heightmap(Image.new("RGB", (50, 50), "gray"), [0.5, 0.5, 0.5, 0.5])  # blank, sub-pixel box
+    assert flat.size == (100, 100)
+
+def test_make_all_never_raises():
+    img = Image.new("RGB", (100, 100))
+    maps = relief.make_all(img, [{"name": "good", "bbox": [0.1, 0.1, 0.5, 0.5]}, {"name": "nobox"}])
+    assert maps[0] and maps[1] is None
+
+def test_add_reliefs():
+    Image.new("RGB", (100, 100), "white").save("cache/zz-relief.jpg")
+    p = {"title": "Zz Relief", "image": "cache/zz-relief.jpg",
+         "sections": [{"number": 1, "name": "a", "bbox": [0.1, 0.1, 0.5, 0.5]},
+                      {"number": 2, "name": "b", "bbox": [0.5, 0.5, 0.9, 0.9], "relief": "keep.png"}]}
+    try:
+        paintings.add_reliefs(p)
+        saved = json.load(open("cache/zz-relief.json"))
+        files = sorted(os.path.basename(f) for f in glob.glob("cache/zz-relief*"))
+    finally:
+        for f in glob.glob("cache/zz-relief*"):
+            os.remove(f)
+    assert saved["sections"][0]["relief"] == "cache/zz-relief-1-relief.png"
+    assert saved["sections"][0]["relief_color"] == "cache/zz-relief-1-relief-color.png"
+    assert saved["sections"][1]["relief"] == "keep.png"  # already had one: left alone without force
+    assert files == ["zz-relief-1-relief-color.png", "zz-relief-1-relief.png", "zz-relief.jpg", "zz-relief.json"]
+
+def test_start_reliefs():
+    """Background, into the same dict, once per painting even if it is opened twice meanwhile."""
+    calls, release = [], threading.Event()
+    def slow(img, sections):
+        calls.append(sections[0]["name"])
+        release.wait(5)
+        return [(Image.new("L", (100, 100)), Image.new("RGB", (100, 100)))]
+    Image.new("RGB", (100, 100), "white").save("cache/zz-start.jpg")
+    p = {"title": "Zz Start", "image": "cache/zz-start.jpg",
+         "sections": [{"number": 1, "name": "a", "bbox": [0.1, 0.1, 0.5, 0.5]}]}
+    old = paintings.make_reliefs
+    paintings.make_reliefs = slow
+    try:
+        start_reliefs(p)
+        start_reliefs(p)
+        time.sleep(0.2)
+        assert "relief" not in p["sections"][0]  # still working: the caller didn't wait
+        release.set()
+        for _ in range(50):
+            if "Zz Start" not in paintings._reliefs_running:
+                break
+            time.sleep(0.1)
+        start_reliefs(p)  # every section has one now: nothing to do
+    finally:
+        paintings.make_reliefs = old
+        for f in glob.glob("cache/zz-start*"):
+            os.remove(f)
+    assert calls == ["a"]
+    assert p["sections"][0]["relief"] == "cache/zz-start-1-relief.png"
 
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
