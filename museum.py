@@ -3,6 +3,11 @@ from dotenv import load_dotenv
 from browser_use_sdk.v4 import BrowserUse  # pip install browser-use-sdk
 from paintings import save_painting
 from creao import parse_json
+try:
+    from screen import activity  # audience screen; optional
+except Exception:  # nothing here depends on the screen
+    def activity(*args, **kwargs):
+        pass
 
 load_dotenv()
 
@@ -13,6 +18,7 @@ def museum_facts(p):
                                  'Return only JSON: {"facts": ["..."]} with 3-5 facts a guide would point out, '
                                  'as plain sentences to be read aloud (no links).')
         print(f"Browser Use run started: {run.id} for {p['title']}")
+        activity("browser_use", "working", "Reading the museum's website", p["title"])
         for attempt in range(3):  # flaky Wi-Fi: a dropped poll shouldn't lose the run
             try:
                 done = client.runs.wait_for_completion(run.id, timeout=600)
@@ -35,6 +41,8 @@ def start_museum_facts(p):
             p["museum_facts"] = museum_facts(p)  # same dict main.py holds, so later parts see the facts
             save_painting(p)
             print(f"Browser Use done: {len(p['museum_facts'])} facts for {p['title']}")
+            activity("browser_use", "done", f"{len(p['museum_facts'])} facts from the museum's website", p["title"])
         except Exception as e:
             print(f"Browser Use failed: {e}")  # never break the tour
+            activity("browser_use", "failed", "No museum facts this time", p.get("title"))
     threading.Thread(target=safe, daemon=True).start()

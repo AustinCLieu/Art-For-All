@@ -118,6 +118,21 @@ def test_port_in_use():
     port = int(url.rsplit(":", 1)[1])
     assert screen.start_screen(port=port) is None  # prints "Audience screen off"; the tour goes on
 
+def test_paintings_report_to_screen():
+    import paintings
+    reset()
+    assert paintings.load_painting("Mona Lisa")["title"] == "Mona Lisa"
+    assert screen.snapshot()["activity"]["gemini"] == {"status": "done", "detail": "Mona Lisa: ready from cache"}
+    old = paintings.fetch_painting
+    def offline(name):
+        raise RuntimeError("no Wi-Fi")
+    paintings.fetch_painting = offline
+    try:
+        assert paintings.load_painting("zz no such painting") is None
+    finally:
+        paintings.fetch_painting = old
+    assert screen.snapshot()["activity"]["gemini"]["status"] == "failed"
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_") and callable(fn):

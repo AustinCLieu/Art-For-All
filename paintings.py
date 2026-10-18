@@ -5,6 +5,11 @@ from PIL import Image
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
+try:
+    from screen import activity  # audience screen; optional
+except Exception:  # nothing here depends on the screen
+    def activity(*args, **kwargs):
+        pass
 
 load_dotenv()
 UA = {"User-Agent": "TactileArt/0.1 (LA Hacks hackathon; https://github.com/AustinCLieu/LAHACKSAI_NEED_A_NAME_LMAO)"}  # Wikimedia blocks generic agents
@@ -144,14 +149,21 @@ def to_location(bbox):
 def load_painting(name):
     p = from_cache(name)
     if p:
+        activity("gemini", "done", f"{p['title']}: ready from cache")
         return p
     try:
-        return fetch_painting(name)
+        p = fetch_painting(name)
     except Exception as e:  # network stall, Gemini error, bad JSON: the agent says it couldn't find it
         print(f"load_painting failed for {name!r}: {e!r}")
-        return None
+        p = None
+    if p:
+        activity("gemini", "done", f"{p['title']}: {len(p['sections'])} parts ready")
+    else:
+        activity("gemini", "failed", f"Couldn't find {name}")
+    return p
 
 def fetch_painting(name):
+    activity("gemini", "working", f"Searching Wikipedia for {name}")
     wiki = find_on_wikipedia(name)
     if not wiki:
         return None
@@ -161,6 +173,7 @@ def fetch_painting(name):
             return json.load(f)
     resp = http.get(wiki["image_url"], timeout=T)
     mime = resp.headers.get("Content-Type", "image/jpeg").split(";")[0]
+    activity("gemini", "working", f"Picking the parts of {wiki['title']}")
     data = analyze(resp.content, mime, wiki["title"], wiki["summary"])
     if not data.get("sections"):
         return None  # the image wasn't the painting
@@ -178,6 +191,7 @@ def fetch_painting(name):
         return None
     img = Image.open(BytesIO(resp.content))
     crops = [jpeg(crop_square(img, s["bbox"])) for s in sections]
+    activity("gemini", "working", f"Drawing {len(sections)} shapes in parallel")
     with ThreadPoolExecutor(len(sections)) as pool:  # all drawings at once: load time = slowest one
         grids = list(pool.map(lambda c, s: draw(c, wiki["title"], s), crops, sections))
     kept = [(s, g) for s, g in zip(sections, grids) if g and any(map(any, g))]

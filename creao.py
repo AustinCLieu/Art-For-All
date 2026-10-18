@@ -1,6 +1,11 @@
 import os, re, json, time, threading, requests
 from dotenv import load_dotenv
 from paintings import save_painting
+try:
+    from screen import activity  # audience screen; optional
+except Exception:  # nothing here depends on the screen
+    def activity(*args, **kwargs):
+        pass
 
 load_dotenv()
 API = "https://agent.creao.ai/api/v1/apps"  # docs.creao.ai/pro/api-trigger: agent key (capi_...), uses the agent account's credits
@@ -37,6 +42,7 @@ def run_tour_writer(p):
     res.raise_for_status()  # 401 bad key, 402 no credits, 404 wrong app ID
     run_id = res.json()["id"]
     print(f"Creao run started: {run_id} for {p['title']}")
+    activity("creao", "working", "Writing guide notes", p["title"])
     deadline = time.time() + MAX_WAIT
     while time.time() < deadline:
         time.sleep(3)
@@ -52,6 +58,9 @@ def run_tour_writer(p):
     if r.get("status") == "completed" and notes:
         p["guide_notes"] = {n["name"]: n["guide_notes"] for n in notes}
         save_painting(p)
+        activity("creao", "done", f"{len(notes)} guide notes", p["title"])
+    else:
+        activity("creao", "failed", f"Run {r.get('status')}", p["title"])
     err = r.get("errorCode") or ""
     print(f"Creao run {r.get('status')}: {run_id} ({len(notes)} notes) {err}".rstrip())
     return run_id
@@ -65,4 +74,5 @@ def start_tour_writer(p):
             run_tour_writer(p)  # writes into the same dict main.py holds, so later parts see the notes
         except Exception as e:
             print(f"Creao failed: {e}")  # never break the tour
+            activity("creao", "failed", "Couldn't run", p.get("title"))
     threading.Thread(target=safe, daemon=True).start()
