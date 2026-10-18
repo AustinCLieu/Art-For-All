@@ -1,0 +1,84 @@
+# Run: python test_screen.py   (no audio, no network, no API keys)
+import copy, json, os, subprocess, sys, tempfile, urllib.request, urllib.error
+import screen, stubs
+
+def reset():
+    with screen._lock:
+        screen._transcript.clear()
+        screen._activity.clear()
+        screen._live.update(painting=None, index=0)
+
+def mona():
+    return copy.deepcopy(stubs.MONA_LISA)
+
+def test_empty_snapshot():
+    reset()
+    s = screen.snapshot()
+    assert s["painting"] is None and s["section"] is None and s["transcript"] == []
+    assert set(s["activity"]) == {"elevenlabs", "gemini", "creao", "browser_use"}
+    assert all(a["status"] == "idle" for a in s["activity"].values())
+    json.dumps(s)
+
+def test_say_and_correct():
+    reset()
+    screen.say("user", "Show me the Mona Lisa")
+    screen.say("agent", "One moment while I find it. Here she is.")
+    screen.correct("One moment while I find it. Here she is.", "One moment while I find it.")
+    screen.correct("text that was never said", "ignored")
+    assert screen.snapshot()["transcript"] == [
+        {"role": "user", "text": "Show me the Mona Lisa"},
+        {"role": "agent", "text": "One moment while I find it."}]
+    assert screen.snapshot()["activity"]["elevenlabs"]["status"] == "done"
+    for n in range(60):
+        screen.say("user", str(n))
+    lines = screen.snapshot()["transcript"]
+    assert len(lines) == 50 and lines[-1]["text"] == "59"
+
+def test_show_on_screen():
+    reset()
+    screen.show_on_screen(mona(), 1)
+    s = screen.snapshot()
+    assert s["painting"]["title"] == "Mona Lisa" and s["painting"]["image"] == "/cache/mona-lisa.jpg"
+    assert all(set(x) == {"number", "name", "location"} for x in s["painting"]["sections"])
+    sec = s["section"]
+    assert sec["number"] == 2 and sec["name"] == "her hands" and sec["location"] == "bottom center"
+    assert len(sec["grid"]) == 10 and sec["bbox"] == [0.30, 0.70, 0.75, 0.92]
+    assert sec["frame"][0] == "F" and len(sec["frame"]) == 101 and set(sec["frame"][1:]) <= {"0", "1"}
+    assert sec["frame"][1:11] == "0000000000" and sec["frame"][21:31] == "0011110000"
+
+def test_agent_chips():
+    reset()
+    p = mona()
+    screen.show_on_screen(p, 0)
+    a = screen.snapshot()["activity"]
+    assert a["creao"]["status"] == "idle" and a["browser_use"]["status"] == "idle"
+    screen.activity("creao", "working", "Writing guide notes", "Mona Lisa")
+    screen.activity("browser_use", "failed", "No museum facts this time", "Some Other Painting")
+    a = screen.snapshot()["activity"]
+    assert a["creao"] == {"status": "working", "detail": "Writing guide notes"}
+    assert a["browser_use"]["status"] == "idle"  # that run was for another painting
+    p["museum_facts"] = ["one", "two"]  # Browser Use fills in the same dict main.py holds
+    assert screen.snapshot()["activity"]["browser_use"] == {"status": "done", "detail": "2 museum facts"}
+    screen.activity("gemini", "working", "Searching Wikipedia for X")
+    assert screen.snapshot()["activity"]["gemini"]["status"] == "working"
+
+def test_never_raises():
+    reset()
+    class Bad:
+        def __str__(self):
+            raise RuntimeError("bad text")
+    screen.say("agent", Bad())
+    screen.say("agent", "fine")
+    screen.correct("fine", Bad())
+    screen.activity("creao", "working", Bad(), "Mona Lisa")
+    screen.show_on_screen({"sections": []}, 5)  # a broken painting
+    s = screen.snapshot()
+    assert s["painting"] is None and s["section"] is None
+    json.dumps(s)
+    screen.show_on_screen(None, 0)
+
+if __name__ == "__main__":
+    for name, fn in list(globals().items()):
+        if name.startswith("test_") and callable(fn):
+            fn()
+            print("PASS", name)
