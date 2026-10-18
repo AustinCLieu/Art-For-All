@@ -7,6 +7,140 @@
  "sections": [
   {
    "number": 1,
+   "name": "the great wave",
+   "bbox": [
+    0.0,
+    0.075,
+    0.58,
+    0.723
+   ],
+   "location": "center left",
+   "description": "The massive, cresting wave dominates the left side of the composition, its dark blue water and white foam claws threatening the boats below.",
+   "grid": [
+    [
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     1,
+     0,
+     1
+    ],
+    [
+     0,
+     0,
+     0,
+     1,
+     1,
+     0,
+     0,
+     0,
+     0,
+     1
+    ],
+    [
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0
+    ],
+    [
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0
+    ],
+    [
+     1,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     1,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     1,
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    ]
+   ]
+  },
+  {
+   "number": 2,
    "name": "the great wave's crest",
    "bbox": [
     0.22,
@@ -140,49 +274,25 @@
    ]
   },
   {
-   "number": 2,
+   "number": 3,
    "name": "Mount Fuji",
    "bbox": [
-    0.575,
-    0.64,
-    0.69,
-    0.735
+    0.57,
+    0.632,
+    0.694,
+    0.737
    ],
    "location": "bottom center",
-   "description": "Mount Fuji, Japan's sacred mountain, appears small and calm, providing a focal point of stability amidst the storm.",
+   "description": "The snow-capped peak of Mount Fuji appears small in the distance, framed by the curve of the wave, representing permanence amidst the chaos.",
    "grid": [
     [
      0,
      0,
      0,
      0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0
-    ],
-    [
-     0,
-     0,
-     0,
-     0,
      1,
      1,
      0,
-     0,
-     0,
-     0
-    ],
-    [
-     0,
-     0,
-     0,
-     1,
-     0,
-     0,
-     1,
      0,
      0,
      0
@@ -213,18 +323,6 @@
     ],
     [
      0,
-     0,
-     1,
-     0,
-     0,
-     0,
-     0,
-     1,
-     0,
-     0
-    ],
-    [
-     0,
      1,
      0,
      0,
@@ -236,7 +334,6 @@
      0
     ],
     [
-     0,
      1,
      0,
      0,
@@ -244,8 +341,45 @@
      0,
      0,
      0,
+     0,
+     0,
+     1
+    ],
+    [
      1,
-     0
+     0,
+     1,
+     1,
+     0,
+     0,
+     1,
+     1,
+     0,
+     1
+    ],
+    [
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1
+    ],
+    [
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1
     ],
     [
      1,
@@ -274,16 +408,16 @@
    ]
   },
   {
-   "number": 3,
-   "name": "a cargo boat",
+   "number": 4,
+   "name": "a boat and its rowers",
    "bbox": [
-    0.55,
-    0.53,
-    0.91,
-    0.77
+    0.403,
+    0.753,
+    0.762,
+    0.955
    ],
-   "location": "center right",
-   "description": "One of three cargo boats showing oarsmen huddled together as they navigate the dangerous swell.",
+   "location": "bottom center",
+   "description": "A third boat in the foreground is surrounded by churning blue water, emphasizing the scale of the sea's turbulence.",
    "grid": [
     [
      0,
@@ -298,8 +432,80 @@
      0
     ],
     [
+     1,
      0,
      0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     1,
+     0,
+     1,
+     0,
+     1,
+     0,
+     1
+    ],
+    [
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    [
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1
+    ],
+    [
+     0,
+     1,
      0,
      0,
      0,
@@ -312,85 +518,13 @@
     [
      0,
      0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     1,
-     1
-    ],
-    [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     1,
-     1,
-     0
-    ],
-    [
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     1,
-     1,
-     0,
-     0
-    ],
-    [
-     0,
-     0,
-     0,
-     0,
-     1,
-     1,
-     1,
-     0,
-     0,
-     0
-    ],
-    [
-     0,
-     0,
      1,
      1,
      1,
      1,
-     0,
-     0,
-     0,
-     0
-    ],
-    [
-     0,
      1,
      1,
      1,
-     1,
-     0,
-     0,
-     0,
-     0,
-     0
-    ],
-    [
-     1,
-     1,
-     1,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
      0
     ],
     [
@@ -415,8 +549,9 @@
   "The Met notes that the composition is said to have inspired Debussy\u2019s La Mer and Rilke\u2019s Der Berg."
  ],
  "guide_notes": {
+  "the great wave": "The big curve climbing from the bottom left to the top right is the back of the wave, and the straight line running back down inside it is its front face, so the wave towers over the whole board; the separate balls along the top are its spray. Hokusai made it as a woodblock print around 1831, and thousands of copies were printed from the carved blocks.",
   "the great wave's crest": "The arc that climbs up the left side and curls over to the right is the crest of the wave, with open space inside the curl. When the Metropolitan Museum examined this print, it found the deep blue inside the curl was printed twice, layer on layer.",
-  "Mount Fuji": "Mount Fuji is the outline of a mountain, a small flat top near the top of the board with two slopes spreading down to a wide base along the bottom row. It looks tiny next to the wave, yet it is the subject of the whole series, Thirty-six Views of Mount Fuji.",
-  "a cargo boat": "The boat is the long diagonal line rising from the bottom left to the top right as it rides up the slope of a swell. These were fast barges that rushed fresh fish to market, each with eight rowers and two more crew at the bow."
+  "Mount Fuji": "Mount Fuji is the mountain outline, a small peak at the top with two slopes spreading down to a wide base along the bottom row; the broken line across the sixth row is where its snowcap ends. It looks tiny next to the wave, yet it is the subject of the whole series, Thirty-six Views of Mount Fuji.",
+  "a boat and its rowers": "The long rounded outline at the bottom is the boat's hull, the diagonal line rising to the top left is its pointed bow, and the row of separate balls on top are the rowers, crouched low. These were fast barges that rushed fresh fish to market, each with eight rowers and two more crew at the bow."
  }
 }

@@ -15,8 +15,8 @@ hand-made for a single painting, so almost no art is accessible this way.
 ## What it does
 
 1. You say **"Show me Girl with a Pearl Earring."**
-2. The guide finds the painting, splits it into its most important parts (her face, the pearl earring,
-   the turban, her jacket), and **raises the first part on the board**.
+2. The guide finds the painting, splits it into its most important parts (the girl, her eye, her parted
+   mouth, the pearl earring, the turban, her collar), and **raises the first part on the board**.
 3. It tells you where to put your fingers and what you are feeling, explains the part, and then waits.
    Take as long as you like.
 4. Say **"next"**, **"go back"**, **"the top right"**, **"show me the earring"**, or ask any question

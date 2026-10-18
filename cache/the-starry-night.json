@@ -275,6 +275,140 @@
   },
   {
    "number": 3,
+   "name": "the morning star",
+   "bbox": [
+    0.281,
+    0.429,
+    0.427,
+    0.62
+   ],
+   "location": "center",
+   "description": "The largest, brightest white star to the right of the cypress is identified as Venus, which Van Gogh referred to as the 'morning star' in his letters.",
+   "grid": [
+    [
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     0,
+     0
+    ],
+    [
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     1,
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     0,
+     0,
+     1
+    ],
+    [
+     1,
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     1
+    ],
+    [
+     1,
+     0,
+     1,
+     0,
+     1,
+     1,
+     0,
+     1,
+     0,
+     1
+    ],
+    [
+     1,
+     0,
+     1,
+     0,
+     1,
+     1,
+     0,
+     1,
+     0,
+     1
+    ],
+    [
+     1,
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     1
+    ],
+    [
+     1,
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     0,
+     0,
+     1
+    ],
+    [
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     0,
+     0
+    ]
+   ]
+  },
+  {
+   "number": 4,
    "name": "the cypress tree",
    "bbox": [
     0.12,
@@ -408,16 +542,16 @@
    ]
   },
   {
-   "number": 4,
-   "name": "the village and church",
+   "number": 5,
+   "name": "the village",
    "bbox": [
-    0.38,
-    0.61,
-    1.0,
-    1.0
+    0.396,
+    0.631,
+    0.991,
+    0.994
    ],
    "location": "bottom right",
-   "description": "A quiet village with a prominent church spire at the base of the mountains. This part of the scene was imaginary, likely inspired by the architecture of Van Gogh's homeland.",
+   "description": "A peaceful, imaginary village nestled in the valley, featuring dark houses with glowing windows and a prominent church spire.",
    "grid": [
     [
      0,
@@ -458,20 +592,8 @@
     [
      0,
      0,
-     0,
      1,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0
-    ],
-    [
-     0,
-     0,
      1,
-     0,
      1,
      0,
      0,
@@ -481,63 +603,209 @@
     ],
     [
      0,
+     0,
+     1,
+     1,
      1,
      0,
      0,
      0,
-     1,
-     0,
-     1,
      0,
      0
     ],
     [
      0,
      1,
-     0,
-     0,
-     0,
+     1,
+     1,
      1,
      1,
      0,
      1,
-     0
-    ],
-    [
-     0,
      1,
-     0,
-     0,
-     0,
-     1,
-     0,
-     0,
-     0,
      1
     ],
     [
-     0,
      1,
      0,
      0,
      0,
-     1,
      0,
+     0,
+     1,
      0,
      0,
      1
     ],
     [
      1,
+     0,
+     0,
      1,
+     0,
+     0,
      1,
-     1,
-     1,
-     1,
-     1,
-     1,
-     1,
+     0,
+     0,
      1
+    ],
+    [
+     1,
+     0,
+     0,
+     1,
+     0,
+     0,
+     1,
+     0,
+     0,
+     1
+    ],
+    [
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     0
+    ]
+   ]
+  },
+  {
+   "number": 6,
+   "name": "the church spire",
+   "bbox": [
+    0.493,
+    0.64,
+    0.604,
+    0.887
+   ],
+   "location": "bottom center",
+   "description": "The tall, slender spire of the village church reaches upward, echoing the verticality of the cypress tree and reflecting Van Gogh's Dutch heritage.",
+   "grid": [
+    [
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     1,
+     0,
+     1,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     1,
+     0,
+     1,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0
+    ],
+    [
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     0
     ]
    ]
   }
@@ -551,7 +819,9 @@
  "guide_notes": {
   "the swirling sky": "The raised line is a spiral: follow it from the outside and it winds in toward the middle, like the great swirl in the sky. Van Gogh built the sky from thick, short brushstrokes of ultramarine and cobalt blue.",
   "the crescent moon": "The moon is the upright crescent on the left of the board, curved like the letter C and open to the right. Records show the real moon that June was nearly full, so Van Gogh painted it as a crescent on purpose.",
+  "the morning star": "The star is a set of rings, one inside another, with a small raised block at the very center: a bright star with halos of light around it. Van Gogh wrote to his brother Theo that before sunrise he had seen the countryside with nothing but the morning star, which looked very big; it is usually thought to be Venus.",
   "the cypress tree": "The cypress is the tall flame outline, a single point at the top widening down to a flat base along the bottom row. Van Gogh admired cypresses for their lines and compared their proportions to an Egyptian obelisk.",
-  "the village and church": "The thin upright line at the top left is the church spire on its pointed roof, with the church walls below it. To its right is a smaller house with its own peaked roof, and the bottom row is the ground. Van Gogh could not see this village from his window, and the steeple looks more like a Dutch church from his childhood than one in Provence."
+  "the village": "On the left, a thin line rises from the top into a thicker tower: that is the church. Below and to the right are the outlines of houses, and the bottom row is the ground. Van Gogh could not see this village from his window; he added it from imagination.",
+  "the church spire": "A single raised line at the top widens into a tall pointed tower, with its base along the bottom row. The steeple looks more like a Dutch church from Van Gogh's childhood than one in Provence."
  }
 }

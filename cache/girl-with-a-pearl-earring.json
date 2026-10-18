@@ -7,26 +7,98 @@
  "sections": [
   {
    "number": 1,
-   "name": "her face",
+   "name": "the girl",
    "bbox": [
-    0.309,
-    0.282,
-    0.65,
-    0.597
+    0.305,
+    0.117,
+    0.953,
+    1.0
    ],
    "location": "center",
-   "description": "The subject's enigmatic gaze and slightly parted lips create a sense of intimacy and mystery. Her pale skin and subtle features are softly illuminated against the dark background.",
+   "description": "She is shown in a three-quarter view against a dark background, looking over her shoulder with an enigmatic expression that often draws comparisons to the Mona Lisa.",
    "grid": [
     [
      0,
      0,
-     1,
-     1,
+     0,
      1,
      1,
      1,
      1,
      0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0
+    ],
+    [
+     0,
+     1,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     0,
+     1,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     0,
+     0,
+     1,
+     0,
+     0,
+     1,
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
      0
     ],
     [
@@ -50,127 +122,43 @@
      0,
      0,
      0,
-     0,
-     1
-    ],
-    [
-     1,
-     0,
-     1,
-     1,
-     0,
-     0,
-     1,
-     1,
-     0,
-     1
-    ],
-    [
-     1,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     1
-    ],
-    [
-     1,
-     0,
-     0,
-     0,
-     1,
-     1,
-     0,
-     0,
-     0,
-     1
-    ],
-    [
-     1,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     1
-    ],
-    [
-     1,
-     0,
-     0,
-     1,
-     1,
-     1,
-     1,
-     0,
-     0,
-     1
-    ],
-    [
-     0,
-     1,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
      1,
      0
     ],
     [
-     0,
-     0,
      1,
      1,
      1,
      1,
      1,
      1,
-     0,
+     1,
+     1,
+     1,
      0
     ]
    ]
   },
   {
    "number": 2,
-   "name": "the pearl earring",
+   "name": "her eye",
    "bbox": [
-    0.595,
-    0.515,
-    0.655,
-    0.58
+    0.315,
+    0.36,
+    0.377,
+    0.407
    ],
    "location": "center",
-   "description": "The focal point of the piece, this large pearl earring is rendered with just a few highlights. It symbolizes wealth and adds a brilliant touch of light to the shadowed side of her face.",
+   "description": "Her wide, dark eye captures a glint of light, showing Vermeer's mastery of reflections and creating a sense of direct engagement with the viewer.",
    "grid": [
     [
      0,
      0,
      0,
      0,
-     1,
-     1,
      0,
      0,
      0,
-     0
-    ],
-    [
-     0,
-     0,
-     0,
-     1,
-     0,
-     0,
-     1,
      0,
      0,
      0
@@ -179,10 +167,10 @@
      0,
      0,
      1,
-     0,
-     0,
-     0,
-     0,
+     1,
+     1,
+     1,
+     1,
      1,
      0,
      0
@@ -200,7 +188,30 @@
      0
     ],
     [
+     1,
      0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     0,
+     0,
+     1
+    ],
+    [
+     1,
+     0,
+     1,
+     0,
+     0,
+     1,
+     0,
+     0,
+     1,
+     1
+    ],
+    [
      1,
      0,
      1,
@@ -208,8 +219,21 @@
      0,
      0,
      0,
+     0,
      1,
-     0
+     1
+    ],
+    [
+     1,
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     0,
+     0,
+     1
     ],
     [
      0,
@@ -225,24 +249,12 @@
     ],
     [
      0,
-     1,
-     0,
-     0,
-     0,
-     0,
-     0,
      0,
      1,
-     0
-    ],
-    [
-     0,
-     0,
      1,
-     0,
-     0,
-     0,
-     0,
+     1,
+     1,
+     1,
      1,
      0,
      0
@@ -251,21 +263,9 @@
      0,
      0,
      0,
-     1,
-     0,
-     0,
-     1,
-     0,
-     0,
-     0
-    ],
-    [
      0,
      0,
      0,
-     0,
-     1,
-     1,
      0,
      0,
      0,
@@ -275,6 +275,274 @@
   },
   {
    "number": 3,
+   "name": "her parted mouth",
+   "bbox": [
+    0.337,
+    0.496,
+    0.435,
+    0.558
+   ],
+   "location": "center",
+   "description": "Her lips are slightly parted as if she is about to speak, rendered with soft highlights that give them a moist, lifelike appearance.",
+   "grid": [
+    [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     0,
+     1,
+     1,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     1,
+     1,
+     1,
+     0,
+     0,
+     1,
+     1,
+     1,
+     0
+    ],
+    [
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1
+    ],
+    [
+     0,
+     1,
+     1,
+     1,
+     0,
+     0,
+     1,
+     1,
+     1,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     0
+    ],
+    [
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   ]
+  },
+  {
+   "number": 4,
+   "name": "the pearl earring",
+   "bbox": [
+    0.599,
+    0.52,
+    0.653,
+    0.57
+   ],
+   "location": "center",
+   "description": "The focal point of the painting, the pearl is created with just a few strokes of white paint to represent reflected light, symbolizing purity or luxury.",
+   "grid": [
+    [
+     0,
+     0,
+     0,
+     0,
+     1,
+     1,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0
+    ],
+    [
+     0,
+     1,
+     0,
+     0,
+     1,
+     1,
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     0,
+     1,
+     0,
+     0,
+     0,
+     1,
+     1,
+     0,
+     1,
+     0
+    ],
+    [
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     0,
+     0,
+     0
+    ]
+   ]
+  },
+  {
+   "number": 5,
    "name": "the turban",
    "bbox": [
     0.325,
@@ -283,7 +551,7 @@
     0.48
    ],
    "location": "top center",
-   "description": "The exotic blue turban is painted using expensive ultramarine pigment, indicating her unique attire. Its folds and wrap around her head give the composition a sense of volume.",
+   "description": "The exotic headpiece uses ultramarine pigment, which was more expensive than gold at the time, indicating the subject is a 'tronie' rather than a standard portrait.",
    "grid": [
     [
      0,
@@ -408,26 +676,50 @@
    ]
   },
   {
-   "number": 4,
-   "name": "her jacket",
+   "number": 6,
+   "name": "the white collar",
    "bbox": [
-    0.305,
-    0.585,
-    0.85,
-    0.995
+    0.443,
+    0.557,
+    0.758,
+    0.701
    ],
-   "location": "bottom center",
-   "description": "Her simple brownish-yellow garment has a modest white collar, providing a grounded contrast to the elaborate headgear. The textures of the fabric are captured through soft brushwork.",
+   "location": "center",
+   "description": "The crisp white collar provides a sharp contrast against the dark background and the tan jacket, drawing the eye upward toward her face.",
    "grid": [
     [
      0,
      0,
      0,
      0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
      1,
      1,
+     1
+    ],
+    [
+     0,
+     0,
+     0,
+     0,
+     0,
      1,
      1,
+     0,
      0,
      0
     ],
@@ -436,107 +728,83 @@
      0,
      0,
      1,
+     1,
      0,
      0,
      0,
+     0,
+     0
+    ],
+    [
      0,
      1,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     1,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
      0
     ],
     [
      0,
      0,
+     0,
+     1,
      1,
      0,
      0,
      0,
      0,
-     0,
-     0,
-     1
+     0
     ],
     [
      0,
-     1,
      0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     1
-    ],
-    [
-     1,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     0,
-     1
-    ],
-    [
-     1,
      0,
      0,
      0,
      1,
-     0,
-     0,
-     0,
-     0,
-     1
-    ],
-    [
      1,
-     0,
-     0,
-     0,
      1,
-     0,
-     0,
-     0,
-     0,
-     1
-    ],
-    [
      1,
-     0,
-     0,
-     0,
-     1,
-     0,
-     0,
-     0,
-     0,
-     1
-    ],
-    [
-     1,
-     0,
-     0,
-     0,
-     1,
-     0,
-     0,
-     0,
-     0,
-     1
-    ],
-    [
-     1,
-     0,
-     0,
-     0,
-     1,
-     0,
-     0,
-     0,
-     0,
      1
     ]
    ]
@@ -549,9 +817,11 @@
   "The oversized pearl is probably an imitation: Vermeer suggested it with just two brushstrokes, and painted no silver hook."
  ],
  "guide_notes": {
-  "her face": "Her face is the oval outline filling the board, with two short lines for her eyes, a small bump in the middle for her nose, and a longer line near the bottom for her mouth. A 2018 to 2020 study of the painting found tiny eyelashes around both eyes, too small to see without scanning.",
-  "the pearl earring": "The pearl is a round oval outline, widest in the middle, with one raised ball near the upper left for its shine. Vermeer painted no hook joining it to her ear, only a few highlights, and in the 1994 restoration a second small highlight turned out to be a loose flake of paint and was removed.",
+  "the girl": "This is her whole figure: a round head at the top with a few raised balls inside for her eye, nose and mouth, a straight line across the seventh row where her collar is, then her shoulders widening to the bottom edge. It looks like a portrait, but it is a tronie, a study of an imagined character, and no one knows who she was.",
+  "her eye": "One eye fills the board: a wide almond outline, with a smaller ring inside on the left for her iris and a single raised ball in it for the pupil. A 2018 to 2020 study of the painting found tiny eyelashes around her eyes, too small to see without scanning.",
+  "her parted mouth": "The top shape, peaking in the middle like a bow, is her upper lip; the empty row below it is the gap where her lips part, and the rounded bowl underneath is her lower lip. Her parted lips are part of why the painting is called the Mona Lisa of the North.",
+  "the pearl earring": "The pearl is a teardrop outline, narrow at the top where it hangs and round at the bottom, with two short raised pairs inside: the bright highlight near the top and a soft glow near the bottom. Vermeer painted no hook joining it to her ear, only a few strokes of light, and it is far too big to be a real pearl.",
   "the turban": "The turban fills the board: a rounded outline that peaks at the top right, with a straight line across the fourth row where the blue band meets the yellow cloth piled above it, and the right edge running all the way down to the bottom where that cloth hangs. Its blue is natural ultramarine, ground from lapis lazuli brought from Afghanistan, one of the most expensive pigments of its time.",
-  "her jacket": "The jacket starts narrow under her chin and spreads into a wide outline down to the bottom of the board, with one line down the middle for a fold. Vermeer painted it before the white collar, the turban and the pearl, which came last."
+  "the white collar": "A single curved line: it starts at the top right, sweeps down to the left edge in the middle, then curves back to the bottom right, like the letter C. That is the edge of her white collar, and the soft glow on the underside of the pearl is a reflection of it."
  }
 }
