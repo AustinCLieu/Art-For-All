@@ -8,6 +8,7 @@ import { PaintingStage } from "./components/PaintingStage";
 import { PinModal } from "./components/PinModal";
 import { Placard } from "./components/Placard";
 import { Room } from "./components/Room";
+import { RenderProgress } from "./components/RenderProgress";
 import { TopStrip } from "./components/TopStrip";
 import { TouchBoard } from "./components/TouchBoard";
 import { TourRail } from "./components/TourRail";
@@ -55,6 +56,7 @@ export function App() {
       <Room image={scene === "touring" ? painting?.image ?? null : null} />
       <TopStrip online={online} drawerOpen={drawerOpen} onToggleDrawer={() => setDrawerOpen((o) => !o)}
                 pinsOpen={pinsOpen} onTogglePins={() => setPinsOpen((o) => !o)} />
+      {state && <RenderProgress render={state.render} />}
       {scene === "offline" && <IdleScreen offline />}
       {scene === "idle" && <IdleScreen offline={false} />}
       {scene === "looking-up" && state && <LookingUp detail={state.activity.gemini.detail} />}
