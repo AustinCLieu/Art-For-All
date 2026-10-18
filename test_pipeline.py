@@ -116,6 +116,7 @@ def test_demo_cache_is_valid():
             assert s["location"] == paintings.to_location(s["bbox"]), (path, s["name"])
             assert len(s["grid"]) == 10 and all(len(r) == 10 and set(r) <= {0, 1} for r in s["grid"])
             assert any(map(any, s["grid"])), (path, s["name"])
+            assert not paintings.grid_problems(s["grid"]), (path, s["name"], paintings.grid_problems(s["grid"]))
         assert set(p.get("guide_notes") or {}) <= {s["name"] for s in p["sections"]}, path
         facts = p.get("museum_facts") or []
         assert all(isinstance(f, str) and "*" not in f for f in facts), path
