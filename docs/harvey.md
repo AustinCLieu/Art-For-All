@@ -71,11 +71,15 @@ from elevenlabs.conversational_ai.default_audio_interface import DefaultAudioInt
 load_dotenv()
 try:
     from paintings import load_painting  # Austin
-except ImportError:
+except ModuleNotFoundError as e:
+    if e.name != "paintings":  # a missing dependency inside paintings.py must not hide behind the stub
+        raise
     from stubs import load_painting
 try:
     from board import show_grid, to_ascii  # Teammate 3
-except ImportError:
+except ModuleNotFoundError as e:
+    if e.name != "board":  # e.g. pyserial missing: fail loudly instead of printing shapes silently
+        raise
     from stubs import show_grid, to_ascii
 try:
     from creao import start_tour_writer  # Austin: Creao agent writes guide notes in the background

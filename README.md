@@ -65,9 +65,10 @@ our laptop: `open_painting(name)` and `show_section("next" | "previous" | number
 [`main.py`](main.py).
 
 ### Google Gemini: seeing the painting for you
-One Gemini call ([`paintings.py`](paintings.py)) takes the painting's image and Wikipedia summary and
-returns its parts ranked from most to least famous. For each part it gives a bounding box, a short
-description and **a 10x10 tactile pattern**. We use the box to tell the visitor where on the canvas the
+Gemini works in two steps ([`paintings.py`](paintings.py)). One call takes the painting's image and
+Wikipedia summary and returns its parts ranked from most to least famous, each with a bounding box and a
+short description. Then one call per part, all in parallel, looks at just that part's crop and draws
+**a 10x10 tactile pattern** for it. We use the box to tell the visitor where on the canvas the
 part is ("at the top right"), and the pattern is what the board raises.
 
 ### Sentry: no silent failures during a live demo
@@ -107,20 +108,21 @@ plus `museum_facts` and `guide_notes`.
 | File | What it does |
 | --- | --- |
 | `main.py` | ElevenLabs conversation and the two client tools; run this for the demo |
-| `paintings.py` | `load_painting(name)`: cache, Wikipedia, one Gemini call |
+| `paintings.py` | `load_painting(name)`: cache, Wikipedia, Gemini (parts, then one pattern per part) |
 | `creao.py` | Creao Tactile Tour Writer, run in the background |
 | `museum.py` | Browser Use museum facts, fetched in the background |
 | `prepare_demo.py` | One-time script that adds facts and notes to the demo paintings |
-| `board.py`, `send_frame.py` | Serial link to the ball board (falls back to printing with `BOARD=sim`). TODO: not pushed yet |
+| `board.py`, `send_frame.py`, `sim.py` | Serial link to the ball board (falls back to printing with `BOARD=sim`). TODO: not pushed yet |
 | `cache/` | The four demo paintings (JSON + image), which load instantly |
 | `screen.py`, `screen/` | Audience screen (React + TypeScript) at http://127.0.0.1:8000: the conversation, the board (mirrored, or simulated without hardware), the painting with the current part boxed, and what Gemini, Creao and Browser Use are doing. Optional: the tour runs the same without it |
-| `stubs.py`, `test_main.py`, `test_paintings.py`, `check.py` | Stubs, tests, and a script that draws each part's box on the painting |
+| `stubs.py`, `test_main.py`, `test_pipeline.py`, `test_screen.py`, `test_sponsors.py`, `test_paintings.py`, `check.py` | Stubs, tests, and a script that draws each part's box on the painting |
 
 ## Run it
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate   # macOS: brew install portaudio first
-pip install -r requirements.txt   # then create .env with the keys below
+pip install -r requirements.txt
+cp .env.example .env    # then fill in the keys below
 python main.py          # talk to it; Ctrl+C ends the conversation
                         # audience screen: http://127.0.0.1:8000 (python screen.py --demo runs it without APIs)
 ```
@@ -130,7 +132,8 @@ python main.py          # talk to it; Ctrl+C ends the conversation
 `SERIAL_PORT`. With `BOARD=sim` the shapes print in the terminal, so you can try it without the
 hardware.
 
-Tests: `python test_main.py`, `python test_pipeline.py` and `python test_screen.py` (offline), and
+Tests: `python test_main.py`, `python test_pipeline.py`, `python test_screen.py` and
+`python test_sponsors.py` (offline, no paid calls), and
 `python test_paintings.py` (live).
 
 ## Limitations and what's next

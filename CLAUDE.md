@@ -8,9 +8,10 @@ Goal: the simplest thing that works for the demo. Don't add features that aren't
 - `main.py`, `stubs.py`, `test_main.py` - Harvey. ElevenLabs conversation + the two client tools; `stubs.py`
   is a fake Mona Lisa + print-only board that `main.py` falls back to until the real parts import.
   Brief: `docs/harvey.md`
-- `paintings.py`, `creao.py`, `prepare_demo.py`, `test_paintings.py`, `check.py`, `cache/` - Austin. Painting
-  lookup (Wikipedia + one Gemini call + cache), the live Creao tour writer, and the one-time
-  Browser Use / Creao script. Brief: `docs/austin.md`
+- `paintings.py`, `creao.py`, `museum.py`, `prepare_demo.py`, `test_paintings.py`, `test_pipeline.py`,
+  `test_sponsors.py`, `check.py`, `cache/` - Austin. Painting lookup (Wikipedia + Gemini + cache: one
+  call picks the parts, then one call per part draws its pattern, in parallel), the live Creao tour
+  writer, live Browser Use museum facts, and the one-time Browser Use / Creao script. Brief: `docs/austin.md`
 - `board.py`, `send_frame.py`, `sim.py` - Teammate 3. Serial link to the board (+ optional simulation).
 - `screen.py`, `screen/`, `test_screen.py` - Austin. Optional audience screen at http://127.0.0.1:8000:
   the conversation, the board (mirrored or simulated) and what each sponsor's agent is doing. The tour
@@ -32,7 +33,9 @@ Goal: the simplest thing that works for the demo. Don't add features that aren't
   `{found, title, artist, year, summary, sections: [{number, name, location}], now_showing, description, shape, guide_notes, museum_facts}`
   (it also raises section 1, so the tour can start immediately)
 - `show_section(section)` where section is `"next"`, `"previous"` or a section number ->
-  `{now_showing, description, shape, guide_notes, museum_facts}`
+  `{now_showing, description, shape, guide_notes, museum_facts}`; at either end only
+  `{now_showing: "That was the last section." | "This is already the first section."}`;
+  before any painting or for a bad section `{error}`
 
 ### Painting data (`cache/<id>.json`)
 ```json
@@ -66,7 +69,7 @@ Goal: the simplest thing that works for the demo. Don't add features that aren't
   `pip install -r requirements.txt`
 - Demo: `source .venv/bin/activate && python main.py` (Ctrl+C ends the conversation)
 - Tests are plain scripts, no pytest: `python test_main.py`, `python test_pipeline.py`,
-  `python test_screen.py`, `python test_paintings.py` (live, uses Gemini)
+  `python test_screen.py`, `python test_sponsors.py`, `python test_paintings.py` (live, uses Gemini)
 - Audience screen: `python main.py` starts it; open http://127.0.0.1:8000. Without any API:
   `python screen.py --demo`
 
