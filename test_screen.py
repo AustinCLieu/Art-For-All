@@ -92,6 +92,7 @@ def test_never_raises():
     screen.say("agent", "fine")
     screen.correct("fine", Bad())
     screen.activity("creao", "working", Bad(), "Mona Lisa")
+    screen.render("rendering", "not a number", 4)  # int("not a number") raises inside, must be swallowed
     screen.show_on_screen({"sections": []}, 5)  # a broken painting
     s = screen.snapshot()
     assert s["painting"] is None and s["section"] is None
