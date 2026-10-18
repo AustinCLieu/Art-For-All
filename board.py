@@ -1,5 +1,6 @@
-# The 10x10 pin board: an SKR Pico running Marlin (firmware/) moves a solenoid under the grid on two
-# belts and fires it under each cell that should be up. Pins go back down by hand.
+# The 10x10 pin board: an SKR Pico running Marlin (firmware/) moves a head with three solenoids in a row
+# (one column apart) under the grid on two belts, and fires those under cells that should be up.
+# Pins go back down by hand.
 # Env: BOARD=sim|serial, SERIAL_PORT (e.g. /dev/tty.usbmodem1101 or COM5)
 # Test on the real board: python board.py corners|border|checker
 import os, time
@@ -14,7 +15,8 @@ MAX_X = 130      # end of the X rail in mm (measured by hand): no endstops, so b
 MAX_Y = 150      # end of the Y rail in mm (measured by hand)
 STEPS_PER_MM = (80, 80)  # X, Y; sent on connect, so fixing it needs no reflash (firmware/README.md)
 SPEED = 18000    # mm/min between cells (Marlin caps it at DEFAULT_MAX_FEEDRATE, 300 mm/s)
-FAN = 0          # the solenoid answers to fan 0 (tested on the board): M106 P0 / M107 P0
+FANS = (0, 1, 2) # Marlin fan of each solenoid, user's left to right (board FAN1, FAN2, FAN3 connectors).
+                 # Solenoid 0 is the reference: CELL_* positions are measured with it under the cell.
 PULSE_MS = 50   # how long the solenoid stays out
 RELEASE_MS = 30  # lets the plunger drop back before the head moves on
 
@@ -31,15 +33,28 @@ def cell_xy(row, col):
         raise ValueError(f"Cell {row},{col} is at X{x:g} Y{y:g}, outside the rails (0 to X{MAX_X} Y{MAX_Y})")
     return round(x, 2), round(y, 2)
 
+def stops(row):
+    """[(column under solenoid 0, [solenoids to fire])] left to right; never past the last full stop."""
+    last = 10 - len(FANS)  # 7: the head never goes further right, so no solenoid hangs past the grid
+    groups = {}
+    for c in range(10):
+        if row[c]:
+            s = min(c - c % len(FANS), last)
+            groups.setdefault(s, []).append(c - s)
+    return sorted(groups.items())
+
 def gcode(grid):
     lines = []
     for r, row in enumerate(grid):
-        for c in (range(10) if r % 2 == 0 else range(9, -1, -1)):  # snake order: shortest path
-            if row[c]:
-                x, y = cell_xy(r, c)
-                lines += [f"G0 X{x:g} Y{y:g} F{SPEED}",
-                          "M400",  # Marlin only loosely syncs the fan output with moves: wait for the head
-                          f"M106 P{FAN} S255", f"G4 P{PULSE_MS}", f"M107 P{FAN}", f"G4 P{RELEASE_MS}"]
+        row_stops = stops(row)
+        for c, fire in (row_stops if r % 2 == 0 else reversed(row_stops)):  # snake order: shortest path
+            x, y = cell_xy(r, c)
+            lines += [f"G0 X{x:g} Y{y:g} F{SPEED}",
+                      "M400",  # Marlin only loosely syncs the fan output with moves: wait for the head
+                      *[f"M106 P{FANS[i]} S255" for i in fire],  # together: one line each, milliseconds apart
+                      f"G4 P{PULSE_MS}",
+                      *[f"M107 P{FANS[i]}" for i in fire],
+                      f"G4 P{RELEASE_MS}"]
     return lines + [f"G0 X0 Y0 F{SPEED}"]  # park in the zero corner; Marlin boots believing it is there
 
 def _send(line):
@@ -78,7 +93,8 @@ def show_grid(grid):
     except Exception:  # reconnect next time, with a clean input buffer
         if _port:
             try:
-                _port.write(f"M107 P{FAN}\n".encode())  # never leave the solenoid energized after a failure
+                for f in FANS:  # never leave a solenoid energized after a failure
+                    _port.write(f"M107 P{f}\n".encode())
             except Exception:
                 pass
             _port.close()
