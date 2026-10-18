@@ -10,9 +10,12 @@ import serial
 CELL_0_0 = None  # e.g. (12.0, 8.0)
 CELL_0_9 = None
 CELL_9_0 = None
+MAX_X = 130      # end of the X rail in mm (measured by hand): no endstops, so board.py refuses to go past it
+MAX_Y = 150      # end of the Y rail in mm (measured by hand)
 STEPS_PER_MM = (80, 80)  # X, Y; sent on connect, so fixing it needs no reflash (firmware/README.md)
 SPEED = 18000    # mm/min between cells (Marlin caps it at DEFAULT_MAX_FEEDRATE, 300 mm/s)
-PULSE_MS = 50    # how long the solenoid stays out
+FAN = 0          # the solenoid answers to fan 0 (tested on the board): M106 P0 / M107 P0
+PULSE_MS = 50   # how long the solenoid stays out
 RELEASE_MS = 30  # lets the plunger drop back before the head moves on
 
 _port = None
@@ -24,6 +27,8 @@ def cell_xy(row, col):
     (x0, y0), (xc, yc), (xr, yr) = CELL_0_0, CELL_0_9, CELL_9_0
     x = x0 + (xc - x0) * col / 9 + (xr - x0) * row / 9
     y = y0 + (yc - y0) * col / 9 + (yr - y0) * row / 9
+    if x < 0 or y < 0 or (MAX_X is not None and x > MAX_X) or (MAX_Y is not None and y > MAX_Y):
+        raise ValueError(f"Cell {row},{col} is at X{x:g} Y{y:g}, outside the rails (0 to X{MAX_X} Y{MAX_Y})")
     return round(x, 2), round(y, 2)
 
 def gcode(grid):
@@ -34,7 +39,7 @@ def gcode(grid):
                 x, y = cell_xy(r, c)
                 lines += [f"G0 X{x:g} Y{y:g} F{SPEED}",
                           "M400",  # Marlin only loosely syncs the fan output with moves: wait for the head
-                          "M106 S255", f"G4 P{PULSE_MS}", "M107", f"G4 P{RELEASE_MS}"]
+                          f"M106 P{FAN} S255", f"G4 P{PULSE_MS}", f"M107 P{FAN}", f"G4 P{RELEASE_MS}"]
     return lines + [f"G0 X0 Y0 F{SPEED}"]  # park in the zero corner; Marlin boots believing it is there
 
 def _send(line):
@@ -72,6 +77,10 @@ def show_grid(grid):
             _send(line)
     except Exception:  # reconnect next time, with a clean input buffer
         if _port:
+            try:
+                _port.write(f"M107 P{FAN}\n".encode())  # never leave the solenoid energized after a failure
+            except Exception:
+                pass
             _port.close()
         _port = None
         raise
