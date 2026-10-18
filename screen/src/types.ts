@@ -38,11 +38,18 @@ export interface Activity {
   detail: string;
 }
 
+export interface Render {
+  phase: "idle" | "preparing" | "rendering" | "done";
+  done: number;
+  total: number;
+}
+
 export interface State {
   hardware: boolean;
   transcript: Line[];
   painting: Painting | null;
   section: Section | null;
+  render: Render;
   activity: {
     elevenlabs: Activity;
     gemini: Activity;

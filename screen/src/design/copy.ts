@@ -34,6 +34,8 @@ export const COPY = {
   pinsMaking: "Making the 3D relief…",
   pinsNone: "Open a painting to see its pins.",
   pinsNoWebgl: "This browser can't draw the 3D view.",
+  renderLabel: "Rendering the 3D relief",
+  renderPreparing: "Preparing the 3D relief…",
 } as const;
 
 export const SPONSORS = [
