@@ -19,6 +19,7 @@ _lock = threading.Lock()
 _transcript = []                        # [{"role": "user" | "agent", "text": str}]
 _live = {"painting": None, "index": 0}  # the same dict main.py holds, so Creao and Browser Use results show up
 _activity = {}                          # (source, painting title or None) -> {"status", "detail"}
+_render = {"phase": "idle", "done": 0, "total": 0}  # 10,000-pin reliefs: one global progress bar
 _last_error = [""]                      # snapshot runs every 300 ms per tab: print each error once
 
 def say(role, text):
@@ -59,6 +60,15 @@ def activity(source, status, detail="", title=None):
     except Exception as e:
         print(f"screen.activity failed: {e!r}")
 
+def render(phase, done=0, total=0):
+    """Progress of the 10,000-pin reliefs. phase is preparing, rendering, done or idle. Never raises."""
+    try:
+        entry = {"phase": str(phase), "done": int(done), "total": int(total)}
+        with _lock:
+            _render.update(entry)
+    except Exception as e:
+        print(f"screen.render failed: {e!r}")
+
 def _agent_chip(p, source, key, noun):
     a = _activity.get((source, p.get("title")))
     if a:
@@ -93,10 +103,12 @@ def _views(p, i):
 def snapshot():
     """Everything the page draws, as JSON-ready data. Never raises."""
     out = {"hardware": os.getenv("BOARD", "sim") == "serial", "transcript": [], "painting": None,
-           "section": None, "activity": {k: dict(IDLE) for k in ("elevenlabs", "gemini", "creao", "browser_use")}}
+           "section": None, "render": {"phase": "idle", "done": 0, "total": 0},
+           "activity": {k: dict(IDLE) for k in ("elevenlabs", "gemini", "creao", "browser_use")}}
     try:
         with _lock:
             p, i = _live["painting"], _live["index"]
+            out["render"] = dict(_render)
             out["transcript"] = [dict(line) for line in _transcript]
             out["activity"]["elevenlabs"] = ({"status": "done", "detail": "In conversation"} if _transcript
                                              else {"status": "idle", "detail": "Waiting for the visitor"})

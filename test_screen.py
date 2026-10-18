@@ -7,6 +7,7 @@ def reset():
         screen._transcript.clear()
         screen._activity.clear()
         screen._live.update(painting=None, index=0)
+        screen._render.update(phase="idle", done=0, total=0)
 
 def mona():
     return copy.deepcopy(stubs.MONA_LISA)
@@ -71,6 +72,16 @@ def test_agent_chips():
     assert screen.snapshot()["activity"]["browser_use"] == {"status": "done", "detail": "2 museum facts"}
     screen.activity("gemini", "working", "Searching Wikipedia for X")
     assert screen.snapshot()["activity"]["gemini"]["status"] == "working"
+
+def test_render_progress():
+    reset()
+    assert screen.snapshot()["render"] == {"phase": "idle", "done": 0, "total": 0}
+    screen.render("preparing", 0, 4)
+    assert screen.snapshot()["render"] == {"phase": "preparing", "done": 0, "total": 4}
+    screen.render("rendering", 2, 4)
+    assert screen.snapshot()["render"] == {"phase": "rendering", "done": 2, "total": 4}
+    screen.render("done", 4, 4)
+    assert screen.snapshot()["render"] == {"phase": "done", "done": 4, "total": 4}
 
 def test_never_raises():
     reset()
