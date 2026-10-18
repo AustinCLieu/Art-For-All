@@ -328,6 +328,7 @@ def test_make_all_never_raises():
     assert maps[0] and maps[1] is None
 
 def test_add_reliefs():
+    import screen
     Image.new("RGB", (100, 100), "white").save("cache/zz-relief.jpg")
     p = {"title": "Zz Relief", "image": "cache/zz-relief.jpg",
          "sections": [{"number": 1, "name": "a", "bbox": [0.1, 0.1, 0.5, 0.5]},
@@ -343,6 +344,7 @@ def test_add_reliefs():
     assert saved["sections"][0]["relief_color"] == "cache/zz-relief-1-relief-color.png"
     assert saved["sections"][1]["relief"] == "keep.png"  # already had one: left alone without force
     assert files == ["zz-relief-1-relief-color.png", "zz-relief-1-relief.png", "zz-relief.jpg", "zz-relief.json"]
+    assert screen.snapshot()["render"] == {"phase": "done", "done": 2, "total": 2}  # both sections counted
 
 def test_start_reliefs():
     """Background, into the same dict, once per painting even if it is opened twice meanwhile."""

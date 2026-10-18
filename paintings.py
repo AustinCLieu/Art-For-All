@@ -6,9 +6,11 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 try:
-    from screen import activity  # audience screen; optional
+    from screen import activity, render  # audience screen; optional
 except Exception:  # nothing here depends on the screen
     def activity(*args, **kwargs):
+        pass
+    def render(*args, **kwargs):
         pass
 try:
     from relief import make_all as make_reliefs, save as save_relief, warm as warm_reliefs  # 10,000-pin heightmaps
@@ -355,11 +357,15 @@ def add_reliefs(p, force=False):
     A section whose relief fails is left without one. Saves and returns p."""
     with Image.open(p["image"]) as img:
         img = img.convert("RGB")
-    for s in p["sections"]:
+    total = len(p["sections"])
+    render("preparing", 0, total)  # model may still be downloading on the first make_reliefs call
+    for i, s in enumerate(p["sections"], start=1):
         if force or not s.get("relief"):
             m, = make_reliefs(img, [s])
             if m:  # one at a time: the screen shows each relief as soon as it lands
                 s.update(save_relief(m, f"{CACHE}/{slug(p['title'])}-{s['number']}"))
+        render("rendering", i, total)  # count processed sections, so the bar always reaches 100%
+    render("done", total, total)
     save_painting(p)
     return p
 
@@ -369,6 +375,7 @@ def start_reliefs(p):
     """Non-blocking. Makes p's missing heightmaps in the background, into the same dict main.py and the
     screen hold, so they appear on screen as they land. The tour never waits for them."""
     if not make_reliefs or all(s.get("relief") for s in p["sections"]):
+        render("idle")  # cached or already complete: no bar for this painting
         return
     with _reliefs_lock:  # opening the same painting twice must not make its reliefs twice
         if p["title"] in _reliefs_running:
