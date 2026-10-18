@@ -19,6 +19,7 @@ _lock = threading.Lock()
 _transcript = []                        # [{"role": "user" | "agent", "text": str}]
 _live = {"painting": None, "index": 0}  # the same dict main.py holds, so Creao and Browser Use results show up
 _activity = {}                          # (source, painting title or None) -> {"status", "detail"}
+_last_error = [""]                      # snapshot runs every 300 ms per tab: print each error once
 
 def say(role, text):
     """Add a line to the conversation. Never raises."""
@@ -94,7 +95,9 @@ def snapshot():
                 out["activity"]["browser_use"] = _agent_chip(p, "browser_use", "museum_facts", "museum facts")
                 out["painting"], out["section"] = _views(p, i)
     except Exception as e:
-        print(f"screen.snapshot failed: {e!r}")
+        if repr(e) != _last_error[0]:
+            _last_error[0] = repr(e)
+            print(f"screen.snapshot failed: {e!r}")
     return out
 
 class _Handler(BaseHTTPRequestHandler):
@@ -107,7 +110,7 @@ class _Handler(BaseHTTPRequestHandler):
             if path == "/api/state":
                 self._send(200, json.dumps(snapshot()).encode(), TYPES[".json"])
             elif path.startswith("/cache/"):
-                self._file(os.path.join(CACHE, os.path.basename(path)), IMAGES)
+                self._file(os.path.join(CACHE, os.path.basename(path)), IMAGES, cache="max-age=3600")
             else:
                 self._app(path)
         except Exception as e:
@@ -126,18 +129,18 @@ class _Handler(BaseHTTPRequestHandler):
             return self._send(503, b"Screen not built: cd screen && npm install && npm run build", "text/plain")
         self._file(full)
 
-    def _file(self, path, allowed=None):
+    def _file(self, path, allowed=None, cache="no-store"):
         ext = os.path.splitext(path)[1].lower()
         if (allowed and ext not in allowed) or not os.path.isfile(path):
             return self._send(404, b"not found", "text/plain")
         with open(path, "rb") as f:
-            self._send(200, f.read(), TYPES.get(ext, "application/octet-stream"))
+            self._send(200, f.read(), TYPES.get(ext, "application/octet-stream"), cache)
 
-    def _send(self, code, body, ctype):
+    def _send(self, code, body, ctype, cache="no-store"):
         self.send_response(code)
         self.send_header("Content-Type", ctype)
         self.send_header("Content-Length", str(len(body)))
-        self.send_header("Cache-Control", "no-store")
+        self.send_header("Cache-Control", cache)  # painting images are 1-1.5 MB: fetch them once
         self.end_headers()
         self.wfile.write(body)
 
@@ -160,9 +163,9 @@ def start_screen(port=PORT):
         print(f"Audience screen off: {e!r}")
         return None
 
-def demo():
+def demo(port=PORT):
     """Replays a tour of the cached paintings with no API calls, to build and rehearse the page."""
-    if not start_screen():
+    if not start_screen(port):
         return
     for path in sorted(glob.glob(os.path.join(CACHE, "*.json"))):
         with open(path) as f:
@@ -177,13 +180,15 @@ def demo():
                          f"at the {s['location']}. {s['description']}")
             time.sleep(6)
             say("user", "I'm ready for the next part.")
-    print("Demo finished.")
+    print("Demo finished. The page stays up until Ctrl+C.")
+    threading.Event().wait()
 
 if __name__ == "__main__":
     if "--demo" in sys.argv:
+        port = int(sys.argv[sys.argv.index("--port") + 1]) if "--port" in sys.argv else PORT
         try:
-            demo()
+            demo(port)
         except KeyboardInterrupt:
             pass
     else:
-        print("Usage: python screen.py --demo   (main.py starts the screen by itself)")
+        print("Usage: python screen.py --demo [--port 8001]   (main.py starts the screen by itself)")

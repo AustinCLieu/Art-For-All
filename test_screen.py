@@ -77,6 +77,17 @@ def test_never_raises():
     json.dumps(s)
     screen.show_on_screen(None, 0)
 
+def test_snapshot_error_prints_once():
+    import contextlib, io
+    reset()
+    screen.show_on_screen({"title": "Broken", "sections": [{"number": 1, "name": "x", "location": "center"}]}, 0)
+    out = io.StringIO()
+    with contextlib.redirect_stdout(out):
+        for _ in range(5):
+            assert screen.snapshot()["painting"] is None
+    assert out.getvalue().count("screen.snapshot failed") <= 1, out.getvalue()
+    reset()
+
 def get(url):
     try:
         with urllib.request.urlopen(url, timeout=5) as r:
@@ -105,6 +116,10 @@ def test_http():
             assert get(url + "/some/page")[2] == b"<div id=root></div>"  # single-page app fallback
             code, ctype, _ = get(url + "/cache/mona-lisa.jpg")
             assert code == 200 and ctype == "image/jpeg"
+            with urllib.request.urlopen(url + "/cache/mona-lisa.jpg", timeout=5) as r:
+                assert r.headers["Cache-Control"] == "max-age=3600" and r.read()
+            with urllib.request.urlopen(url + "/api/state", timeout=5) as r:
+                assert r.headers["Cache-Control"] == "no-store" and r.read()
             assert get(url + "/cache/mona-lisa.json")[0] == 404  # images only
             assert get(url + "/cache/..%2F.env")[0] == 404
             assert get(url + "/..%2F.env")[2] == b"<div id=root></div>"  # never serves outside dist
