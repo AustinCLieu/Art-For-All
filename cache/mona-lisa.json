@@ -7,15 +7,15 @@
  "sections": [
   {
    "number": 1,
-   "name": "her face",
+   "name": "Mona Lisa",
    "bbox": [
-    0.36,
-    0.09,
-    0.64,
-    0.368
+    0.03,
+    0.085,
+    0.92,
+    0.975
    ],
-   "location": "top center",
-   "description": "The face of Lisa Gherardini with her legendary enigmatic smile. Leonardo used sfumato to create soft, smoky transitions between light and shadow, giving her a lifelike quality.",
+   "location": "center",
+   "description": "Lisa Gherardini is depicted in a three-quarter view, a pose that was revolutionary for the time. Her seated figure is monumental, filling the frame and drawing the viewer's immediate focus.",
    "grid": [
     [
      0,
@@ -24,6 +24,18 @@
      1,
      1,
      1,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
      1,
      0,
      0,
@@ -31,12 +43,12 @@
     ],
     [
      0,
+     1,
      0,
      1,
+     0,
      1,
-     1,
-     1,
-     1,
+     0,
      1,
      0,
      0
@@ -44,61 +56,37 @@
     [
      0,
      1,
+     0,
+     0,
+     0,
+     0,
+     0,
      1,
-     1,
-     1,
-     1,
-     1,
-     1,
-     1,
+     0,
      0
     ],
     [
      0,
      1,
-     1,
-     1,
-     1,
-     1,
-     1,
-     1,
-     1,
-     0
-    ],
-    [
      0,
      1,
      1,
      1,
+     0,
      1,
-     1,
-     1,
-     1,
-     1,
+     0,
      0
     ],
     [
      0,
-     1,
-     1,
-     1,
-     1,
-     1,
-     1,
-     1,
-     1,
-     0
-    ],
-    [
      0,
      1,
+     0,
+     0,
+     0,
      1,
-     1,
-     1,
-     1,
-     1,
-     1,
-     1,
+     0,
+     0,
      0
     ],
     [
@@ -110,30 +98,42 @@
      1,
      1,
      1,
+     0,
+     0
+    ],
+    [
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     1,
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     0,
      1,
      0
     ],
     [
      0,
-     0,
      1,
      1,
      1,
      1,
      1,
      1,
-     0,
-     0
-    ],
-    [
-     0,
-     0,
-     0,
      1,
-     1,
-     1,
-     1,
-     0,
      0,
      0
     ]
@@ -141,15 +141,15 @@
   },
   {
    "number": 2,
-   "name": "her hands",
+   "name": "her eyes",
    "bbox": [
-    0.18,
-    0.72,
-    0.64,
-    0.94
+    0.36,
+    0.195,
+    0.575,
+    0.25
    ],
-   "location": "bottom center",
-   "description": "Her hands are crossed gracefully in her lap, resting on the arm of a chair. This pose represents composure and modest virtue, common in high-society Renaissance portraits.",
+   "location": "top center",
+   "description": "Leonardo used the sfumato technique to blur the edges around her eyes, making her gaze appear soft and lifelike. This creates the illusion that her eyes follow the viewer across the room.",
    "grid": [
     [
      0,
@@ -165,9 +165,9 @@
     ],
     [
      0,
-     0,
-     0,
-     0,
+     1,
+     1,
+     1,
      0,
      0,
      0,
@@ -181,66 +181,6 @@
      0,
      0,
      0,
-     1,
-     1,
-     1,
-     1,
-     1
-    ],
-    [
-     0,
-     0,
-     0,
-     1,
-     1,
-     1,
-     1,
-     1,
-     1,
-     0
-    ],
-    [
-     0,
-     1,
-     1,
-     1,
-     1,
-     1,
-     1,
-     1,
-     0,
-     0
-    ],
-    [
-     1,
-     1,
-     1,
-     1,
-     1,
-     1,
-     1,
-     0,
-     0,
-     0
-    ],
-    [
-     1,
-     1,
-     1,
-     1,
-     1,
-     1,
-     0,
-     0,
-     0,
-     0
-    ],
-    [
-     1,
-     1,
-     1,
-     1,
-     1,
      0,
      0,
      0,
@@ -251,8 +191,68 @@
      0,
      1,
      1,
+     0,
+     0,
+     0,
+     1,
      1,
      0,
+     0
+    ],
+    [
+     1,
+     0,
+     0,
+     1,
+     0,
+     1,
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     0,
+     1,
+     1,
+     0,
+     0,
+     0,
+     1,
+     1,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     0,
+     1,
      0,
      0,
      0,
@@ -275,24 +275,194 @@
   },
   {
    "number": 3,
-   "name": "the landscape",
+   "name": "her enigmatic smile",
    "bbox": [
-    0.0,
-    0.125,
-    1.0,
-    0.56
+    0.395,
+    0.285,
+    0.525,
+    0.345
+   ],
+   "location": "top center",
+   "description": "The subtle shading at the corners of her mouth makes her expression ambiguous. It is called 'enigmatic' because it seems to shift between amusement and solemnity depending on the viewer's focus.",
+   "grid": [
+    [
+     0,
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0
+    ],
+    [
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     0,
+     0
+    ]
+   ]
+  },
+  {
+   "number": 4,
+   "name": "the winding path and bridge",
+   "bbox": [
+    0.02,
+    0.45,
+    0.98,
+    0.6
    ],
    "location": "center",
-   "description": "The background shows a misty, imaginary landscape with a winding road on the left and a bridge on the right, leading into jagged blue mountains.",
+   "description": "In the mid-ground, a winding road appears on the left and a stone bridge on the right. These details ground the portrait in a physical space and provide a sense of human scale within the vast landscape.",
    "grid": [
     [
      0,
      0,
      0,
      0,
+     1,
+     1,
+     1,
+     0,
+     0,
+     0
+    ],
+    [
      0,
      0,
      0,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     0,
+     1,
+     1,
+     1,
      0,
      0,
      0
@@ -306,27 +476,39 @@
      0,
      0,
      0,
-     0,
-     0
-    ],
-    [
-     0,
-     1,
-     1,
-     1,
-     0,
-     0,
-     1,
-     1,
      1,
      0
     ],
     [
      1,
      1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1
+    ],
+    [
+     0,
      1,
      1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1
+    ],
+    [
      1,
+     1,
+     0,
+     0,
+     0,
      1,
      1,
      1,
@@ -334,22 +516,84 @@
      1
     ],
     [
+     0,
+     0,
+     0,
+     0,
+     0,
      1,
+     0,
      1,
-     1,
-     1,
-     1,
-     1,
-     1,
-     1,
-     1,
+     0,
      1
     ],
     [
      0,
      0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     1,
+     0,
+     1
+    ]
+   ]
+  },
+  {
+   "number": 5,
+   "name": "the misty mountains",
+   "bbox": [
+    0.01,
+    0.14,
+    0.99,
+    0.44
+   ],
+   "location": "top center",
+   "description": "The distant, jagged mountains fade into a hazy blue, a technique known as aerial perspective. This creates a feeling of infinite depth and adds to the overall sense of mystery in the painting.",
+   "grid": [
+    [
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0
+    ],
+    [
+     0,
+     1,
+     0,
+     1,
+     0,
+     0,
+     1,
+     0,
+     1,
+     0
+    ],
+    [
+     1,
+     0,
+     0,
+     0,
      1,
      1,
+     0,
+     0,
+     0,
+     1
+    ],
+    [
+     0,
+     0,
+     0,
+     0,
      0,
      0,
      0,
@@ -362,19 +606,7 @@
      0,
      0,
      0,
-     0,
-     0,
-     0,
      1,
-     1,
-     0
-    ],
-    [
-     0,
-     0,
-     0,
-     0,
-     0,
      0,
      0,
      0,
@@ -385,12 +617,48 @@
      0,
      0,
      0,
+     1,
+     0,
+     1,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0
+    ],
+    [
+     1,
      0,
      0,
      0,
      0,
      0,
      0,
+     0,
+     1,
      0
     ],
     [
@@ -407,5 +675,12 @@
     ]
    ]
   }
- ]
+ ],
+ "guide_notes": {
+  "Mona Lisa": "Your fingers are on the whole seated figure, a half-length woman turned about three-quarters toward you, her forearms resting across each other at the bottom edge so her hands stack low at the centre. Trace upward from those crossed hands and you meet the broad triangle of her torso and the soft round of her shoulders, widening to a dark veil that runs off the left and right edges. She is far smaller than most people expect: the panel measures only about 77 by 53 centimetres, roughly a large sheet of paper, and it is painted in oil on a thin wooden board of poplar rather than on canvas, which is why the Louvre keeps it behind glass.",
+  "her eyes": "Move your fingertips to the upper face and you find two almond-shaped hollows set level with each other, smooth and unframed, with no ridge of eyebrow or lash above them to catch your nail, just a soft graded shadow that slides straight up into the forehead. The lids are heavy and half-lowered, and where you trace the outer corners they dissolve rather than end, blurred by Leonardo's smoke-like sfumato. Her eyes carry no eyebrows or eyelashes at all, a detail that has puzzled scholars for centuries because it is still unclear whether Leonardo never painted them or whether they were gently lost during an old cleaning.",
+  "her enigmatic smile": "Below the nose, run a fingertip along the mouth: the lips are level and relaxed, their corners not carved as sharp creases but melted into a shallow, ambiguous shadow that spreads outward. The upper lip's edge is deliberately soft, so your finger cannot find one clean line to follow, and the smile is raised more by a haze of shading above the lip than by any drawn curve. That is why her expression shifts with your distance: research by Margaret Livingstone shows that when you look straight at her mouth it reads as serious, and only when your gaze drifts away does the smile appear, because the shadowed corners are caught by the eye's periphery.",
+  "the winding path and bridge": "Shift your fingers to the middle distance, just past her right shoulder, where you find a pale ribbon of road curving away from you and, beside it, a low stone bridge with a row of small arches stepping across a river. The path is a raised, meandering line that narrows as it recedes, while the bridge sits as a compact band of bumps with a flat top spanning a darker channel. A Tuscan historian has argued that this is no imaginary bridge: he identified it as the Romito di Laterina bridge over the Arno in Arezzo province, matching the four arches visible in the painting.",
+  "the misty mountains": "Lift your attention to the far background, above the road and bridge, where your fingertips meet a series of low rounded ridges climbing toward the top corners and then fading into a smooth, almost featureless haze. The nearer peaks are the crispest, and as they recede they flatten out, a deliberate trick of aerial perspective in which distance is shown by blurring detail and cooling the colour toward blue. One scholar, Martin Kemp, reads the water-and-rock masses on the right of this background not as calm mountains but as a surging deluge, a tidal wave about to break into the valley behind her."
+ }
 }
