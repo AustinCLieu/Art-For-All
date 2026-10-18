@@ -1,0 +1,8 @@
+.spotlight, .spot-anchor { position: absolute; pointer-events: none; transition: left var(--dur-spot) var(--ease-light), top var(--dur-spot) var(--ease-light), width var(--dur-spot) var(--ease-light), height var(--dur-spot) var(--ease-light); }
+.spotlight { border: 1.5px solid var(--color-lantern); box-shadow: 0 0 0 100vmax rgb(8 9 11 / 0.62); }
+.spotlight--grid { background-image: linear-gradient(to right, rgb(242 234 220 / 0.18) 1px, transparent 1px), linear-gradient(to bottom, rgb(242 234 220 / 0.18) 1px, transparent 1px); background-size: 10% 10%; }
+.spot-tag { --sx: 1; --sy: 1; position: absolute; bottom: calc(100% + 6px); left: calc(100% - 4px); display: flex; align-items: flex-start; gap: var(--spacing-1); white-space: nowrap; color: var(--color-lantern); text-shadow: 0 0 8px var(--color-ink), 0 0 2px var(--color-ink); }
+.spot-tag__hook { width: 40px; height: 24px; flex: none; margin-top: 6px; fill: none; stroke: var(--color-lantern); stroke-width: 1.5; stroke-linecap: round; transform: scale(var(--sx), var(--sy)); }
+.spot-tag--left { left: auto; right: calc(100% - 4px); flex-direction: row-reverse; --sx: -1; }
+.spot-tag--below { bottom: auto; top: calc(100% + 6px); align-items: flex-end; --sy: -1; }
+.spot-tag--below .spot-tag__hook { margin-top: 0; margin-bottom: 6px; }

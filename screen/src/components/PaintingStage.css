@@ -1,0 +1,6 @@
+.stage { margin: 0; flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.stage__frame { position: relative; line-height: 0; max-width: 100%; }
+.stage__clip { position: relative; overflow: hidden; }
+.stage__clip img { display: block; max-width: 100%; max-height: calc(100vh - 380px); box-shadow: 0 0 120px var(--glow, transparent); }
+.stage__blank { width: 40vh; aspect-ratio: 3 / 4; background: var(--color-stone); }
+@media (max-width: 1100px) { .stage__clip img { max-height: 70vh; } }
