@@ -96,3 +96,94 @@ def snapshot():
     except Exception as e:
         print(f"screen.snapshot failed: {e!r}")
     return out
+
+class _Handler(BaseHTTPRequestHandler):
+    def log_message(self, *args):
+        pass  # the terminal belongs to the conversation
+
+    def do_GET(self):
+        try:
+            path = urllib.parse.unquote(urllib.parse.urlparse(self.path).path)
+            if path == "/api/state":
+                self._send(200, json.dumps(snapshot()).encode(), TYPES[".json"])
+            elif path.startswith("/cache/"):
+                self._file(os.path.join(CACHE, os.path.basename(path)), IMAGES)
+            else:
+                self._app(path)
+        except Exception as e:
+            print(f"screen: {self.path} failed: {e!r}")
+            try:
+                self._send(500, b"error", "text/plain")
+            except Exception:
+                pass
+
+    def _app(self, path):
+        dist = os.path.realpath(DIST)
+        full = os.path.realpath(os.path.join(dist, path.lstrip("/")))
+        if not (full.startswith(dist + os.sep) and os.path.isfile(full)):
+            full = os.path.join(dist, "index.html")  # unknown paths get the app; nothing outside dist is served
+        if not os.path.isfile(full):
+            return self._send(503, b"Screen not built: cd screen && npm install && npm run build", "text/plain")
+        self._file(full)
+
+    def _file(self, path, allowed=None):
+        ext = os.path.splitext(path)[1].lower()
+        if (allowed and ext not in allowed) or not os.path.isfile(path):
+            return self._send(404, b"not found", "text/plain")
+        with open(path, "rb") as f:
+            self._send(200, f.read(), TYPES.get(ext, "application/octet-stream"))
+
+    def _send(self, code, body, ctype):
+        self.send_response(code)
+        self.send_header("Content-Type", ctype)
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(body)
+
+class _Server(ThreadingHTTPServer):
+    daemon_threads = True
+    allow_reuse_address = sys.platform != "win32"  # on Windows it would let a second server share the port
+
+    def handle_error(self, request, client_address):
+        pass  # a closed browser tab must not print tracebacks over the conversation
+
+def start_screen(port=PORT):
+    """Serve the page in a background thread. Returns its URL, or None if it can't start. Never raises."""
+    try:
+        server = _Server(("127.0.0.1", port), _Handler)
+        threading.Thread(target=server.serve_forever, daemon=True).start()
+        url = f"http://127.0.0.1:{server.server_address[1]}"
+        print(f"Audience screen: {url}")
+        return url
+    except Exception as e:
+        print(f"Audience screen off: {e!r}")
+        return None
+
+def demo():
+    """Replays a tour of the cached paintings with no API calls, to build and rehearse the page."""
+    if not start_screen():
+        return
+    for path in sorted(glob.glob(os.path.join(CACHE, "*.json"))):
+        with open(path) as f:
+            p = json.load(f)
+        say("user", f"Show me {p['title']}.")
+        activity("gemini", "working", f"Looking up {p['title']}")
+        time.sleep(2)
+        activity("gemini", "done", f"{p['title']}: ready from cache")
+        for i, s in enumerate(p["sections"]):
+            show_on_screen(p, i)
+            say("agent", f"Now showing section {i + 1} of {len(p['sections'])}, {s['name']}, "
+                         f"at the {s['location']}. {s['description']}")
+            time.sleep(6)
+            say("user", "I'm ready for the next part.")
+    print("Demo finished.")
+
+if __name__ == "__main__":
+    if "--demo" in sys.argv:
+        try:
+            demo()
+        except KeyboardInterrupt:
+            pass
+    else:
+        print("Usage: python screen.py --demo   (main.py starts the screen by itself)")

@@ -77,6 +77,47 @@ def test_never_raises():
     json.dumps(s)
     screen.show_on_screen(None, 0)
 
+def get(url):
+    try:
+        with urllib.request.urlopen(url, timeout=5) as r:
+            return r.status, r.headers["Content-Type"], r.read()
+    except urllib.error.HTTPError as e:
+        return e.code, e.headers["Content-Type"], e.read()
+
+def test_http():
+    reset()
+    screen.show_on_screen(mona(), 0)
+    old = screen.DIST
+    with tempfile.TemporaryDirectory() as dist:
+        os.makedirs(os.path.join(dist, "assets"))
+        with open(os.path.join(dist, "index.html"), "w") as f:
+            f.write("<div id=root></div>")
+        with open(os.path.join(dist, "assets", "app.js"), "w") as f:
+            f.write("console.log(1)")
+        screen.DIST = dist
+        try:
+            url = screen.start_screen(port=0)
+            code, ctype, body = get(url + "/api/state")
+            assert code == 200 and ctype == "application/json"
+            assert json.loads(body)["section"]["name"] == "her face"
+            assert get(url + "/")[:2] == (200, "text/html; charset=utf-8")
+            assert get(url + "/assets/app.js")[1] == "text/javascript"
+            assert get(url + "/some/page")[2] == b"<div id=root></div>"  # single-page app fallback
+            code, ctype, _ = get(url + "/cache/mona-lisa.jpg")
+            assert code == 200 and ctype == "image/jpeg"
+            assert get(url + "/cache/mona-lisa.json")[0] == 404  # images only
+            assert get(url + "/cache/..%2F.env")[0] == 404
+            assert get(url + "/..%2F.env")[2] == b"<div id=root></div>"  # never serves outside dist
+            screen.DIST = os.path.join(dist, "missing")
+            assert get(url + "/")[0] == 503  # not built yet: a message, not a crash
+        finally:
+            screen.DIST = old
+
+def test_port_in_use():
+    url = screen.start_screen(port=0)
+    port = int(url.rsplit(":", 1)[1])
+    assert screen.start_screen(port=port) is None  # prints "Audience screen off"; the tour goes on
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_") and callable(fn):
