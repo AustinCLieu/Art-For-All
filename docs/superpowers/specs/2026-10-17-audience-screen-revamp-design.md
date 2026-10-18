@@ -108,7 +108,7 @@ hands." Never "Status: OK", "Section loaded" or "AI-powered". All strings live i
 | Board | 10×10 wells (`stone-2`); raised balls in painting colours with glow; outline numeral; `NOW TOUCHING · 02 / 06`; part name; location as `TOP CENTER OF THE CANVAS`; corner badge `SIMULATED` or `MIRRORED LIVE` | `section`, `hardware`, `painting.sections.length`, cell colours |
 | BorderlessFlow | the signature transition (below) | previous and next section, element refs |
 | Captions | last 4 transcript lines: newest `caption-now` in paper, the 3 older step down to `body` and fade to paper-dim; mono speaker label GUIDE / VISITOR | `transcript` |
-| SpeakingIndicator | ring of 8 dots next to the newest line's label: **speaking** (rings ripple outward) while the newest line changed <4s ago; **thinking** (dots orbit) while any `activity` is `working`; **listening** (slow breathe) otherwise | output of `useSpeaker` |
+| SpeakingIndicator | ring of 8 dots next to the newest line's label: **speaking** (rings ripple outward) while the newest line changed <4s ago; otherwise **thinking** (dots orbit) while `activity.gemini` is `working` (not Creao/Browser Use: they run in the background for minutes); otherwise **listening** (slow breathe) | output of `useSpeaker` |
 | TourRail | one ball per section in tour order with mono name below: visited = paper-dim filled, current = lantern + halo, upcoming = hollow `stone-2` ring | `painting.sections`, `section.number`, visited set |
 | AgentDrawer | slides over the right column (`stone` surface, layout never reflows). Rows: status dot + WAITING/WORKING/DONE/FAILED word, sponsor, job, detail in mono. Last row "On the wire": `section.frame` in mono | `activity`, `section.frame` |
 | IdleScreen | the board cycles the 4 demo signature grids (8s each, balls in lantern), headline, hint, footer; offline variant dims and swaps copy | `idleShapes.ts`, `online` |
@@ -141,11 +141,17 @@ types.ts            unchanged
 useScreenState.ts   unchanged
 design/tokens.css   all tokens in §3 (names identical to the Paper file's tokens)
 design/copy.ts      every visible string + WORDMARK
-lib/paintingColors.ts  load image once per painting → { average, cellColors(bbox) } via offscreen canvas
-lib/useSpeaker.ts      'speaking' | 'listening' | 'thinking'
-lib/useVisited.ts      Set of section numbers shown for the current painting title
-lib/idleShapes.ts      4 grids copied from cache/*.json (section 1 of each demo painting)
-components/<Name>.tsx + <Name>.css for each component in §4
+lib/colors.ts       pure: averageColor, cellColors(bbox), lift, css (tested)
+lib/speaker.ts      pure: speechState → 'speaking' | 'listening' | 'thinking' (tested)
+lib/visited.ts      pure: visit() → section numbers shown for the current painting (tested)
+lib/flow.ts         pure: shouldFly(prev, next) (tested)
+lib/scene.ts        pure: pickScene(state, online) (tested)
+lib/format.ts       pure: pad, formatClock (tested)
+lib/idleShapes.ts   4 grids copied from cache/*.json (section 1 of each demo painting)
+lib/motion.ts       reducedMotion()
+lib/hooks.ts        React hooks: usePaintingPixels, useSpeaker, useVisited, useFlow, useSessionClock
+components/<Name>.tsx + <Name>.css for each component in §4 (+ BallGrid, LookingUp)
+test/*.test.ts      node:test files for the pure lib modules, run with `npm test` (Node 24 strips types; no new dependency)
 ```
 
 Deleted: `components/PaintingView.tsx`, `Transcript.tsx`, `ActivityBar.tsx`, `styles.css` (split into
@@ -198,6 +204,7 @@ Exports (PNG per page plus a combined PDF) go to `docs/design/paper/`.
 
 ## 8. Testing and done criteria
 
+- `cd screen && npm test` passes (node:test on the pure lib modules).
 - `cd screen && npm install && npm run build` passes (tsc + vite). The rebuilt `dist/` is committed.
 - `python test_screen.py` passes unchanged.
 - `python screen.py --demo` screenshots (Playwright):
