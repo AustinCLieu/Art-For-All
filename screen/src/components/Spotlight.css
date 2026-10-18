@@ -6,3 +6,5 @@
 .spot-tag--left { left: auto; right: calc(100% - 4px); flex-direction: row-reverse; --sx: -1; }
 .spot-tag--below { bottom: auto; top: calc(100% + 6px); align-items: flex-end; --sy: -1; }
 .spot-tag--below .spot-tag__hook { margin-top: 0; margin-bottom: 6px; }
+/* Phones: the part name is in the rail and the board caption; the tag would run off the right edge. */
+@media (max-width: 600px) { .spot-tag { display: none; } }

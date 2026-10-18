@@ -9,14 +9,16 @@ export function PaintingStage({ painting, section, frameRef, grid }: {
   frameRef: RefObject<HTMLDivElement>;
   grid: boolean;
 }) {
+  const [wide, setWide] = useState(false); // squarish or landscape: the label wraps below, so the image must leave room for it
   const [failed, setFailed] = useState<string | null>(null); // image that failed to load: show the blank frame
   const showImage = painting.image && failed !== painting.image;
   return (
-    <figure className="stage">
+    <figure className={wide ? "stage stage--wide" : "stage"}>
       <div className="stage__frame" ref={frameRef}>
         <div className="stage__clip">
           {showImage ? (
-            <img src={painting.image!} alt={painting.title} onError={() => setFailed(painting.image)} />
+            <img src={painting.image!} alt={painting.title} onError={() => setFailed(painting.image)}
+              onLoad={(e) => setWide(e.currentTarget.naturalWidth >= 0.7 * e.currentTarget.naturalHeight)} />
           ) : (
             <div className="stage__blank" />
           )}

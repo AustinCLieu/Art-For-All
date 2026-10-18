@@ -7,6 +7,7 @@
 .col--art .stage { flex: none; max-width: 100%; align-items: flex-end; }
 .col--art .stage__clip img { max-height: calc(100vh - 220px); }
 .col--art .placard { max-width: 440px; padding-bottom: var(--spacing-1); }
+.col--art .stage--wide .stage__clip img { max-height: calc(100vh - 470px); }
 .col--touch { gap: var(--spacing-7); }
 @media (max-width: 1100px) {
   .app { height: auto; min-height: 100vh; grid-template-columns: 1fr; grid-template-rows: auto; }
@@ -21,5 +22,6 @@
   .board__grid { width: min(100%, 38vh); }
   .board__numeral { font-size: 200px; }
   .col--art .stage__clip img { max-height: calc(100vh - 200px); }
+  .col--art .stage--wide .stage__clip img { max-height: calc(100vh - 420px); }
   .placard__title { font-size: 48px; }
 }
