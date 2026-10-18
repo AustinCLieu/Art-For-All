@@ -348,6 +348,7 @@ def test_add_reliefs():
 
 def test_start_reliefs():
     """Background, into the same dict, once per painting even if it is opened twice meanwhile."""
+    import screen
     calls, release = [], threading.Event()
     def slow(img, sections):
         calls.append(sections[0]["name"])
@@ -369,6 +370,7 @@ def test_start_reliefs():
                 break
             time.sleep(0.1)
         start_reliefs(p)  # every section has one now: nothing to do
+        assert screen.snapshot()["render"]["phase"] == "idle"  # the all-cached early return resets the bar
     finally:
         paintings.make_reliefs = old
         for f in glob.glob("cache/zz-start*"):

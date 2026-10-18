@@ -18,6 +18,7 @@ def test_empty_snapshot():
     assert s["painting"] is None and s["section"] is None and s["transcript"] == []
     assert set(s["activity"]) == {"elevenlabs", "gemini", "creao", "browser_use"}
     assert all(a["status"] == "idle" for a in s["activity"].values())
+    assert s["render"] == {"phase": "idle", "done": 0, "total": 0}
     json.dumps(s)
 
 def test_say_and_correct():
