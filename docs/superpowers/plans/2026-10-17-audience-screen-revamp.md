@@ -2092,11 +2092,17 @@ export function App() {
 /* One continuous dark room: strip on top, art | touch, rail at the bottom. No cards. */
 .app { position: relative; isolation: isolate; height: 100vh; display: grid; grid-template-columns: 58fr 42fr; grid-template-rows: auto minmax(0, 1fr) auto; column-gap: var(--gutter); row-gap: var(--spacing-6); padding: var(--margin-y) var(--margin-x); }
 .col { min-height: 0; display: flex; flex-direction: column; }
-.col--art { gap: var(--spacing-5); }
+/* Wall label beside the painting, sharing its bottom edge (Paper: Touring — Mona Lisa). */
+.col--art { flex-direction: row; align-items: flex-end; gap: var(--spacing-8); }
+.col--art .stage { flex: none; height: 100%; align-items: flex-end; }
+.col--art .stage__clip img { max-height: calc(100vh - 220px); }
+.col--art .placard { max-width: 440px; padding-bottom: var(--spacing-1); }
 .col--touch { gap: var(--spacing-7); }
 @media (max-width: 1100px) {
   .app { height: auto; min-height: 100vh; grid-template-columns: 1fr; grid-template-rows: auto; }
   .captions { max-height: 60vh; }
+  .col--art { flex-direction: column; align-items: flex-start; }
+  .col--art .stage { height: auto; }
 }
 /* 720p and 768p projectors: everything on one screen. */
 @media (max-height: 800px) and (min-width: 1101px) {
@@ -2104,7 +2110,7 @@ export function App() {
   .col--touch { gap: var(--spacing-5); }
   .board__grid { width: min(100%, 38vh); }
   .board__numeral { font-size: 200px; }
-  .stage__clip img { max-height: calc(100vh - 300px); }
+  .col--art .stage__clip img { max-height: calc(100vh - 200px); }
   .placard__title { font-size: 48px; }
 }
 ```
