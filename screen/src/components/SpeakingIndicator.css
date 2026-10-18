@@ -1,0 +1,9 @@
+.speech { position: relative; display: inline-block; width: 20px; height: 20px; flex: none; }
+.speech__dot { position: absolute; left: 50%; top: 50%; width: 3px; height: 3px; margin: -1.5px; border-radius: var(--radius-full); background: var(--color-lantern); transform: rotate(calc(var(--i) * 45deg)) translateY(-7px); }
+.speech--speaking .speech__dot { animation: ripple var(--dur-ripple) var(--ease-light) infinite; }
+.speech--thinking { animation: orbit 1.6s linear infinite; }
+.speech--thinking .speech__dot { opacity: calc(0.25 + var(--i) * 0.1); }
+.speech--listening .speech__dot { animation: pulse 3s ease-in-out infinite; opacity: 0.8; }
+@keyframes ripple { from { transform: rotate(calc(var(--i) * 45deg)) translateY(-4px); opacity: 1; } to { transform: rotate(calc(var(--i) * 45deg)) translateY(-11px); opacity: 0; } }
+@keyframes orbit { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .speech, .speech__dot { animation: none !important; } }
