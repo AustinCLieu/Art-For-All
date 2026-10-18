@@ -270,6 +270,34 @@ def test_contact_sheet():
     sheet = Image.open(BytesIO(paintings.contact_sheet(crop, [paintings.fix_grid(OUTLINE)] * 2)))
     assert sheet.format == "JPEG" and sheet.size == (240 + 260 * 2, 240)
 
+def test_redraw():
+    os.makedirs("cache", exist_ok=True)
+    Image.new("RGB", (100, 100), "white").save("cache/zz-redraw.jpg")
+    old_grid = paintings.fix_grid(TINY)
+    p = {"title": "Zz Redraw", "artist": "A", "year": "1", "summary": "S.", "image": "cache/zz-redraw.jpg",
+         "guide_notes": {"good": "keep me"},
+         "sections": [{"number": 1, "name": "good", "bbox": [0.1, 0.1, 0.5, 0.5], "location": "top left",
+                       "description": "Good.", "grid": old_grid},
+                      {"number": 2, "name": "broken", "bbox": [0.5, 0.5, 0.9, 0.9], "location": "center",
+                       "description": "Broken.", "grid": old_grid}]}
+    def fake(image_bytes, mime, prompt, thinking):
+        if '"broken"' in prompt:
+            raise RuntimeError("down")
+        return {"grid": OUTLINE}
+    old = paintings.ask_gemini
+    paintings.ask_gemini = fake
+    try:
+        paintings.redraw(p)
+        saved = json.load(open("cache/zz-redraw.json"))
+    finally:
+        paintings.ask_gemini = old
+        for ext in ("json", "jpg"):
+            if os.path.exists(f"cache/zz-redraw.{ext}"):
+                os.remove(f"cache/zz-redraw.{ext}")
+    assert saved["sections"][0]["grid"] == paintings.fix_grid(OUTLINE)
+    assert saved["sections"][1]["grid"] == old_grid  # failed redraw keeps the old grid
+    assert saved["guide_notes"] == {"good": "keep me"}
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

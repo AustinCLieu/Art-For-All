@@ -256,6 +256,24 @@ def load_painting(name):
         activity("gemini", "failed", f"Couldn't find {name}")
     return p
 
+def draw_all(img, title, sections):
+    """A grid (or None) for every section, all drawn at once: load time = the slowest section."""
+    crops = [jpeg(crop_square(img, s["bbox"])) for s in sections]
+    with ThreadPoolExecutor(len(sections)) as pool:
+        return list(pool.map(lambda c, s: draw(c, title, s), crops, sections))
+
+def redraw(p):
+    """Draw every section of a cached painting again from its saved image: same parts, new grids.
+    A section whose drawing fails keeps its old grid. Guide notes are kept; the ones that describe
+    the board must be rewritten by hand afterwards. Saves and returns p."""
+    with Image.open(p["image"]) as img:
+        grids = draw_all(img, p["title"], p["sections"])
+    for s, g in zip(p["sections"], grids):
+        if g:
+            s["grid"] = g
+    save_painting(p)
+    return p
+
 def fetch_painting(name):
     activity("gemini", "working", f"Searching Wikipedia for {name}")
     wiki = find_on_wikipedia(name)
@@ -284,11 +302,8 @@ def fetch_painting(name):
             print(f"skipped bad section {s!r}: {e!r}")
     if not sections:
         return None
-    img = Image.open(BytesIO(resp.content))
-    crops = [jpeg(crop_square(img, s["bbox"])) for s in sections]
     activity("gemini", "working", f"Drawing {len(sections)} shapes in parallel")
-    with ThreadPoolExecutor(len(sections)) as pool:  # all drawings at once: load time = slowest one
-        grids = list(pool.map(lambda c, s: draw(c, wiki["title"], s), crops, sections))
+    grids = draw_all(Image.open(BytesIO(resp.content)), wiki["title"], sections)
     kept = [(s, g) for s, g in zip(sections, grids) if g and any(map(any, g))]
     if not kept:
         return None

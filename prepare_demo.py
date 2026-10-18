@@ -1,6 +1,6 @@
 import os, sys
 from dotenv import load_dotenv
-from paintings import load_painting, save_painting
+from paintings import load_painting, save_painting, redraw
 from creao import run_tour_writer
 from museum import museum_facts  # Browser Use
 
@@ -12,6 +12,11 @@ for name in DEMO:
     if not p:
         print(name, "not found, skipped")
         continue
+    if "--redraw" in sys.argv:  # new grids from the saved image; then rewrite the board half of guide_notes by hand
+        redraw(p)
+        for s in p["sections"]:
+            print(f"\n{p['title']} {s['number']}. {s['name']}")
+            print("\n".join("".join("#" if v else "." for v in row) for row in s["grid"]))
     if not p.get("museum_facts") or "--refresh" in sys.argv:  # checked facts cost credits to redo
         try:
             p["museum_facts"] = museum_facts(p)
