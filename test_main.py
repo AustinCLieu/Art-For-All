@@ -34,6 +34,7 @@ def fresh_main():
     import main
     main.load_painting = stubs.load_painting  # don't depend on which paintings.py loaded
     main.show_grid = lambda grid: None        # keep test output quiet
+    main.wait_until_flat = lambda: None       # never block on Enter in tests
     main.to_ascii = stubs.to_ascii
     main.start_tour_writer = lambda p: None   # never start Creao from tests
     main.start_museum_facts = lambda p: None  # never start Browser Use either (paid, and it saves to cache/)
@@ -141,6 +142,39 @@ def test_tool_errors_reach_sentry():
     finally:
         m.sentry_sdk.capture_exception = original
     assert [str(e) for e in captured] == ["wikipedia down"]
+
+def test_serial_waits_for_flat_board_before_raising():
+    # The board only raises pins: a teammate flattens it and presses Enter before each new shape.
+    import builtins, os
+    m = fresh_main()
+    m.wait_until_flat = m._real_wait_until_flat  # use the real one, not the fresh_main stub
+    events = []
+    m.show_grid = lambda grid: events.append("raise")
+    original_input, original_board = builtins.input, os.environ.get("BOARD")
+    builtins.input = lambda prompt="": events.append("enter")
+    os.environ["BOARD"] = "serial"
+    try:
+        m.open_painting({"name": "Mona Lisa"})
+        m.show_section({"section": "next"})
+    finally:
+        builtins.input = original_input
+        os.environ["BOARD"] = original_board or "sim"
+    assert events == ["enter", "raise", "enter", "raise"]
+
+def test_sim_never_waits():
+    import builtins, os
+    m = fresh_main()
+    m.wait_until_flat = m._real_wait_until_flat
+    original_input, original_board = builtins.input, os.environ.get("BOARD")
+    def no_input(prompt=""):
+        raise AssertionError("sim mode must not wait for Enter")
+    builtins.input = no_input
+    os.environ["BOARD"] = "sim"
+    try:
+        assert m.open_painting({"name": "Mona Lisa"})["found"] is True
+    finally:
+        builtins.input = original_input
+        os.environ["BOARD"] = original_board or "sim"
 
 if __name__ == "__main__":
     for name, fn in list(globals().items()):

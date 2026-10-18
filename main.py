@@ -43,12 +43,19 @@ sentry_sdk.init(dsn=os.getenv("SENTRY_DSN"))
 state = {"painting": None, "index": 0}
 _tour = threading.Lock()  # the SDK runs tools on a thread pool; one board move at a time
 
+def wait_until_flat():
+    # The board can only raise pins: a teammate presses it flat and hits Enter before each new shape.
+    if os.getenv("BOARD", "sim") == "serial":
+        input("Press the board flat, then Enter... ")
+_real_wait_until_flat = wait_until_flat  # tests stub wait_until_flat and restore it from here
+
 def section_payload(i):
     p = state["painting"]
     s = p["sections"][i]
     state["index"] = i
     try:
-        show_grid(s["grid"])  # returns once the balls settle
+        wait_until_flat()
+        show_grid(s["grid"])  # returns once the last pin is up
     except Exception as e:  # a board failure must not end the voice tour
         sentry_sdk.capture_exception(e)
         print(f"Board failed: {e!r}")
