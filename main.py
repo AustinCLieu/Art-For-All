@@ -25,6 +25,10 @@ try:
 except ImportError:
     def start_museum_facts(p):
         pass
+try:
+    from screen import start_screen, say, correct, show_on_screen  # audience screen in the browser
+except Exception:  # the tour never depends on the screen
+    start_screen = say = correct = show_on_screen = lambda *args, **kwargs: None
 
 sentry_sdk.init(dsn=os.getenv("SENTRY_DSN"))
 state = {"painting": None, "index": 0}
@@ -34,6 +38,7 @@ def section_payload(i):
     s = p["sections"][i]
     state["index"] = i
     show_grid(s["grid"])  # returns once the balls settle
+    show_on_screen(p, i)  # mirrors the board in the browser; never raises
     lead = "the main subject: " if i == 0 else ""
     return {
         "now_showing": f"Now showing section {i + 1} of {len(p['sections'])}, {lead}{s['name']}, at the {s['location']}.",
@@ -86,6 +91,14 @@ def as_tool(fn):
             raise
     return handler
 
+def on_agent(text):
+    print(f"Agent: {text}")
+    say("agent", text)
+
+def on_user(text):
+    print(f"User: {text}")
+    say("user", text)
+
 def build_tools():
     tools = ClientTools()
     tools.register("open_painting", as_tool(open_painting))
@@ -94,6 +107,7 @@ def build_tools():
 
 if __name__ == "__main__":
     tools = build_tools()
+    start_screen()
 
     api_key = os.getenv("ELEVENLABS_API_KEY")
     conversation = Conversation(
@@ -102,8 +116,9 @@ if __name__ == "__main__":
         requires_auth=bool(api_key),
         audio_interface=DefaultAudioInterface(),
         client_tools=tools,
-        callback_agent_response=lambda r: print(f"Agent: {r}"),
-        callback_user_transcript=lambda t: print(f"User: {t}"),
+        callback_agent_response=on_agent,
+        callback_agent_response_correction=correct,
+        callback_user_transcript=on_user,
     )
     conversation.start_session()
     signal.signal(signal.SIGINT, lambda *_: conversation.end_session())

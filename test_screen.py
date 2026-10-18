@@ -133,6 +133,49 @@ def test_paintings_report_to_screen():
         paintings.fetch_painting = old
     assert screen.snapshot()["activity"]["gemini"]["status"] == "failed"
 
+def fresh_main():
+    import main
+    main.load_painting = stubs.load_painting
+    main.show_grid = lambda grid: None
+    main.to_ascii = stubs.to_ascii
+    main.start_tour_writer = main.start_museum_facts = lambda p: None  # no paid API calls from tests
+    main.state.update(painting=None, index=0)
+    return main
+
+def test_main_mirrors_the_board():
+    reset()
+    m = fresh_main()
+    m.open_painting({"name": "Mona Lisa"})
+    assert screen.snapshot()["section"]["name"] == "her face"
+    m.show_section({"section": "next"})
+    assert screen.snapshot()["section"]["name"] == "her hands"
+
+def test_broken_screen_keeps_the_tour():
+    reset()
+    m = fresh_main()
+    lock = screen._lock
+    screen._lock = None  # every screen call now fails inside
+    try:
+        r = m.open_painting({"name": "Mona Lisa"})
+        assert r["found"] is True and r["now_showing"].startswith("Now showing section 1 of 3")
+        assert m.show_section({"section": "next"})["now_showing"].startswith("Now showing section 2 of 3")
+        screen.say("agent", "still fine")
+    finally:
+        screen._lock = lock
+
+def test_main_without_screen_file():
+    # As if screen.py were deleted: main.py, paintings.py, creao.py and museum.py fall back to no-ops.
+    code = ("import sys; sys.modules['screen'] = None\n"
+            "import main, stubs\n"
+            "main.load_painting = stubs.load_painting\n"
+            "main.show_grid = lambda g: None\n"
+            "main.start_tour_writer = main.start_museum_facts = lambda p: None\n"
+            "r = main.open_painting({'name': 'Mona Lisa'})\n"
+            "assert r['found'] and main.show_section({'section': 'next'})['now_showing']\n"
+            "print('ok')\n")
+    out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, timeout=120)
+    assert out.returncode == 0 and out.stdout.strip().endswith("ok"), out.stderr
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_") and callable(fn):
