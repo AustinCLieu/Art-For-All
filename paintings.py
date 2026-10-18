@@ -25,8 +25,16 @@ http = requests.Session()  # reuses connections; retries stalled connects (hacka
 http.headers.update(UA)
 http.mount("https://", requests.adapters.HTTPAdapter(max_retries=requests.adapters.Retry(connect=2, read=1)))
 T = (5, 30)  # connect, read timeouts in seconds
+ART = re.compile(r"\b(painting|fresco|mural|print|portrait|triptych|altarpiece|artwork)s?\b")  # Wikipedia descriptions of artworks
 
-SECTIONS_PROMPT = """This is {title}. Wikipedia says: {summary}
+FIND_PROMPT = """A blind visitor asked a museum guide for the painting "{name}". The name may be misheard or vague.
+Search the web, work out which painting they mean, and find a direct link to an image file of it
+(a .jpg or .png, ideally on upload.wikimedia.org or a museum website).
+Return only JSON: {{"title": "...", "artist": "...", "summary": "two sentences about it", "image_url": "..."}}
+Only name a painting that the words actually point to. If they are gibberish or fit no painting, don't
+guess a famous one: return {{"title": null}}."""
+
+SECTIONS_PROMPT = """This is {title}. About it: {summary}
 A blind person will explore it part by part on a 10x10 board of raised balls. Each part fills the
 whole board, so small, specific parts (an eye, a hand, an earring) come through clearly.
 Split it into 5-10 sections in tour order: the most famous subject as a whole first, then its key
@@ -100,30 +108,89 @@ def from_cache(name):
     return None
 
 def find_on_wikipedia(name):
+    """The best artwork among the top 5 search hits that has an image, or None."""
     hits = http.get("https://en.wikipedia.org/w/rest.php/v1/search/page",
-                    params={"q": f"{name} painting", "limit": 1}, timeout=T).json()
-    if not hits.get("pages"):
+                    params={"q": f"{name} painting", "limit": 5}, timeout=T).json().get("pages") or []
+    want = core(name)
+    def rank(h):  # the exact title first ("The Kiss" is Klimt's, not The Stolen Kiss), then artworks
+        exact = core(re.sub(r"\s*\(.*?\)", "", h["title"])) == want
+        return (not exact, not ART.search((h.get("description") or "").lower()))
+    for h in sorted(hits, key=rank)[:3]:
+        if rank(h) == (True, True):
+            break  # neither the title nor an artwork: the rest are worse
+        img = http.get("https://en.wikipedia.org/w/api.php", timeout=T, params={
+            "action": "query", "titles": h["key"], "prop": "pageimages", "piprop": "thumbnail",
+            "pithumbsize": 1600, "pilicense": "any", "format": "json"}).json()  # any: Guernica's image isn't free
+        url = next(iter(img["query"]["pages"].values())).get("thumbnail", {}).get("source")
+        if url:
+            summary = http.get("https://en.wikipedia.org/api/rest_v1/page/summary/"
+                               + requests.utils.quote(h["key"], safe=""), timeout=T).json()
+            return {"title": summary["title"], "summary": summary.get("extract", ""), "image_url": url}
+    return None
+
+def find_on_commons(query):
+    """The URL of the top image file on Wikimedia Commons for query, or None. Commons holds far more
+    paintings than Wikipedia has articles for."""
+    r = http.get("https://commons.wikimedia.org/w/api.php", timeout=T, params={
+        "action": "query", "generator": "search", "gsrsearch": f"{query} filetype:bitmap", "gsrnamespace": 6,
+        "gsrlimit": 1, "prop": "imageinfo", "iiprop": "url", "iiurlwidth": 1600, "format": "json"}).json()
+    pages = list(r.get("query", {}).get("pages", {}).values())
+    info = (pages[0].get("imageinfo") or [{}])[0] if pages else {}
+    return info.get("thumburl") or info.get("url")
+
+def is_image(url):
+    try:
+        r = http.head(url, timeout=T, allow_redirects=True)
+        return r.ok and r.headers.get("Content-Type", "").startswith("image/")
+    except requests.RequestException:
+        return False
+
+def find_on_web(name):
+    """Gemini with Google Search works out which painting a vague or misheard name means, then finds
+    its image: Wikipedia under the real name, the image Gemini found, or Wikimedia Commons."""
+    client = genai.Client(http_options=types.HttpOptions(timeout=45_000))
+    resp = client.models.generate_content(
+        model="gemini-3-flash-preview", contents=FIND_PROMPT.format(name=name),
+        config=types.GenerateContentConfig(tools=[types.Tool(google_search=types.GoogleSearch())],
+                                           thinking_config=types.ThinkingConfig(thinking_level="low")))
+    m = re.search(r"\{.*\}", resp.text or "", re.S)  # search answers can't be forced to JSON
+    found = json.loads(m.group(0)) if m else {}
+    if not found.get("title"):
         return None
-    key = hits["pages"][0]["key"]
-    summary = http.get("https://en.wikipedia.org/api/rest_v1/page/summary/" + requests.utils.quote(key, safe=""),
-                       timeout=T).json()
-    img = http.get("https://en.wikipedia.org/w/api.php", timeout=T, params={
-        "action": "query", "titles": key, "prop": "pageimages",
-        "piprop": "thumbnail", "pithumbsize": 1600, "format": "json"}).json()
-    page = next(iter(img["query"]["pages"].values()))
-    url = page.get("thumbnail", {}).get("source")
+    full = f"{found['title']} by {found.get('artist') or ''}".strip()
+    wiki = find_on_wikipedia(full)
+    if wiki:
+        return wiki
+    url = found.get("image_url")
+    url = url if url and is_image(url) else find_on_commons(full.replace(" by ", " "))
     if not url:
         return None
-    return {"title": summary["title"], "summary": summary.get("extract", ""), "image_url": url}
+    return {"title": found["title"], "summary": found.get("summary", ""), "image_url": url}
+
+def find_painting(name):
+    """Wikipedia first (fast, good summaries), then the web."""
+    wiki = find_on_wikipedia(name)
+    if wiki:
+        return wiki
+    activity("gemini", "working", f"Searching the web for {name}")
+    return find_on_web(name)
 
 def ask_gemini(image_bytes, mime, prompt, thinking):
-    client = genai.Client(http_options=types.HttpOptions(timeout=45_000))  # reads GEMINI_API_KEY; ms, so a stall can't hang open_painting
-    resp = client.models.generate_content(
-        model="gemini-3-flash-preview",
-        contents=[types.Part.from_bytes(data=image_bytes, mime_type=mime), prompt],
-        config=types.GenerateContentConfig(response_mime_type="application/json",
-                                           thinking_config=types.ThinkingConfig(thinking_level=thinking)))
-    return json.loads(resp.text)
+    """Most calls answer in about 3 s, but the odd one takes 20-40 s or returns broken JSON. Load time is
+    the slowest call, so give up on a call after 12 s and ask once more."""
+    for timeout in (12_000, 45_000):  # ms, so a stall can't hang open_painting
+        try:
+            client = genai.Client(http_options=types.HttpOptions(timeout=timeout))  # reads GEMINI_API_KEY
+            resp = client.models.generate_content(
+                model="gemini-3-flash-preview",
+                contents=[types.Part.from_bytes(data=image_bytes, mime_type=mime), prompt],
+                config=types.GenerateContentConfig(response_mime_type="application/json",
+                                                   thinking_config=types.ThinkingConfig(thinking_level=thinking)))
+            return json.loads(resp.text)
+        except Exception as e:
+            if timeout == 45_000:
+                raise
+            print(f"Gemini slow or broken, asking again: {e!r}"[:160])
 
 def analyze(image_bytes, mime, title, summary):
     """Call 1: the parts of the painting, in tour order, without grids."""
@@ -155,7 +222,7 @@ def draft(crop_bytes, title, s):
     """One drawing of a section from its crop. None if the call fails."""
     try:
         data = ask_gemini(crop_bytes, "image/jpeg", GRID_PROMPT.format(
-            name=s["name"], title=title, description=s["description"]), "medium")
+            name=s["name"], title=title, description=s["description"]), "minimal")  # ~2.5 s; low and medium took 20-45 s on hard crops
         if isinstance(data, list):
             data = data[0]
         return fix_grid(data["grid"])
@@ -318,14 +385,14 @@ def start_reliefs(p):
     threading.Thread(target=run, daemon=True).start()
 
 def fetch_painting(name):
-    activity("gemini", "working", f"Searching Wikipedia for {name}")
-    wiki = find_on_wikipedia(name)
+    activity("gemini", "working", f"Looking up {name}")
+    wiki = find_painting(name)
     if not wiki:
         return None
     if make_reliefs:  # load the depth model (~9 s) while Gemini works, so the first reliefs come sooner
         threading.Thread(target=warm_reliefs, daemon=True).start()
     path = f"{CACHE}/{slug(wiki['title'])}.json"
-    if os.path.exists(path):  # cached under its Wikipedia title
+    if os.path.exists(path):  # cached under its real title
         with open(path) as f:
             return json.load(f)
     resp = http.get(wiki["image_url"], timeout=T)

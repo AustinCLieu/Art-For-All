@@ -180,7 +180,7 @@ def test_fetch_painting():
     assert first[0] == "image/png" and first[1] == "low"
     # 3 sections x DRAFTS drafts; every draft is too small to pass grid_problems, so no judge call
     assert len(draws) == 3 * paintings.DRAFTS
-    assert all(m == "image/jpeg" and t == "medium" and "This crop is" in pr for m, t, pr in draws)
+    assert all(m == "image/jpeg" and t == "minimal" and "This crop is" in pr for m, t, pr in draws)
     assert all("Zz Test Painting" in pr for _, _, pr in draws)
 
 def test_fetch_painting_drops_bad_sections():

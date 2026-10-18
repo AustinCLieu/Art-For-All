@@ -22,8 +22,9 @@ hand-made for a single painting, so almost no art is accessible this way.
 4. Say **"next"**, **"go back"**, **"the top right"**, **"show me the earring"**, or ask any question
    ("why is she looking over her shoulder?"). Say another painting's name at any time to switch.
 
-It works for **any painting on Wikipedia**, not only a fixed list. A new painting is ready in about
-15 seconds. While the tour runs, two agents work in the background: one gathers facts from the
+It works for **any painting it can find**, not only a fixed list: Wikipedia first, then a web search
+that also untangles vague or misheard names ("the legend of Gelert, the one with the dog"). A new
+painting is ready in about 10 seconds. While the tour runs, two agents work in the background: one gathers facts from the
 painting's own museum website and the other writes a guide's script for each part. Their results flow
 into the tour as soon as they arrive.
 
@@ -65,8 +66,9 @@ our laptop: `open_painting(name)` and `show_section("next" | "previous" | number
 [`main.py`](main.py).
 
 ### Google Gemini: seeing the painting for you
-Gemini works in two steps ([`paintings.py`](paintings.py)). One call takes the painting's image and
-Wikipedia summary and returns its parts ranked from most to least famous, each with a bounding box and a
+Gemini works in two steps ([`paintings.py`](paintings.py)). When Wikipedia has no match, Gemini with
+Google Search first works out which painting was meant and finds its image (on Wikipedia, a museum
+site or Wikimedia Commons). Then one call takes the painting's image and summary and returns its parts ranked from most to least famous, each with a bounding box and a
 short description. Then one call per part, all in parallel, looks at just that part's crop and draws
 **a 10x10 tactile pattern** for it. We use the box to tell the visitor where on the canvas the
 part is ("at the top right"), and the pattern is what the board raises.
@@ -92,7 +94,7 @@ Project domain: TODO
       ▼
  paintings.load_painting(name)
       ├─ cache/<painting>.json ── instant for paintings seen before
-      └─ Wikipedia (image + summary) ─► Gemini (parts, boxes, 10x10 patterns) ─► saved to cache
+      └─ Wikipedia, else web search (image + summary) ─► Gemini (parts, boxes, 10x10 patterns) ─► saved to cache
       │
       └─ background threads, the tour never waits for them:
            ├─ Creao "Tactile Tour Writer" ─► guide_notes per part   (~70 s)
