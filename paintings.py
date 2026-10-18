@@ -1,7 +1,7 @@
 import os, re, json, glob, threading, requests
 from io import BytesIO
 from concurrent.futures import ThreadPoolExecutor
-from PIL import Image
+from PIL import Image, ImageDraw
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
@@ -54,6 +54,12 @@ a face          a person, head and shoulders   an eye          a hand
 .#......#.      #........#                     ..........      ..#....#..
 ..######..      #........#                     ..........      ..######..
 Return JSON: {{"idea": "one sentence on what you drew", "grid": ["10 strings of 10 # or ."]}}"""
+
+JUDGE_PROMPT = """Left: "{name}" from {title}. Right: {n} drawings of it for a 10x10 board of raised
+balls (white = raised), numbered 1 to {n} from left to right. Which drawing would a blind person most
+easily recognize as {name} by touch? Return JSON: {{"best": 1}}"""
+
+DRAFTS = 3  # drawings per section; a judge call picks the best of the ones that pass grid_problems
 
 def slug(text):
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
@@ -121,17 +127,63 @@ def analyze(image_bytes, mime, title, summary):
         data = data[0] if data and "sections" in data[0] else {"sections": data}
     return data
 
-def draw(crop_bytes, title, s):
-    """Call 2, once per section: design a grid from just that crop. None if it fails."""
+def board_image(grid, cell=24):
+    """The grid as the board looks: white balls raised, gray flat."""
+    img = Image.new("RGB", (cell * 10, cell * 10), "black")
+    d = ImageDraw.Draw(img)
+    for r, row in enumerate(grid):
+        for c, v in enumerate(row):
+            d.ellipse([c * cell + 3, r * cell + 3, (c + 1) * cell - 3, (r + 1) * cell - 3],
+                      fill="white" if v else (60, 60, 60))
+    return img
+
+def contact_sheet(crop_bytes, grids):
+    """The crop, then each grid as a board, side by side: what the judge call looks at."""
+    crop = Image.open(BytesIO(crop_bytes)).convert("RGB").resize((240, 240))
+    sheet = Image.new("RGB", (240 + 260 * len(grids), 240), "white")
+    sheet.paste(crop, (0, 0))
+    for i, g in enumerate(grids, start=1):
+        sheet.paste(board_image(g), (260 * i, 0))
+    return jpeg(sheet)
+
+def draft(crop_bytes, title, s):
+    """One drawing of a section from its crop. None if the call fails."""
     try:
         data = ask_gemini(crop_bytes, "image/jpeg", GRID_PROMPT.format(
             name=s["name"], title=title, description=s["description"]), "medium")
         if isinstance(data, list):
             data = data[0]
         return fix_grid(data["grid"])
-    except Exception as e:  # drop this section, keep the tour
+    except Exception as e:  # one draft fewer, the others may still work
         print(f"draw failed for {s['name']!r}: {e!r}")
         return None
+
+def pick(crop_bytes, title, s, grids):
+    """Call 3: Gemini compares the drawings next to the crop. The first one if that call fails."""
+    try:
+        data = ask_gemini(contact_sheet(crop_bytes, grids), "image/jpeg", JUDGE_PROMPT.format(
+            name=s["name"], title=title, n=len(grids)), "low")
+        if isinstance(data, list):
+            data = data[0]
+        best = int(data["best"])
+        return grids[best - 1] if 1 <= best <= len(grids) else grids[0]
+    except Exception as e:
+        print(f"judge failed for {s['name']!r}: {e!r}")
+        return grids[0]
+
+def draw(crop_bytes, title, s):
+    """Call 2, once per section: DRAFTS drawings in parallel, cheap checks, then a judge call if more
+    than one passes. None if every drawing failed or came back empty."""
+    with ThreadPoolExecutor(DRAFTS) as pool:
+        drafts = [g for g in pool.map(lambda _: draft(crop_bytes, title, s), range(DRAFTS))
+                  if g and any(map(any, g))]
+    if not drafts:
+        return None
+    good = [g for g in drafts if not grid_problems(g)]
+    good = [g for i, g in enumerate(good) if g not in good[:i]]  # identical drafts count once
+    if not good:
+        return min(drafts, key=lambda g: len(grid_problems(g)))
+    return good[0] if len(good) == 1 else pick(crop_bytes, title, s, good)
 
 def fix_grid(grid):
     """Force exactly 10x10 of 0/1, whatever the model returned (numbers or '#'/'.' strings)."""

@@ -166,7 +166,9 @@ def test_fetch_painting():
     assert face["grid"][0] == [0, 0, 1, 1, 1, 1, 0, 0, 0, 0] and len(face["grid"]) == 10
     first, draws = prompts[0], prompts[1:]
     assert first[0] == "image/png" and first[1] == "low"
-    assert len(draws) == 3 and all(m == "image/jpeg" and t == "medium" for m, t, _ in draws)
+    # 3 sections x DRAFTS drafts; every draft is too small to pass grid_problems, so no judge call
+    assert len(draws) == 3 * paintings.DRAFTS
+    assert all(m == "image/jpeg" and t == "medium" and "This crop is" in pr for m, t, pr in draws)
     assert all("Zz Test Painting" in pr for _, _, pr in draws)
 
 def test_fetch_painting_drops_bad_sections():
@@ -206,6 +208,67 @@ def test_fetch_painting_drops_bad_sections():
     assert [s["number"] for s in p["sections"]] == [1, 2]
     b = p["sections"][1]["bbox"]
     assert b[0] <= b[2] and b[1] <= b[3]
+
+def fake_draws(answers, judge_says=None):
+    """A stand-in for ask_gemini: drafts pop from answers (a grid, or an Exception to raise),
+    the judge call returns judge_says. Records (prompt, thinking) for every call."""
+    calls = []
+    def fake(image_bytes, mime, prompt, thinking):
+        calls.append((prompt, thinking))
+        if "Which drawing" in prompt:
+            return judge_says
+        a = answers.pop()  # list.pop is atomic, safe from the draft threads
+        if isinstance(a, Exception):
+            raise a
+        return {"idea": "x", "grid": a}
+    return fake, calls
+
+def run_draw(fake):
+    old = paintings.ask_gemini
+    paintings.ask_gemini = fake
+    try:
+        return paintings.draw(paintings.jpeg(Image.new("RGB", (50, 50))), "T",
+                              {"name": "her face", "description": "A face."})
+    finally:
+        paintings.ask_gemini = old
+
+def test_draw_judges_between_good_drafts():
+    fake, calls = fake_draws([OUTLINE, BLOB, OUTLINE[::-1]], {"best": 2})
+    g = run_draw(fake)
+    assert g in (paintings.fix_grid(OUTLINE), paintings.fix_grid(OUTLINE[::-1]))
+    judge = [(p, t) for p, t in calls if "Which drawing" in p]
+    assert len(calls) == paintings.DRAFTS + 1 and len(judge) == 1
+    assert "2 drawings" in judge[0][0] and judge[0][1] == "low"  # the blob never reaches the judge
+
+def test_draw_skips_judge_for_one_good_draft():
+    fake, calls = fake_draws([OUTLINE, OUTLINE, BLOB], {"best": 1})  # duplicates count once
+    assert run_draw(fake) == paintings.fix_grid(OUTLINE)
+    assert len(calls) == paintings.DRAFTS
+
+def test_draw_keeps_least_bad_when_none_pass():
+    fake, calls = fake_draws([BLOB, CYPRESS, TINY])
+    assert run_draw(fake) == paintings.fix_grid(CYPRESS)  # 1 problem beats 2
+    assert len(calls) == paintings.DRAFTS
+
+def test_draw_none_when_all_fail():
+    fake, _ = fake_draws([RuntimeError("down"), ["." * 10] * 10, RuntimeError("down")])
+    assert run_draw(fake) is None
+
+def test_pick():
+    crop = paintings.jpeg(Image.new("RGB", (50, 50)))
+    a, b = paintings.fix_grid(OUTLINE), paintings.fix_grid(OUTLINE[::-1])
+    old = paintings.ask_gemini
+    try:
+        for says, want in (({"best": 2}, b), ([{"best": 2}], b), ({"best": 7}, a), ({}, a)):
+            paintings.ask_gemini = lambda *args, says=says: says
+            assert paintings.pick(crop, "T", {"name": "x"}, [a, b]) == want, says
+    finally:
+        paintings.ask_gemini = old
+
+def test_contact_sheet():
+    crop = paintings.jpeg(Image.new("RGB", (50, 80)))
+    sheet = Image.open(BytesIO(paintings.contact_sheet(crop, [paintings.fix_grid(OUTLINE)] * 2)))
+    assert sheet.format == "JPEG" and sheet.size == (240 + 260 * 2, 240)
 
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
