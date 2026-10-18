@@ -18,8 +18,8 @@ and personal craft that doesn't look AI-generated). Feature freeze 2026-10-18 10
 
 ## 2. Layout and scenes
 
-One continuous dark canvas. No cards. Designed at 1920×1080, scales to 1440×900 with `clamp()`, stacks
-below 1100px wide.
+One continuous dark canvas. No cards. Designed at 1920×1080, scales to 1440×900 with `clamp()`, fits a
+1280×720 projector with no scrolling (`max-height: 800px` tightening), stacks below 1100px wide.
 
 ```
 TopStrip:   [wordmark]                                  ● LIVE 03:12   [S] AGENTS
@@ -147,6 +147,7 @@ lib/visited.ts      pure: visit() → section numbers shown for the current pain
 lib/flow.ts         pure: shouldFly(prev, next) (tested)
 lib/scene.ts        pure: pickScene(state, online) (tested)
 lib/format.ts       pure: pad, formatClock (tested)
+lib/grid.ts         pure: normalizeGrid → always 10×10 of 0/1 (tested; keeps commit 5066f10's rule)
 lib/idleShapes.ts   4 grids copied from cache/*.json (section 1 of each demo painting)
 lib/motion.ts       reducedMotion()
 lib/hooks.ts        React hooks: usePaintingPixels, useSpeaker, useVisited, useFlow, useSessionClock
@@ -163,7 +164,8 @@ New dependencies: `@fontsource/instrument-serif`, `@fontsource-variable/instrume
 Not changing: `screen.py`, the `/api/state` JSON, `test_screen.py`, the `vite.config.ts` proxy.
 
 ### Failure handling
-- Image fails or the canvas is tainted: lantern colours, no crash.
+- Image fails to load: hidden (blank frame, no broken-image icon). Canvas tainted: lantern colours, no crash.
+- Malformed grid (short rows, junk values): drawn as a clean 10×10 of 0/1.
 - `painting.image` null: placard and board without a picture.
 - Fonts fail: fallback stacks.
 - Flow measurements missing: fade-in.

@@ -1,0 +1,11 @@
+.rail { grid-column: 1 / -1; list-style: none; margin: 0; padding: 0; display: flex; }
+.rail__stop { position: relative; flex: 1; min-width: 0; display: grid; justify-items: start; gap: var(--spacing-2); color: var(--color-paper-dim); }
+.rail__stop::after { content: ""; position: absolute; top: 7px; left: 26px; right: 10px; border-top: 1px dotted var(--color-paper-faint); }
+.rail__stop:last-child::after { display: none; }
+.rail__stop--done::after { border-top-style: solid; border-color: var(--color-paper-dim); }
+.rail__ball { width: 14px; height: 14px; border-radius: var(--radius-full); border: 1px solid var(--color-paper-faint); transition: background-color var(--dur-spot) var(--ease-light), box-shadow var(--dur-spot) var(--ease-light); }
+.rail__stop--done .rail__ball { background: var(--color-paper-dim); border-color: transparent; }
+.rail__stop--now .rail__ball { background: var(--color-lantern); border-color: transparent; box-shadow: 0 0 0 5px rgb(255 181 71 / 0.25), 0 0 18px var(--color-lantern); }
+.rail__stop--now .rail__name { color: var(--color-paper); }
+.rail__name { max-width: 92%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 1100px) { .rail { flex-direction: column; gap: var(--spacing-3); } .rail__stop::after { display: none; } .rail__stop { grid-template-columns: 14px 1fr; align-items: center; } }

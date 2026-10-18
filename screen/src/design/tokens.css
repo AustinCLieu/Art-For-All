@@ -1,0 +1,112 @@
+/* "Lantern Water": the teamLab Planets water room at night. Every colour is an object in that room.
+   Token names match the Paper file "Tactile Art Guide — Design"; change both together. */
+:root {
+  color-scheme: dark;
+
+  --color-ink: #08090b;        /* black water: page */
+  --color-stone: #131518;      /* wet stone: drawer */
+  --color-stone-2: #1c1f23;    /* stone edge: hairlines, empty wells */
+  --color-paper: #f2eadc;      /* lantern paper: text (16.7:1) */
+  --color-paper-dim: #b4ab9c;  /* paper in shadow: secondary text (8.8:1) */
+  --color-paper-faint: #7e776d;/* decoration and >=24px text only (4.5:1) */
+  --color-lantern: #ffb547;    /* lantern flame: the one accent, "now" */
+  --color-moss: #8cc48a;       /* drawer: done */
+  --color-koi: #ff6b4a;        /* drawer: failed */
+
+  --font-serif: "Instrument Serif", Georgia, serif;
+  --font-sans: "Instrument Sans Variable", "Instrument Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, monospace;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+
+  /* Designed at 1920 wide; 75% at 1440; never smaller than the 1440 size. */
+  --text-numeral: clamp(270px, 18.75vw, 360px);
+  --text-display: clamp(60px, 4.1667vw, 80px);
+  --text-title: clamp(36px, 2.5vw, 48px);
+  --text-kicker: clamp(22px, 1.4583vw, 28px);
+  --text-caption-now: clamp(24px, 1.5625vw, 30px);
+  --text-body: clamp(17px, 1.0417vw, 20px);
+  --text-label: clamp(13px, 0.7292vw, 14px);
+  --leading-display: 1;
+  --leading-caption-now: 1.333;
+  --leading-body: 1.5;
+  --tracking-display: -0.02em;
+  --tracking-label: 0.14em;
+
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 24px;
+  --spacing-6: 32px;
+  --spacing-7: 48px;
+  --spacing-8: 64px;
+  --spacing-9: 96px;
+  --spacing-10: 128px;
+  --gutter: clamp(48px, 5vw, 96px);
+  --margin-x: clamp(24px, 3.3333vw, 64px);
+  --margin-y: clamp(20px, 2.0833vw, 40px);
+  --radius-full: 9999px;
+  --breakpoint-stack: 1100px;
+
+  --ease-rise: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-light: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fade: 200ms;
+  --dur-ball: 400ms;
+  --stagger-row: 70ms;
+  --dur-spot: 600ms;
+  --dur-flow: 900ms;
+  --dur-ripple: 1600ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-ball: var(--dur-fade);
+    --stagger-row: 0ms;
+    --dur-spot: var(--dur-fade);
+  }
+}
+
+* { box-sizing: border-box; }
+html, body, #root { margin: 0; min-height: 100%; }
+body {
+  background: var(--color-ink);
+  color: var(--color-paper);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Mono museum-label text. */
+.label {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+
+/* Keycap button: "[S] Agents" and "[S] Close". */
+.key-button {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  color: var(--color-paper-dim);
+  font-family: var(--font-mono); font-size: var(--text-label); font-weight: var(--font-weight-medium); letter-spacing: var(--tracking-label); text-transform: uppercase; line-height: 1.4; /* .label, which `all: unset` above would wipe */
+}
+.key-button:hover, .key-button[aria-pressed="true"] { color: var(--color-paper); }
+.key-button:focus-visible { outline: 1px solid var(--color-lantern); outline-offset: 4px; }
+kbd {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  padding: 1px 6px;
+  border: 1px solid var(--color-paper-faint);
+  border-radius: 3px;
+}
+
+@keyframes pulse { 50% { opacity: 0.35; } }

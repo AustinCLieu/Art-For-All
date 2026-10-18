@@ -30,7 +30,11 @@ node:test on Node 24 (type stripping, no new test dependency), Paper MCP, Playwr
 - Status is never colour-only: every status also shows a word.
 - Copy reads like a museum placard; all visible strings live in `screen/src/design/copy.ts`.
 - Every animation has a reduced-motion fallback (opacity fade ≤200ms or none).
-- Layout designed at 1920×1080, scales to 1440×900, stacks below 1100px wide.
+- Layout designed at 1920×1080, scales to 1440×900, must also fit a 1280×720 projector with no page scroll
+  (`@media (max-height: 800px)` tightening), and stacks below 1100px wide.
+- Keep the robustness rules from commit 5066f10: grids are always drawn as exactly 10×10 of 0/1
+  (`normalizeGrid`), a painting image that fails to load is hidden (no broken-image icon), and
+  `useScreenState.ts` (2s fetch timeout) stays untouched.
 - After UI changes the built `screen/dist/` is committed (`cd screen && npm run build`).
 - Feature freeze 2026-10-18 10:00 PT.
 - Commits: no attribution lines.
@@ -49,6 +53,7 @@ screen/src/lib/speaker.ts           speechState, Speech, SPEAKING_MS
 screen/src/lib/visited.ts           visit, Visited, NO_VISITS
 screen/src/lib/flow.ts              shouldFly, Shown, LIT_MS, FLY_MS, ROW_MS
 screen/src/lib/idleShapes.ts        IDLE_SHAPES, EMPTY_GRID
+screen/src/lib/grid.ts              normalizeGrid
 screen/src/lib/motion.ts            reducedMotion
 screen/src/lib/hooks.ts             usePaintingPixels, useSpeaker, useVisited, useFlow, useSessionClock
 screen/src/components/*.tsx + .css  TopStrip Room PaintingStage Spotlight Placard BallGrid TouchBoard
@@ -339,8 +344,8 @@ git commit -m "screen: design tokens, self-hosted fonts, copy and node:test harn
 ### Task 3: Pure logic modules (TDD)
 
 **Files:**
-- Create: `screen/src/lib/colors.ts`, `format.ts`, `scene.ts`, `speaker.ts`, `visited.ts`, `flow.ts`, `idleShapes.ts`, `motion.ts`
-- Test: `screen/test/colors.test.ts`, `format.test.ts`, `scene.test.ts`, `speaker.test.ts`, `visited.test.ts`, `flow.test.ts`
+- Create: `screen/src/lib/colors.ts`, `format.ts`, `scene.ts`, `speaker.ts`, `visited.ts`, `flow.ts`, `grid.ts`, `idleShapes.ts`, `motion.ts`
+- Test: `screen/test/colors.test.ts`, `format.test.ts`, `scene.test.ts`, `speaker.test.ts`, `visited.test.ts`, `flow.test.ts`, `grid.test.ts`
 - Delete: `screen/test/smoke.test.ts`
 
 **Interfaces:**
@@ -356,6 +361,7 @@ git commit -m "screen: design tokens, self-hosted fonts, copy and node:test harn
   - `interface Visited { title: string | null; numbers: number[] }`; `NO_VISITS: Visited`; `visit(prev: Visited, title: string | null, number: number | null): Visited`
   - `interface Shown { title: string | null; number: number | null }`; `shouldFly(prev: Shown, next: Shown): boolean`; `LIT_MS = 350`, `FLY_MS = 900`, `ROW_MS = 30`
   - `IDLE_SHAPES: { title: string; part: string; grid: number[][] }[]`; `EMPTY_GRID: number[][]`
+  - `normalizeGrid(grid: unknown): number[][]` (always 10 rows × 10 cells of 0/1)
   - `reducedMotion(): boolean`
 
 Tests import with the `.ts` extension (Node requires it). `src/lib` files may only import other files as
@@ -535,6 +541,28 @@ test("does not fly on the first part, a new painting, the same part, or no part"
   assert.equal(shouldFly({ title: "Mona Lisa", number: 2 }, { title: "The Starry Night", number: 1 }), false);
   assert.equal(shouldFly({ title: "Mona Lisa", number: 2 }, { title: "Mona Lisa", number: 2 }), false);
   assert.equal(shouldFly({ title: "Mona Lisa", number: 2 }, { title: "Mona Lisa", number: null }), false);
+});
+```
+
+`screen/test/grid.test.ts`:
+
+```ts
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { normalizeGrid } from "../src/lib/grid.ts";
+
+test("a good grid passes through as 0/1", () => {
+  const g = Array.from({ length: 10 }, (_, r) => Array.from({ length: 10 }, (_, c) => (r === c ? 1 : 0)));
+  assert.deepEqual(normalizeGrid(g), g);
+});
+
+test("short rows, missing rows, junk and non-arrays become a clean 10x10", () => {
+  const out = normalizeGrid([[1, 1], "x", [0, 2, "1", null]]);
+  assert.equal(out.length, 10);
+  assert.ok(out.every((row) => row.length === 10 && row.every((v) => v === 0 || v === 1)));
+  assert.deepEqual(out[0].slice(0, 3), [1, 1, 0]);
+  assert.deepEqual(out[2].slice(0, 4), [0, 1, 1, 0]);
+  assert.deepEqual(normalizeGrid(undefined), normalizeGrid([]));
 });
 ```
 
@@ -759,6 +787,19 @@ export const IDLE_SHAPES: { title: string; part: string; grid: number[][] }[] = 
 ];
 ```
 
+`screen/src/lib/grid.ts`:
+
+```ts
+// Always exactly 10x10 of 0/1, so a short row or junk from the model can't shift every later cell.
+export function normalizeGrid(grid: unknown): number[][] {
+  const rows = Array.isArray(grid) ? grid : [];
+  return Array.from({ length: 10 }, (_, r) => {
+    const row: unknown = rows[r];
+    return Array.from({ length: 10 }, (_, c) => (Array.isArray(row) && Number(row[c]) ? 1 : 0));
+  });
+}
+```
+
 `screen/src/lib/motion.ts`:
 
 ```ts
@@ -770,7 +811,7 @@ export function reducedMotion(): boolean {
 - [ ] **Step 4: Run the tests and confirm they pass**
 
 Run: `cd screen && npm test`
-Expected: `# fail 0`; all 19 tests pass.
+Expected: `# fail 0`; all 21 tests pass.
 
 - [ ] **Step 5: Type-check**
 
@@ -1063,7 +1104,7 @@ git commit -m "docs: Paper design file exports (story, research, system, compone
 - Consumes: Task 3 modules.
 - Produces:
   - `usePaintingPixels(src: string | null): Pixels | null`
-  - `useSpeaker(lines: Line[], thinking: boolean): Speech`
+  - `useSpeaker(lines: Line[] | null, thinking: boolean): Speech` (null = state not loaded yet; the first loaded transcript is the baseline)
   - `useVisited(title: string | null, number: number | null): number[]`
   - `useFlow(title: string | null, section: Section | null): { flowFor: Section | null; held: boolean; landed: () => void }`
   - `useSessionClock(online: boolean): string`
@@ -1245,7 +1286,13 @@ import "./Room.css";
 
 // The painting's light filling the room: a blurred copy behind everything, tinted by --glow (set by App).
 export function Room({ image }: { image: string | null }) {
-  return <div className="room" aria-hidden>{image && <img className="room__blur" src={image} alt="" />}</div>;
+  return (
+    <div className="room" aria-hidden>
+      {image && (
+        <img key={image} className="room__blur" src={image} alt="" onError={(e) => (e.currentTarget.style.display = "none")} />
+      )}
+    </div>
+  );
 }
 ```
 
@@ -1407,7 +1454,7 @@ export function SpotlightTag({ section }: { section: Section }) {
 - [ ] **Step 2: `PaintingStage.tsx`**
 
 ```tsx
-import type { RefObject } from "react";
+import { useState, type RefObject } from "react";
 import type { Painting, Section } from "../types";
 import { SpotlightBox, SpotlightTag } from "./Spotlight";
 import "./PaintingStage.css";
@@ -1418,11 +1465,17 @@ export function PaintingStage({ painting, section, frameRef, grid }: {
   frameRef: RefObject<HTMLDivElement>;
   grid: boolean;
 }) {
+  const [failed, setFailed] = useState<string | null>(null); // image that failed to load: show the blank frame
+  const showImage = painting.image && failed !== painting.image;
   return (
     <figure className="stage">
       <div className="stage__frame" ref={frameRef}>
         <div className="stage__clip">
-          {painting.image ? <img src={painting.image} alt={painting.title} /> : <div className="stage__blank" />}
+          {showImage ? (
+            <img src={painting.image!} alt={painting.title} onError={() => setFailed(painting.image)} />
+          ) : (
+            <div className="stage__blank" />
+          )}
           {section && <SpotlightBox bbox={section.bbox} grid={grid} />}
         </div>
         {section && <SpotlightTag section={section} />}
@@ -1546,7 +1599,7 @@ import type { RefObject } from "react";
 import { COPY } from "../design/copy";
 import type { RGB } from "../lib/colors";
 import { pad } from "../lib/format";
-import { EMPTY_GRID } from "../lib/idleShapes";
+import { normalizeGrid } from "../lib/grid";
 import type { Section } from "../types";
 import { BallGrid } from "./BallGrid";
 import "./TouchBoard.css";
@@ -1564,7 +1617,7 @@ export function TouchBoard({ section, total, hardware, colors, held, wellsRef }:
       <span className="board__numeral" aria-hidden>{section ? pad(section.number) : ""}</span>
       <span className="board__badge label">{hardware ? COPY.mirrored : COPY.simulated}</span>
       <div className="board__grid">
-        <BallGrid grid={section?.grid ?? EMPTY_GRID} colors={colors} held={held} gridRef={wellsRef} />
+        <BallGrid grid={normalizeGrid(section?.grid)} colors={colors} held={held} gridRef={wellsRef} />
       </div>
       <p className="board__label label">
         {section ? `${COPY.nowTouching} · ${pad(section.number)} / ${pad(total)}` : COPY.allDown}
@@ -1856,6 +1909,7 @@ git commit -m "screen: captions, speaking ripple, tour rail, idle and looking-up
 import { useLayoutEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
 import { css, LANTERN, type RGB } from "../lib/colors";
 import { FLY_MS, LIT_MS, ROW_MS } from "../lib/flow";
+import { normalizeGrid } from "../lib/grid";
 import type { Section } from "../types";
 import "./BorderlessFlow.css";
 
@@ -1887,7 +1941,7 @@ export function BorderlessFlow({ section, colors, frameRef, wellsRef, onLanded }
     const cw = ((x1 - x0) * frame.width) / 10;
     const ch = ((y1 - y0) * frame.height) / 10;
     const next: Dot[] = [];
-    section.grid.forEach((row, r) =>
+    normalizeGrid(section.grid).forEach((row, r) =>
       row.forEach((v, c) => {
         if (v !== 1) return;
         const well = wells.querySelector(`[data-cell="${r}-${c}"]`)?.getBoundingClientRect();
@@ -1996,7 +2050,8 @@ export function App() {
     () => (pixels && section ? cellColors(pixels, section.bbox) : null),
     [pixels, bboxKey], // bboxKey, not section: polls create a new section object with the same bbox
   );
-  const speech = useSpeaker(state?.transcript ?? [], state?.activity.gemini.status === "working");
+  // null until the first poll lands, so the transcript already on screen at page open isn't "speaking"
+  const speech = useSpeaker(state ? state.transcript : null, state?.activity.gemini.status === "working");
   const visited = useVisited(painting?.title ?? null, section?.number ?? null);
   const { flowFor, held, landed } = useFlow(painting?.title ?? null, section);
   const frameRef = useRef<HTMLDivElement>(null);
@@ -2037,11 +2092,27 @@ export function App() {
 /* One continuous dark room: strip on top, art | touch, rail at the bottom. No cards. */
 .app { position: relative; isolation: isolate; height: 100vh; display: grid; grid-template-columns: 58fr 42fr; grid-template-rows: auto minmax(0, 1fr) auto; column-gap: var(--gutter); row-gap: var(--spacing-6); padding: var(--margin-y) var(--margin-x); }
 .col { min-height: 0; display: flex; flex-direction: column; }
-.col--art { gap: var(--spacing-5); }
+/* Wall label beside the painting, sharing its bottom edge (Paper: Touring — Mona Lisa). */
+/* Landscape paintings take the full width, so the label wraps underneath them. */
+.col--art { flex-direction: row; flex-wrap: wrap; align-items: flex-end; align-content: flex-end; gap: var(--spacing-5) var(--spacing-8); }
+.col--art .stage { flex: none; max-width: 100%; align-items: flex-end; }
+.col--art .stage__clip img { max-height: calc(100vh - 220px); }
+.col--art .placard { max-width: 440px; padding-bottom: var(--spacing-1); }
 .col--touch { gap: var(--spacing-7); }
 @media (max-width: 1100px) {
   .app { height: auto; min-height: 100vh; grid-template-columns: 1fr; grid-template-rows: auto; }
   .captions { max-height: 60vh; }
+  .col--art { flex-direction: column; align-items: flex-start; }
+  .col--art .stage { height: auto; }
+}
+/* 720p and 768p projectors: everything on one screen. */
+@media (max-height: 800px) and (min-width: 1101px) {
+  .app { row-gap: var(--spacing-4); }
+  .col--touch { gap: var(--spacing-5); }
+  .board__grid { width: min(100%, 38vh); }
+  .board__numeral { font-size: 200px; }
+  .col--art .stage__clip img { max-height: calc(100vh - 200px); }
+  .placard__title { font-size: 48px; }
 }
 ```
 
@@ -2083,6 +2154,8 @@ git commit -m "screen: Borderless Night layout, flow transition, rebuilt dist"
     `after-flow-1920.png` (taken 0.6s after a part change, mid-flight: the demo changes part every 6s),
     `after-drawer-1920.png` (press `s` first, then press `s` again to close).
   - 1440×900: `after-touring-1440.png`.
+  - 1280×720 (projector): `after-touring-1280x720.png`; confirm
+    `document.documentElement.scrollHeight <= innerHeight` with `browser_evaluate`.
   - 400×900: `after-narrow-400.png` (full page).
   - Reduced motion: `browser_emulate_media` with `reducedMotion: "reduce"`, then `after-reduced-1920.png`.
   - Idle: stop the demo and start `python -c "import screen,threading; screen.start_screen(8002); threading.Event().wait()"`;
