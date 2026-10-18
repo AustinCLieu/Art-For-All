@@ -197,6 +197,13 @@ def demo(port=PORT):
         activity("gemini", "working", f"Looking up {p['title']}")
         time.sleep(2)
         activity("gemini", "done", f"{p['title']}: ready from cache")
+        total = len(p["sections"])
+        render("preparing", 0, total)
+        time.sleep(1.5)
+        for n in range(1, total + 1):
+            render("rendering", n, total)
+            time.sleep(0.8)
+        render("done", total, total)
         for i, s in enumerate(p["sections"]):
             show_on_screen(p, i)
             say("agent", f"Now showing section {i + 1} of {len(p['sections'])}, {s['name']}, "
