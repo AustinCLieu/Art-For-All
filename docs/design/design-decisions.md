@@ -47,7 +47,9 @@ of the canvas, and when the tour moves on, the part flows across the room into t
 just switching. The sponsor cards moved into a drawer that is closed by default.
 
 More states are in `screens/`: `after-looking-up-1920.png`, `after-offline-1920.png`,
-`after-reduced-1920.png`, `after-touring-1440.png`, `after-touring-1280x720.png`, `after-narrow-400.png`.
+`after-reduced-1920.png`, `after-touring-1440.png`, `after-touring-1280x720.png`, `after-narrow-400.png`. Only the touring scene was captured at 1440×900; the other scenes were captured at 1920×1080 (and the narrow and projector sizes above).
+
+Note: `npm test` in `screen/` needs Node 22.6 or newer (it runs the TypeScript tests with type stripping).
 
 ## 3. How we worked
 
@@ -69,13 +71,13 @@ More states are in `screens/`: `after-looking-up-1920.png`, `after-offline-1920.
    7. Avoid blue-purple gradients, glowing orbs, log tables and stacks of cards.
 4. **Three directions.** A "Borderless Night", B "Wall Label", C "Pin Art" (section 7 explains B and C).
 5. **The choice.** A, with B's typographic discipline.
-6. **Paper.** We built the whole design in Paper before the code: story, research, design system,
+6. **Paper.** We designed it in Paper alongside the code: story, research, design system,
    components, screens and the flow storyboard. Export:
    [`paper/tactile-art-guide-design.pdf`](paper/tactile-art-guide-design.pdf) (20 pages, plus one PNG per
    page in [`paper/`](paper/)). The PDF is assembled from the page images, so its text can't be
    selected. Some detail text in the Paper screens is mockup copy we wrote for the design (the agent
    detail lines in the drawer and the Starry Night captions), not output from the live app.
-7. **Code that matches it.** The token names in `tokens.css` are the same as the Paper file's. We then
+7. **Code that matches it.** Paper drove layout decisions (for example the wall label beside the painting) and we matched the build to it. The token names in `tokens.css` are the same as the Paper file's. We then
    screenshotted every scene of the built screen and compared the touring screens side by side with
    Paper, and fixed what differed (label wrapping under landscape paintings, caption fade, the spotlight
    tag running off narrow screens, keycap font).
@@ -136,7 +138,7 @@ More states are in `screens/`: `after-looking-up-1920.png`, `after-offline-1920.
 
 ### Shape
 
-- **Decision.** Only circles and 1px stone-2 hairlines. No cards, no rounded panels, no drop shadows;
+- **Decision.** Only circles and hairlines. No cards, no rounded panels, no drop shadows;
   glow is the only depth. One hand-made mark: the spotlight tag's hook is a hand-drawn SVG stroke.
 - **Reason.** The board is made of balls, so the ball became the unit of the whole interface: wells,
   raised balls, rail stops, the live dot and the speaking ring.
@@ -150,8 +152,8 @@ More states are in `screens/`: `after-looking-up-1920.png`, `after-offline-1920.
 
 - **Decision.** Two easings: `--ease-rise` `cubic-bezier(.34,1.56,.64,1)` (balls overshoot a little as
   they come up) and `--ease-light` `cubic-bezier(.22,1,.36,1)` (light settles softly). Durations: ball
-  400ms, row stagger 70ms, spotlight 600ms, flow 900ms, ripple 1600ms. With reduced motion, these become
-  200ms fades.
+  400ms, row stagger 70ms, spotlight 600ms, flow 900ms, ripple 1600ms. With reduced motion, the ball rise and spotlight become
+  200ms fades; the flow is skipped and the ripple stops.
 - **Reason.** Things that are physical (balls) bounce; things that are light glide.
 - **Speaking ripple ← Delphi V01 + PlayAI V03.** A ring of 8 dots next to the newest caption: rings
   ripple outward while the guide is speaking (ripples in water), dots orbit while it is thinking
@@ -175,7 +177,7 @@ More states are in `screens/`: `after-looking-up-1920.png`, `after-offline-1920.
 | 1 · Spotlight glides | 2 · The part lights up |
 |---|---|
 | ![Frame 1: spotlight glides](paper/6-1-spotlight-glides.png) | ![Frame 2: the part lights up](paper/6-2-the-part-lights-up.png) |
-| **0–600 ms.** The spotlight leaves the old part and glides to the new one. | **0–350 ms.** A faint 10×10 grid fades in over the part; the cells that will be raised light up in lantern. (Frame 2 is an enlarged detail so the grid is readable.) |
+| **0–600 ms.** The spotlight leaves the old part and glides to the new one. | **0–350 ms.** A faint 10×10 grid fades in over the part; the cells that will be raised light up. (Frame 2 is an enlarged detail so the grid is readable.) |
 | **3 · Dots fly** | **4 · Balls rise** |
 | ![Frame 3: dots fly](paper/6-3-dots-fly.png) | ![Frame 4: balls rise](paper/6-4-balls-rise.png) |
 | **350–1250 ms.** Each lit cell lifts off in the painting's colour and grows as it crosses the room to its well on the board. | **+70 ms per row.** The balls rise row by row, top row first, and keep their painting colour. |
@@ -253,5 +255,5 @@ wall label, and body text sits at 16.7:1 contrast. The only shapes are circles a
 the board is made of balls.
 
 When the tour moves on, the spotlight glides to the next part, its cells light up, and they fly across
-the screen as dots and land on the board as balls in the painting's own colours. We designed everything
-in Paper first; the file is in our repo at `docs/design/paper/tactile-art-guide-design.pdf`.
+the screen as dots and land on the board as balls in the painting's own colours. We designed it in
+Paper alongside the code; the file is in our repo at `docs/design/paper/tactile-art-guide-design.pdf`.
