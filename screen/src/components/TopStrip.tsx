@@ -2,10 +2,12 @@ import { COPY, WORDMARK } from "../design/copy";
 import { useSessionClock } from "../lib/hooks";
 import "./TopStrip.css";
 
-export function TopStrip({ online, drawerOpen, onToggleDrawer }: {
+export function TopStrip({ online, drawerOpen, onToggleDrawer, pinsOpen, onTogglePins }: {
   online: boolean;
   drawerOpen: boolean;
   onToggleDrawer: () => void;
+  pinsOpen: boolean;
+  onTogglePins: () => void;
 }) {
   const elapsed = useSessionClock(online);
   return (
@@ -18,6 +20,9 @@ export function TopStrip({ online, drawerOpen, onToggleDrawer }: {
             {COPY.live} <span className="live__time">{elapsed}</span>
           </span>
         )}
+        <button type="button" className="key-button label" aria-pressed={pinsOpen} onClick={onTogglePins}>
+          <kbd>P</kbd> {COPY.pins}
+        </button>
         <button type="button" className="key-button label" aria-pressed={drawerOpen} onClick={onToggleDrawer}>
           <kbd>S</kbd> {COPY.agents}
         </button>

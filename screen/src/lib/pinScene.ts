@@ -44,6 +44,7 @@ export function createPinScene(host: HTMLElement): PinScene {
   const material = new THREE.MeshStandardMaterial({ roughness: 0.55, metalness: 0.1 });
   const mesh = new THREE.InstancedMesh(geometry, material, MAX);
   mesh.count = 0;
+  mesh.frustumCulled = false;
   scene.add(mesh);
 
   let size = 0;
@@ -117,6 +118,7 @@ export function createPinScene(host: HTMLElement): PinScene {
       material.dispose();
       mesh.dispose();
       renderer.dispose();
+      renderer.forceContextLoss();
       renderer.domElement.remove();
     },
   };

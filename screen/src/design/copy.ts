@@ -25,6 +25,15 @@ export const COPY = {
   drawerTitle: "Behind the scenes",
   onTheWire: "On the wire",
   status: { idle: "Waiting", working: "Working", done: "Done", failed: "Failed" },
+  pins: "Pins",
+  pinsTitle: "10,000 pins",
+  pinsKicker: "A simulation of what a 10,000-pin board could show.",
+  pinsPerSide: "Pins per side",
+  pinsToday: "Today's board",
+  pinsHint: "Drag to turn · scroll to zoom",
+  pinsMaking: "Making the 3D relief…",
+  pinsNone: "Open a painting to see its pins.",
+  pinsNoWebgl: "This browser can't draw the 3D view.",
 } as const;
 
 export const SPONSORS = [

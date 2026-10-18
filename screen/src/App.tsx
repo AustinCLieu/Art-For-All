@@ -5,6 +5,7 @@ import { Captions } from "./components/Captions";
 import { IdleScreen } from "./components/IdleScreen";
 import { LookingUp } from "./components/LookingUp";
 import { PaintingStage } from "./components/PaintingStage";
+import { PinModal } from "./components/PinModal";
 import { Placard } from "./components/Placard";
 import { Room } from "./components/Room";
 import { TopStrip } from "./components/TopStrip";
@@ -23,11 +24,13 @@ export function App() {
   const section = state?.section ?? null;
 
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [pinsOpen, setPinsOpen] = useState(false);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key === "s" || e.key === "S") setDrawerOpen((o) => !o);
-      if (e.key === "Escape") setDrawerOpen(false);
+      if (e.key === "p" || e.key === "P") setPinsOpen((o) => !o);
+      if (e.key === "Escape") { setDrawerOpen(false); setPinsOpen(false); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -50,7 +53,8 @@ export function App() {
   return (
     <div className={`app app--${scene}`} style={{ "--glow": css(average, 0.12) } as CSSProperties}>
       <Room image={scene === "touring" ? painting?.image ?? null : null} />
-      <TopStrip online={online} drawerOpen={drawerOpen} onToggleDrawer={() => setDrawerOpen((o) => !o)} />
+      <TopStrip online={online} drawerOpen={drawerOpen} onToggleDrawer={() => setDrawerOpen((o) => !o)}
+                pinsOpen={pinsOpen} onTogglePins={() => setPinsOpen((o) => !o)} />
       {scene === "offline" && <IdleScreen offline />}
       {scene === "idle" && <IdleScreen offline={false} />}
       {scene === "looking-up" && state && <LookingUp detail={state.activity.gemini.detail} />}
@@ -71,6 +75,7 @@ export function App() {
         </>
       )}
       {state && <AgentDrawer open={drawerOpen} activity={state.activity} frame={section?.frame ?? null} onClose={() => setDrawerOpen(false)} />}
+      {pinsOpen && <PinModal section={section} onClose={() => setPinsOpen(false)} />}
     </div>
   );
 }
