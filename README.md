@@ -89,8 +89,8 @@ Project domain: TODO
  ElevenLabs agent (voice, turn-taking, Claude Sonnet 5.5)
       │  client tool call: open_painting / show_section
       ▼
- main.py (laptop) ──────────────► board.py ──serial──► 10x10 ball board
-      │                              "F" + 100 digits, replies "OK" when settled
+ main.py (laptop) ──────────────► board.py ──USB──► SKR Pico (Marlin) ──► 10x10 pin board
+      │                              G-code: move under each cell, fire the solenoid
       ▼
  paintings.load_painting(name)
       ├─ cache/<painting>.json ── instant for paintings seen before
@@ -114,7 +114,8 @@ plus `museum_facts` and `guide_notes`.
 | `creao.py` | Creao Tactile Tour Writer, run in the background |
 | `museum.py` | Browser Use museum facts, fetched in the background |
 | `prepare_demo.py` | One-time script that adds facts and notes to the demo paintings |
-| `board.py`, `send_frame.py`, `sim.py` | Serial link to the ball board (falls back to printing with `BOARD=sim`). TODO: not pushed yet |
+| `board.py` | G-code over USB to the pin board: two belt-driven steppers move a solenoid that pushes up each pin of the shape (prints the shape instead with `BOARD=sim`) |
+| `firmware/` | Marlin configuration for the board's BigTreeTech SKR Pico, plus build and calibration steps |
 | `cache/` | The four demo paintings (JSON + image), which load instantly |
 | `screen.py`, `screen/` | Audience screen (React + TypeScript) at http://127.0.0.1:8000: the conversation, the board (mirrored, or simulated without hardware), the painting with the current part boxed, and what Gemini, Creao and Browser Use are doing. Optional: the tour runs the same without it |
 | `stubs.py`, `test_main.py`, `test_pipeline.py`, `test_screen.py`, `test_sponsors.py`, `test_paintings.py`, `check.py` | Stubs, tests, and a script that draws each part's box on the painting |
@@ -134,7 +135,7 @@ python main.py          # talk to it; Ctrl+C ends the conversation
 `SERIAL_PORT`. With `BOARD=sim` the shapes print in the terminal, so you can try it without the
 hardware.
 
-Tests: `python test_main.py`, `python test_pipeline.py`, `python test_screen.py` and
+Tests: `python test_main.py`, `python test_board.py`, `python test_pipeline.py`, `python test_screen.py` and
 `python test_sponsors.py` (offline, no paid calls), and
 `python test_paintings.py` (live).
 
