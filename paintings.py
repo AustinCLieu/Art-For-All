@@ -56,10 +56,10 @@ a face          a person, head and shoulders   an eye          a hand
 Return JSON: {{"idea": "one sentence on what you drew", "grid": ["10 strings of 10 # or ."]}}"""
 
 JUDGE_PROMPT = """Left: "{name}" from {title}. Right: {n} drawings of it for a 10x10 board of raised
-balls (white = raised), numbered 1 to {n} from left to right. Which drawing would a blind person most
+balls (white = raised, dark gray = flat), numbered 1 to {n} from left to right. Which drawing would a blind person most
 easily recognize as {name} by touch? Return JSON: {{"best": 1}}"""
 
-DRAFTS = 3  # drawings per section; a judge call picks the best of the ones that pass grid_problems
+DRAFTS = int(os.getenv("GRID_DRAFTS", "1"))  # drawings per section; 3 = best-of-3 + a judge call (needs a paid Gemini key: the free tier allows 20 requests/day)
 
 def slug(text):
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
@@ -258,6 +258,8 @@ def load_painting(name):
 
 def draw_all(img, title, sections):
     """A grid (or None) for every section, all drawn at once: load time = the slowest section."""
+    if not sections:
+        return []
     crops = [jpeg(crop_square(img, s["bbox"])) for s in sections]
     with ThreadPoolExecutor(len(sections)) as pool:
         return list(pool.map(lambda c, s: draw(c, title, s), crops, sections))

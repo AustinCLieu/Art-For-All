@@ -103,6 +103,8 @@ def test_save_painting_is_atomic():
     finally:
         os.remove("cache/zz-save-test.json")
 
+DEMO_SLUGS = {"mona-lisa", "the-starry-night", "the-great-wave-off-kanagawa", "girl-with-a-pearl-earring"}
+
 def test_demo_cache_is_valid():
     """The schema in CLAUDE.md, checked on every cached painting."""
     for path in glob.glob("cache/*.json"):
@@ -116,7 +118,8 @@ def test_demo_cache_is_valid():
             assert s["location"] == paintings.to_location(s["bbox"]), (path, s["name"])
             assert len(s["grid"]) == 10 and all(len(r) == 10 and set(r) <= {0, 1} for r in s["grid"])
             assert any(map(any, s["grid"])), (path, s["name"])
-            assert not paintings.grid_problems(s["grid"]), (path, s["name"], paintings.grid_problems(s["grid"]))
+            if os.path.basename(path)[:-5] in DEMO_SLUGS:  # a live lookup may cache a least-bad grid on purpose
+                assert not paintings.grid_problems(s["grid"]), (path, s["name"], paintings.grid_problems(s["grid"]))
         assert set(p.get("guide_notes") or {}) <= {s["name"] for s in p["sections"]}, path
         facts = p.get("museum_facts") or []
         assert all(isinstance(f, str) and "*" not in f for f in facts), path
@@ -225,31 +228,31 @@ def fake_draws(answers, judge_says=None):
     return fake, calls
 
 def run_draw(fake):
-    old = paintings.ask_gemini
-    paintings.ask_gemini = fake
+    old, old_drafts = paintings.ask_gemini, paintings.DRAFTS
+    paintings.ask_gemini, paintings.DRAFTS = fake, 3
     try:
         return paintings.draw(paintings.jpeg(Image.new("RGB", (50, 50))), "T",
                               {"name": "her face", "description": "A face."})
     finally:
-        paintings.ask_gemini = old
+        paintings.ask_gemini, paintings.DRAFTS = old, old_drafts
 
 def test_draw_judges_between_good_drafts():
     fake, calls = fake_draws([OUTLINE, BLOB, OUTLINE[::-1]], {"best": 2})
     g = run_draw(fake)
     assert g in (paintings.fix_grid(OUTLINE), paintings.fix_grid(OUTLINE[::-1]))
     judge = [(p, t) for p, t in calls if "Which drawing" in p]
-    assert len(calls) == paintings.DRAFTS + 1 and len(judge) == 1
+    assert len(calls) == 3 + 1 and len(judge) == 1
     assert "2 drawings" in judge[0][0] and judge[0][1] == "low"  # the blob never reaches the judge
 
 def test_draw_skips_judge_for_one_good_draft():
     fake, calls = fake_draws([OUTLINE, OUTLINE, BLOB], {"best": 1})  # duplicates count once
     assert run_draw(fake) == paintings.fix_grid(OUTLINE)
-    assert len(calls) == paintings.DRAFTS
+    assert len(calls) == 3
 
 def test_draw_keeps_least_bad_when_none_pass():
     fake, calls = fake_draws([BLOB, CYPRESS, TINY])
     assert run_draw(fake) == paintings.fix_grid(CYPRESS)  # 1 problem beats 2
-    assert len(calls) == paintings.DRAFTS
+    assert len(calls) == 3
 
 def test_draw_none_when_all_fail():
     fake, _ = fake_draws([RuntimeError("down"), ["." * 10] * 10, RuntimeError("down")])

@@ -12,7 +12,7 @@ for name in DEMO:
     if not p:
         print(name, "not found, skipped")
         continue
-    if "--redraw" in sys.argv:  # new grids from the saved image; then rewrite the board half of guide_notes by hand
+    if "--redraw" in sys.argv:  # new grids from the saved image; WARNING: overwrites the hand-drawn demo grids and makes the board half of guide_notes stale, so rewrite it by hand
         redraw(p)
         for s in p["sections"]:
             print(f"\n{p['title']} {s['number']}. {s['name']}")
