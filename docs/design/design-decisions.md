@@ -88,7 +88,7 @@ Note: `npm test` in `screen/` needs Node 22.6 or newer (it runs the TypeScript t
 | Criterion | Decision | Evidence |
 |---|---|---|
 | Hierarchy | Light is the only hierarchy: what matters is lit, the rest sits in the dark. One lantern accent (`#FFB547`) means "now": the current part, the live dot, the spotlight edge, the current rail stop. Strong scale contrast between serif display (80px) and mono labels (14px). | `after-touring-1920.png`; `paper/3-type.png`; spec §3 |
-| Legibility | Text colours meet AAA on the ink background: paper 16.7:1, paper-dim 8.8:1. 13px is the smallest text anywhere. Captions show the newest line largest and step older lines down. Type is sized to be read from about 3 m away (our target; not measured on site). | `tokens.css`; Task 16 check found 0 text elements under 13px |
+| Legibility | Text colours meet AAA on the ink background: paper 16.7:1, paper-dim 8.8:1. 13px is the smallest text anywhere. Captions show the newest line largest and step older lines down. While the guide answers, the visitor's last words stay pinned above the answer under "Visitor said", so anyone walking up mid-answer can see what was asked. Type is sized to be read from about 3 m away (our target; not measured on site). | `tokens.css`; Task 16 check found 0 text elements under 13px |
 | Consistency | One shape language: the ball (wells, raised balls, rail stops, speaking dots, live dot). One token set shared by Paper and CSS with identical names. A 4/8px spacing scale (`--spacing-1…10` = 4 to 128px). | `tokens.css`; `paper/3-space-shape-motion-voice.png` |
 | Contrast | See the ratios table in section 8. `paper-faint` (4.5:1) is restricted to decoration and text 24px and larger (the outline numeral, hairlines). | `paper/3-colour.png` |
 | Ease of use | Nothing to click: the screen follows the voice tour on its own. One key, `S`, opens the agent drawer (`Esc` closes it). Every status has a word as well as a colour (WORKING, DONE, FAILED; speaking, listening, thinking). The offline and idle screens say what is going on and what to do ("The guide is on a break. Start main.py to open the gallery."). | `after-drawer-1920.png`, `after-offline-1920.png`; `copy.ts` |
@@ -138,7 +138,8 @@ Note: `npm test` in `screen/` needs Node 22.6 or newer (it runs the TypeScript t
 ### Shape
 
 - **Decision.** Only circles and hairlines. No cards, no rounded panels, no drop shadows;
-  glow is the only depth. One hand-made mark: the spotlight tag's hook is a hand-drawn SVG stroke.
+  glow is the only depth. The one exception is the pinned "Visitor said" strip: a lantern rule on the
+  left over an 8% lantern tint, so the question still reads when a long answer fills the column. One hand-made mark: the spotlight tag's hook is a hand-drawn SVG stroke.
 - **Reason.** The board is made of balls, so the ball became the unit of the whole interface: wells,
   raised balls, rail stops, the live dot and the speaking ring.
 - **Dot grid ← Variant B05 + one year B15** (a coarse dot grid reads as an image; hand-drawn marks on a
@@ -203,7 +204,8 @@ of a painting, where there is nothing to fly from yet.
   few metres away. The drawer shows one row per agent with a status word and one detail line.
 - **Chat bubbles.** They made the conversation look like a messaging app and took a third of the
   screen. Captions with the newest line largest read more like subtitles in a gallery.
-- **Cards.** Boxes split one experience into three. The new screen has no cards at all.
+- **Cards.** Boxes split one experience into three. The new screen has no cards; the only tinted
+  strip is the visitor's pinned question, added after a live test where long answers pushed it off screen.
 - **A light mode.** We committed to the dark teamLab room. The risk we noted is that dark screens can
   wash out on cheap projectors; our answer was to keep text at AAA contrast. We have not tested the
   screen on a projector; we only checked that it fits a 1280×720 viewport with no scrolling.
