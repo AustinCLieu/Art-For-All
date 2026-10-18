@@ -20,6 +20,11 @@ try:
 except ImportError:
     def start_tour_writer(p):
         pass
+try:
+    from museum import start_museum_facts  # Austin: Browser Use museum facts in the background
+except ImportError:
+    def start_museum_facts(p):
+        pass
 
 sentry_sdk.init(dsn=os.getenv("SENTRY_DSN"))
 state = {"painting": None, "index": 0}
@@ -35,7 +40,7 @@ def section_payload(i):
         "description": s["description"],
         "shape": to_ascii(s["grid"]),
         "guide_notes": (p.get("guide_notes") or {}).get(s["name"]),  # from Creao, demo paintings only
-        "museum_facts": p.get("museum_facts"),                       # from Browser Use, demo paintings only
+        "museum_facts": p.get("museum_facts"),                       # from Browser Use, arrives in the background
     }
 
 def open_painting(params):
@@ -44,6 +49,7 @@ def open_painting(params):
         return {"found": False}
     state["painting"] = p
     start_tour_writer(p)  # no-op if the painting already has guide notes
+    start_museum_facts(p)  # no-op if the painting already has museum facts
     sections = [{"number": s["number"], "name": s["name"], "location": s["location"]} for s in p["sections"]]
     return {"found": True, "title": p["title"], "artist": p["artist"], "year": p["year"],
             "summary": p["summary"], "sections": sections, **section_payload(0)}
