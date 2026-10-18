@@ -40,18 +40,24 @@ export function usePaintingPixels(src: string | null): Pixels | null {
   return pixels;
 }
 
-/** Who is talking, inferred from when the newest transcript line last changed. */
-export function useSpeaker(lines: Line[], thinking: boolean): Speech {
-  const last = lines[lines.length - 1];
-  const key = last ? `${lines.length}:${last.text}` : "";
+/**
+ * Who is talking, inferred from when the newest transcript line last changed.
+ * lines: null means the state has not loaded yet. The first loaded transcript is the baseline and is not "speaking".
+ */
+export function useSpeaker(lines: Line[] | null, thinking: boolean): Speech {
+  const last = lines?.[lines.length - 1];
+  const key = lines === null ? null : last ? `${lines.length}:${last.text}` : "";
   const [changedAt, setChangedAt] = useState<number | null>(null);
   const [now, setNow] = useState(() => Date.now());
-  const first = useRef(true);
+  const seen = useRef<string | null>(null);
   useEffect(() => {
-    if (first.current) {
-      first.current = false; // lines already on screen when the page opens are not "speaking"
+    if (key === null) return; // nothing loaded yet
+    if (seen.current === null) {
+      seen.current = key; // what is on screen when the page opens is not "speaking"
       return;
     }
+    if (key === seen.current) return;
+    seen.current = key;
     if (key) setChangedAt(Date.now());
   }, [key]);
   useEffect(() => {
@@ -75,6 +81,7 @@ export function useFlow(title: string | null, section: Section | null) {
   const number = section?.number ?? null;
   useLayoutEffect(() => {
     const next = { title, number };
+    if (title !== prev.current.title) setFlowFor(null); // a new painting never leaves the balls held
     if (section && shouldFly(prev.current, next) && !reducedMotion()) setFlowFor(section);
     prev.current = next;
   }, [title, number]); // section is read for this render only; a new object with the same number must not re-fly
