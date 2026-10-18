@@ -13,7 +13,14 @@ export function PaintingView({ painting, section }: { painting: Painting | null;
     <section className="panel painting-panel">
       <h2>The painting</h2>
       <div className="frame-wrap">
-        {painting.image && <img src={painting.image} alt={painting.title} />}
+        {painting.image && (
+          <img
+            key={painting.image}
+            src={painting.image}
+            alt={painting.title}
+            onError={(e) => (e.currentTarget.style.display = "none")}
+          />
+        )}
         {section && (
           <div
             className="bbox"

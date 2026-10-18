@@ -4,8 +4,12 @@ import type { Section } from "../types";
 const FLAT: number[][] = Array.from({ length: 10 }, () => Array<number>(10).fill(0));
 
 // Row 0 is the edge farthest from the visitor, as on the real board. Balls move one row at a time.
+// Always exactly 10x10 of 0/1, so a short row can't shift every later cell.
+const normalize = (grid: unknown[][] | undefined): number[][] =>
+  Array.from({ length: 10 }, (_, r) => Array.from({ length: 10 }, (_, c) => (Number(grid?.[r]?.[c]) ? 1 : 0)));
+
 export function Board({ section, hardware }: { section: Section | null; hardware: boolean }) {
-  const grid = section?.grid ?? FLAT;
+  const grid = section ? normalize(section.grid) : FLAT;
   const raised = grid.flat().filter(Boolean).length;
   return (
     <section className="panel board-panel">

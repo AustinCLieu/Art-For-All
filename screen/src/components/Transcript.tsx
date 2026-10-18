@@ -3,11 +3,10 @@ import type { Line } from "../types";
 
 export function Transcript({ lines }: { lines: Line[] }) {
   const box = useRef<HTMLDivElement>(null);
-  const last = lines[lines.length - 1]?.text;
   useEffect(() => {
     const el = box.current;
     if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
-  }, [lines.length, last]);
+  }, [lines]); // a new array only when the state changed, so this also scrolls once 50 lines are full
 
   return (
     <section className="panel transcript-panel">

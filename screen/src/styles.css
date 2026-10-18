@@ -90,6 +90,12 @@ body { background: var(--bg); color: var(--text); font-size: clamp(14px, 1.1vw, 
   .board { width: min(100%, 420px); }
 }
 
+/* 720p and 768p projectors: the board panel must fit above the sponsor chips */
+@media (max-height: 800px) {
+  .board { width: min(100%, 44vh); }
+  .frame { display: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .pin, .bbox { transition: none; }
   .chip.working .dot { animation: none; }

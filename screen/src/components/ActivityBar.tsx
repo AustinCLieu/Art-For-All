@@ -16,7 +16,7 @@ export function ActivityBar({ activity }: { activity: State["activity"] }) {
         const a = activity[key];
         return (
           <div key={key} className={`chip ${a.status}`}>
-            <span className="dot" aria-hidden />
+            <span className="dot" aria-hidden="true" />
             <div>
               <strong>{name}</strong> <span className="job">{job}</span>
               <p className="detail">{a.detail || WORDS[a.status]}</p>

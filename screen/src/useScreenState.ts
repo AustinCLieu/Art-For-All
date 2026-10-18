@@ -12,7 +12,8 @@ export function useScreenState(intervalMs = 300) {
     let timer = 0;
     const poll = async () => {
       try {
-        const res = await fetch("/api/state", { cache: "no-store" });
+        // A server that accepts but never answers must turn the pill red, not freeze it on "Live".
+        const res = await fetch("/api/state", { cache: "no-store", signal: AbortSignal.timeout(2000) });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const text = await res.text();
         if (alive && text !== last.current) {
