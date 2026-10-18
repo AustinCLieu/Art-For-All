@@ -50,7 +50,8 @@ def run_tour_writer(p):
     h = {"Authorization": f"Bearer {os.environ['CREAO_API_KEY']}"}
     runs = f"{API}/{os.environ['CREAO_AGENT_ID']}/runs"  # CREAO_AGENT_ID holds the agent's app ID
     res = requests.post(runs, headers=h, timeout=30, json={
-        "inputs": {"painting": f"{p['title']} by {p['artist']}",
+        "inputs": {"painting_title": p["title"], "painting_artist": p["artist"],  # the agent's input names
+                   "painting": f"{p['title']} by {p['artist']}",  # what earlier successful runs sent
                    "sections": [s["name"] for s in p["sections"]]}})
     res.raise_for_status()  # 401 bad key, 402 no credits, 404 wrong app ID
     run_id = res.json()["id"]
