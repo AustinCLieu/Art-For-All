@@ -1,0 +1,2 @@
+.room { position: fixed; inset: 0; z-index: -1; overflow: hidden; background: radial-gradient(ellipse 70% 60% at 30% 45%, var(--glow, transparent), transparent 70%), var(--color-ink); }
+.room__blur { position: absolute; inset: -10%; width: 120%; height: 120%; object-fit: cover; filter: blur(90px) saturate(1.2); opacity: 0.16; }

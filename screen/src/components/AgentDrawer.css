@@ -1,0 +1,20 @@
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; z-index: 10; width: min(520px, 92vw); display: flex; flex-direction: column; gap: var(--spacing-7); padding: var(--margin-y) var(--spacing-7); background: var(--color-stone); border-left: 1px solid var(--color-stone-2); transform: translateX(100%); visibility: hidden; transition: transform 500ms var(--ease-light), visibility 0s linear 500ms; }
+.drawer--open { transform: none; visibility: visible; transition: transform 500ms var(--ease-light); }
+.drawer__head { display: flex; justify-content: space-between; align-items: baseline; }
+.drawer__title { margin: 0; font-family: var(--font-serif); font-weight: 400; font-size: var(--text-title); line-height: 1; }
+.drawer__rows { list-style: none; margin: 0; padding: 0; }
+.agent { display: grid; grid-template-columns: 120px minmax(0, 1fr); column-gap: var(--spacing-5); row-gap: var(--spacing-1); padding: var(--spacing-5) 0; border-top: 1px solid var(--color-stone-2); }
+.agent__status { grid-row: span 3; display: flex; align-items: center; gap: var(--spacing-2); align-self: start; color: var(--color-paper-dim); }
+.agent__dot { width: 8px; height: 8px; border-radius: var(--radius-full); background: var(--color-paper-faint); }
+.agent--working .agent__status { color: var(--color-lantern); }
+.agent--working .agent__dot { background: var(--color-lantern); animation: pulse 1.2s ease-in-out infinite; }
+.agent--done .agent__status { color: var(--color-moss); }
+.agent--done .agent__dot { background: var(--color-moss); }
+.agent--failed .agent__status { color: var(--color-koi); }
+.agent--failed .agent__dot { background: var(--color-koi); }
+.agent__name { font-weight: var(--font-weight-semibold); }
+.agent__job { color: var(--color-paper-dim); }
+.agent__detail { color: var(--color-paper); text-transform: none; letter-spacing: 0.02em; }
+.drawer__wire { display: grid; gap: var(--spacing-2); margin-top: auto; color: var(--color-paper-dim); }
+.drawer__wire code { font-family: var(--font-mono); font-size: var(--text-label); word-break: break-all; }
+@media (prefers-reduced-motion: reduce) { .drawer, .drawer--open { transition: none; } .agent--working .agent__dot { animation: none; } }

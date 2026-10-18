@@ -1,0 +1,7 @@
+.top-strip { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-5); }
+.wordmark { font-family: var(--font-serif); font-style: italic; font-size: var(--text-kicker); line-height: 1; }
+.top-strip__right { display: flex; align-items: center; gap: var(--spacing-6); }
+.live { display: inline-flex; align-items: center; gap: var(--spacing-2); }
+.live__dot { width: 8px; height: 8px; border-radius: var(--radius-full); background: var(--color-lantern); box-shadow: 0 0 12px var(--color-lantern); animation: pulse 2s ease-in-out infinite; }
+.live__time { color: var(--color-paper-dim); }
+@media (prefers-reduced-motion: reduce) { .live__dot { animation: none; } }
