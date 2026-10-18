@@ -170,3 +170,12 @@ Read CLAUDE.md and docs/harvey.md. Then:
 3. Create requirements.txt and a .env.example listing the env vars from CLAUDE.md.
 4. Tell me the exact command to run it. Don't add features that aren't in docs/harvey.md.
 ```
+
+## Demo with the real board
+- `.env`: `BOARD=serial`, `SERIAL_PORT=/dev/cu.usbmodem2101` (check with `ls /dev/cu.usbmodem*`).
+- Before each shape `main.py` prints `Press the board flat, then Enter...`. The teammate at the laptop
+  presses all pins down, then hits Enter. The board then raises the new shape.
+- Dashboard: both tools have a 60 s response timeout, and the prompt tells the guide to say
+  "One moment while the board changes." before each tool call.
+- Before the demo: power off, head in the zero corner, pins flat, USB Power cap off, 12 V on, then USB.
+  Never send `G28`. Unplugging 12 V is the emergency stop.
