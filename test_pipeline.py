@@ -21,6 +21,12 @@ def test_crop_square():
     tall = paintings.crop_square(img, [0.0, 0.0, 0.1, 0.5])  # 10x100 px box
     assert tall.size[0] == tall.size[1] == 130
 
+def test_crop_square_degenerate():
+    img = Image.new("RGB", (200, 100))
+    for bbox in ([0.6, 0.6, 0.4, 0.4], [0.5, 0.5, 0.5001, 0.5001]):  # inverted, sub-pixel
+        c = paintings.crop_square(img, bbox)
+        assert c.size[0] == c.size[1] and c.size[0] >= 8
+
 def test_jpeg():
     data = paintings.jpeg(Image.new("RGB", (8, 8)))
     assert Image.open(BytesIO(data)).format == "JPEG"
@@ -73,6 +79,42 @@ def test_fetch_painting():
     assert first[0] == "image/png" and first[1] == "low"
     assert len(draws) == 3 and all(m == "image/jpeg" and t == "medium" for m, t, _ in draws)
     assert all("Zz Test Painting" in pr for _, _, pr in draws)
+
+def test_fetch_painting_drops_bad_sections():
+    buf = BytesIO()
+    Image.new("RGB", (200, 100), "white").save(buf, "PNG")
+
+    class Resp:
+        content = buf.getvalue()
+        headers = {"Content-Type": "image/png"}
+
+    def fake_gemini(image_bytes, mime, prompt, thinking):
+        if "This crop is" not in prompt:
+            return {"sections": [
+                {"name": "good", "box_2d": [100, 300, 500, 600], "description": "Good."},
+                {"name": "inverted", "box_2d": [500, 600, 100, 300], "description": "Inverted."},
+                {"name": "nobox", "description": "No box."},
+                {"name": "blank", "box_2d": [0, 0, 300, 1000], "description": "Blank."}]}
+        if '"blank"' in prompt:
+            return {"grid": ["." * 10] * 10}
+        return {"grid": ["..####...."]}
+
+    old = paintings.find_on_wikipedia, paintings.http.get, paintings.ask_gemini
+    paintings.find_on_wikipedia = lambda name: {"title": "Zz Test Painting", "summary": "S.",
+                                                "image_url": "https://example.org/x.png"}
+    paintings.http.get = lambda *a, **k: Resp()
+    paintings.ask_gemini = fake_gemini
+    try:
+        p = paintings.fetch_painting("zz test painting")
+    finally:
+        paintings.find_on_wikipedia, paintings.http.get, paintings.ask_gemini = old
+        for ext in ("json", "jpg"):
+            if os.path.exists(f"cache/zz-test-painting.{ext}"):
+                os.remove(f"cache/zz-test-painting.{ext}")
+    assert [s["name"] for s in p["sections"]] == ["good", "inverted"]
+    assert [s["number"] for s in p["sections"]] == [1, 2]
+    b = p["sections"][1]["bbox"]
+    assert b[0] <= b[2] and b[1] <= b[3]
 
 if __name__ == "__main__":
     for name, fn in list(globals().items()):

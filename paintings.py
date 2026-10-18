@@ -124,8 +124,9 @@ def fix_grid(grid):
 def crop_square(img, bbox, pad=0.15):
     """Cut bbox out of img, padded and widened to a square so shapes aren't stretched on the board."""
     w, h = img.size
-    x0, y0, x1, y1 = bbox[0] * w, bbox[1] * h, bbox[2] * w, bbox[3] * h
-    side = max(x1 - x0, y1 - y0) * (1 + 2 * pad)
+    x0, x1 = sorted((bbox[0] * w, bbox[2] * w))
+    y0, y1 = sorted((bbox[1] * h, bbox[3] * h))
+    side = max(max(x1 - x0, y1 - y0) * (1 + 2 * pad), 8)
     cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
     return img.crop([round(cx - side / 2), round(cy - side / 2), round(cx + side / 2), round(cy + side / 2)])
 
@@ -165,16 +166,21 @@ def fetch_painting(name):
         return None  # the image wasn't the painting
     image_path = f"{CACHE}/{slug(wiki['title'])}.jpg"
     sections = []
-    for s in data["sections"]:
-        y0, x0, y1, x1 = [v / 1000 for v in s["box_2d"]]
-        bbox = [x0, y0, x1, y1]
-        sections.append({"name": s["name"], "bbox": bbox, "location": to_location(bbox),
-                         "description": s["description"]})
+    for s in data["sections"][:10]:  # caps parallel Gemini calls and tour length
+        try:
+            y0, x0, y1, x1 = [v / 1000 for v in s["box_2d"]]
+            bbox = [min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1)]
+            sections.append({"name": s["name"], "bbox": bbox, "location": to_location(bbox),
+                             "description": s["description"]})
+        except Exception as e:  # one bad section must not sink the painting
+            print(f"skipped bad section {s!r}: {e!r}")
+    if not sections:
+        return None
     img = Image.open(BytesIO(resp.content))
     crops = [jpeg(crop_square(img, s["bbox"])) for s in sections]
     with ThreadPoolExecutor(len(sections)) as pool:  # all drawings at once: load time = slowest one
         grids = list(pool.map(lambda c, s: draw(c, wiki["title"], s), crops, sections))
-    kept = [(s, g) for s, g in zip(sections, grids) if g]
+    kept = [(s, g) for s, g in zip(sections, grids) if g and any(map(any, g))]
     if not kept:
         return None
     sections = [{"number": i, **s, "grid": g} for i, (s, g) in enumerate(kept, start=1)]
