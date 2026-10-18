@@ -38,7 +38,7 @@ function useReliefField(relief: string | null, color: string | null): PinField |
 
 // The 10,000-pin simulation for the current section. Mounted only while open, so the scene lives exactly as long.
 export function PinModal({ section, onClose }: { section: Section | null; onClose: () => void }) {
-  const [step, setStep] = useState(RESOLUTIONS.length - 1); // start at 100 x 100
+  const [step, setStep] = useState(0); // start at 10 x 10 (fewest pins)
   const n = RESOLUTIONS[step];
   const field = useReliefField(section?.relief ?? null, section?.relief_color ?? null);
   const gridKey = section?.grid.flat().join("");
