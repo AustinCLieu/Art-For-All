@@ -1,0 +1,7 @@
+/* A well is a ball at 62% scale (BorderlessFlow divides measured well size by 0.62). */
+.balls { width: 100%; aspect-ratio: 1; display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(10, 1fr); gap: 2.6%; }
+.ball { border-radius: var(--radius-full); background: var(--color-stone-2); transform: scale(0.62); transition: transform var(--dur-ball) var(--ease-rise) calc(var(--row) * var(--stagger-row)), background-color var(--dur-ball) var(--ease-light) calc(var(--row) * var(--stagger-row)), box-shadow var(--dur-ball) var(--ease-light) calc(var(--row) * var(--stagger-row)); }
+.ball--up { transform: scale(1); background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--ball) 35%, white), var(--ball) 55%, color-mix(in srgb, var(--ball) 70%, black)); box-shadow: 0 0 18px color-mix(in srgb, var(--ball) 45%, transparent); }
+.balls--breathing .ball { animation: breathe 2.4s var(--ease-light) infinite; animation-delay: calc(var(--row) * 120ms); }
+@keyframes breathe { 50% { background-color: var(--color-paper-faint); } }
+@media (prefers-reduced-motion: reduce) { .balls--breathing .ball { animation: none; } }
