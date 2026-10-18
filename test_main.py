@@ -36,6 +36,7 @@ def fresh_main():
     main.show_grid = lambda grid: None        # keep test output quiet
     main.to_ascii = stubs.to_ascii
     main.start_tour_writer = lambda p: None   # never start Creao from tests
+    main.start_museum_facts = lambda p: None  # never start Browser Use either (paid, and it saves to cache/)
     main.state.update(painting=None, index=0)
     return main
 
@@ -74,6 +75,33 @@ def test_navigation():
     assert m.show_section({"section": "99"})["now_showing"].startswith("Now showing section 3 of 3")
     assert m.show_section({"section": "0"})["now_showing"].startswith("Now showing section 1 of 3")
     assert "error" in m.show_section({"section": "her hands"})
+    assert m.show_section({"section": "section 2"})["now_showing"].startswith("Now showing section 2 of 3")
+    assert m.show_section({"section": "1.0"})["now_showing"].startswith("Now showing section 1 of 3")
+
+def test_board_failure_keeps_talking():
+    # A serial error must cost the touch part only: the agent still gets the words, and Sentry the error.
+    m = fresh_main()
+    captured = []
+    original = m.sentry_sdk.capture_exception
+    m.sentry_sdk.capture_exception = captured.append
+    def unplugged(grid):
+        raise OSError("board unplugged")
+    m.show_grid = unplugged
+    try:
+        r = m.open_painting({"name": "Mona Lisa"})
+        assert r["found"] is True and r["description"] and r["shape"]
+        assert m.show_section({"section": "next"})["now_showing"].startswith("Now showing section 2 of 3")
+    finally:
+        m.sentry_sdk.capture_exception = original
+    assert [str(e) for e in captured] == ["board unplugged", "board unplugged"]
+
+def test_missing_dependency_is_not_hidden():
+    # paintings.py failing on its own import (here: no google-genai) must stop main.py, not swap in the stub.
+    import subprocess, sys
+    code = ("import sys; sys.modules['google.genai'] = None\n"
+            "try:\n    import main\nexcept ImportError:\n    print('raised')\nelse:\n    print(main.load_painting.__module__)\n")
+    out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, timeout=120)
+    assert out.stdout.strip().endswith("raised"), out.stdout + out.stderr
 
 def test_switch_painting_resets_tour():
     m = fresh_main()
