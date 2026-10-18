@@ -16,17 +16,37 @@ http.headers.update(UA)
 http.mount("https://", requests.adapters.HTTPAdapter(max_retries=requests.adapters.Retry(connect=2, read=1)))
 T = (5, 30)  # connect, read timeouts in seconds
 
-PROMPT = """This is {title}. Wikipedia says: {summary}
-A blind person will explore it section by section on a 10x10 board of raised balls.
-Split it into 3-6 sections, one subject each (a face, hands, the sky, a tree).
-Order them from most to least famous: the part people know best comes first.
+SECTIONS_PROMPT = """This is {title}. Wikipedia says: {summary}
+A blind person will explore it part by part on a 10x10 board of raised balls. Each part fills the
+whole board, so small, specific parts (an eye, a hand, an earring) come through clearly.
+Split it into 5-10 sections in tour order: the most famous subject as a whole first, then its key
+features one at a time (eyes, mouth, hands, jewelry), then the next subject and its features.
 Return JSON: {{"artist": "...", "year": "...", "sections": [...]}} where each section has
-- name: short, the way a museum guide would say it ("her face")
-- box_2d: [y0, x0, y1, x1] on a 0-1000 scale
+- name: short, the way a museum guide would say it ("her left eye")
+- box_2d: [y0, x0, y1, x1] on a 0-1000 scale, tight around that part
 - description: one or two sentences on what is there and why it matters
-- grid: 10 rows of 10 numbers, 1 = raised ball, a bold simple outline or silhouette
-  of that subject that fingers can recognize; row 0 is the top
 If the image is not this painting, return {{"sections": []}}."""
+
+GRID_PROMPT = """This crop is "{name}" from {title}: {description}
+A blind person will feel it on a 10x10 board of raised balls. Don't trace the pixels. First decide
+what this is and the clearest way fingers could recognize it, then draw that.
+- Outlines and key features, not solid blobs: a filled shape feels like a flat block.
+- About 15-50 raised balls, using most of the board.
+- A person is a head on shoulders and a body, never a triangle. A face shows its eyes and mouth.
+- Row 0 is the top, column 0 is the left.
+Examples (# raised, . flat):
+a face          a person, head and shoulders   an eye          a hand
+...####...      ...####...                     ..........      ..#.#.#...
+.##....##.      ..#....#..                     ..........      ..#.#.#.#.
+#........#      ..#....#..                     ...####...      ..#.#.#.#.
+#.##..##.#      ...#..#...                     .##....##.      #.#.#.#.#.
+#........#      ....##....                     #...##...#      ##.......#
+#...##...#      ..######..                     #...##...#      .#.......#
+#........#      .#......#.                     .##....##.      .#......#.
+#..####..#      #........#                     ...####...      ..#....#..
+.#......#.      #........#                     ..........      ..#....#..
+..######..      #........#                     ..........      ..######..
+Return JSON: {{"idea": "one sentence on what you drew", "grid": ["10 strings of 10 # or ."]}}"""
 
 def slug(text):
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
@@ -67,18 +87,33 @@ def find_on_wikipedia(name):
         return None
     return {"title": summary["title"], "summary": summary.get("extract", ""), "image_url": url}
 
-def analyze(image_bytes, mime, title, summary):
+def ask_gemini(image_bytes, mime, prompt, thinking):
     client = genai.Client()  # reads GEMINI_API_KEY
     resp = client.models.generate_content(
         model="gemini-3-flash-preview",
-        contents=[types.Part.from_bytes(data=image_bytes, mime_type=mime),
-                  PROMPT.format(title=title, summary=summary)],
+        contents=[types.Part.from_bytes(data=image_bytes, mime_type=mime), prompt],
         config=types.GenerateContentConfig(response_mime_type="application/json",
-                                           thinking_config=types.ThinkingConfig(thinking_level="low")))
-    data = json.loads(resp.text)
+                                           thinking_config=types.ThinkingConfig(thinking_level=thinking)))
+    return json.loads(resp.text)
+
+def analyze(image_bytes, mime, title, summary):
+    """Call 1: the parts of the painting, in tour order, without grids."""
+    data = ask_gemini(image_bytes, mime, SECTIONS_PROMPT.format(title=title, summary=summary), "low")
     if isinstance(data, list):  # sometimes it returns [{...}] or the bare sections list
         data = data[0] if data and "sections" in data[0] else {"sections": data}
     return data
+
+def draw(crop_bytes, title, s):
+    """Call 2, once per section: design a grid from just that crop. None if it fails."""
+    try:
+        data = ask_gemini(crop_bytes, "image/jpeg", GRID_PROMPT.format(
+            name=s["name"], title=title, description=s["description"]), "medium")
+        if isinstance(data, list):
+            data = data[0]
+        return fix_grid(data["grid"])
+    except Exception as e:  # drop this section, keep the tour
+        print(f"draw failed for {s['name']!r}: {e!r}")
+        return None
 
 def fix_grid(grid):
     """Force exactly 10x10 of 0/1, whatever the model returned (numbers or '#'/'.' strings)."""
@@ -130,11 +165,19 @@ def fetch_painting(name):
         return None  # the image wasn't the painting
     image_path = f"{CACHE}/{slug(wiki['title'])}.jpg"
     sections = []
-    for i, s in enumerate(data["sections"], start=1):
+    for s in data["sections"]:
         y0, x0, y1, x1 = [v / 1000 for v in s["box_2d"]]
         bbox = [x0, y0, x1, y1]
-        sections.append({"number": i, "name": s["name"], "bbox": bbox, "location": to_location(bbox),
-                         "description": s["description"], "grid": fix_grid(s["grid"])})
+        sections.append({"name": s["name"], "bbox": bbox, "location": to_location(bbox),
+                         "description": s["description"]})
+    img = Image.open(BytesIO(resp.content))
+    crops = [jpeg(crop_square(img, s["bbox"])) for s in sections]
+    with ThreadPoolExecutor(len(sections)) as pool:  # all drawings at once: load time = slowest one
+        grids = list(pool.map(lambda c, s: draw(c, wiki["title"], s), crops, sections))
+    kept = [(s, g) for s, g in zip(sections, grids) if g]
+    if not kept:
+        return None
+    sections = [{"number": i, **s, "grid": g} for i, (s, g) in enumerate(kept, start=1)]
     with open(image_path, "wb") as f:  # only after parsing worked, so a failure leaves no stray files
         f.write(resp.content)
     p = {"title": wiki["title"], "artist": data.get("artist", ""), "year": data.get("year", ""),
