@@ -3,3 +3,4 @@
 __pycache__/
 cache/*_check.png
 
+screen/node_modules/
