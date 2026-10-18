@@ -2093,8 +2093,9 @@ export function App() {
 .app { position: relative; isolation: isolate; height: 100vh; display: grid; grid-template-columns: 58fr 42fr; grid-template-rows: auto minmax(0, 1fr) auto; column-gap: var(--gutter); row-gap: var(--spacing-6); padding: var(--margin-y) var(--margin-x); }
 .col { min-height: 0; display: flex; flex-direction: column; }
 /* Wall label beside the painting, sharing its bottom edge (Paper: Touring — Mona Lisa). */
-.col--art { flex-direction: row; align-items: flex-end; gap: var(--spacing-8); }
-.col--art .stage { flex: none; height: 100%; align-items: flex-end; }
+/* Landscape paintings take the full width, so the label wraps underneath them. */
+.col--art { flex-direction: row; flex-wrap: wrap; align-items: flex-end; align-content: flex-end; gap: var(--spacing-5) var(--spacing-8); }
+.col--art .stage { flex: none; max-width: 100%; align-items: flex-end; }
 .col--art .stage__clip img { max-height: calc(100vh - 220px); }
 .col--art .placard { max-width: 440px; padding-bottom: var(--spacing-1); }
 .col--touch { gap: var(--spacing-7); }
