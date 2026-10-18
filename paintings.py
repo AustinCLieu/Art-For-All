@@ -141,6 +141,27 @@ def fix_grid(grid):
     rows = [r + [0] * (10 - len(r)) for r in rows]
     return rows + [[0] * 10 for _ in range(10 - len(rows))]
 
+def grid_problems(grid):
+    """What would make this grid hard to feel; [] if it looks fine. Code only, no Gemini.
+    A ball is 'interior' when all 4 neighbours are raised: blobs are mostly interior, outlines aren't."""
+    n = sum(map(sum, grid))
+    if not n:
+        return ["empty"]
+    rows = [r for r in range(10) if any(grid[r])]
+    cols = [c for c in range(10) if any(row[c] for row in grid)]
+    inner = sum(1 for r in range(1, 9) for c in range(1, 9) if grid[r][c] and grid[r - 1][c]
+                and grid[r + 1][c] and grid[r][c - 1] and grid[r][c + 1])
+    problems = []
+    if n < 12:
+        problems.append("too few balls")
+    if n > 60:
+        problems.append("too many balls")
+    if max(rows[-1] - rows[0], cols[-1] - cols[0]) + 1 < 7:
+        problems.append("too small")
+    if inner > 0.3 * n:
+        problems.append("solid block")
+    return problems
+
 def crop_square(img, bbox, pad=0.05):
     """Cut bbox out of img with a little padding and center it on a gray square: the shape isn't
     stretched on the board, and neighboring parts of the painting stay out of the drawing."""

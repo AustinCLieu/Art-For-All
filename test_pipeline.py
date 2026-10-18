@@ -5,6 +5,12 @@ from PIL import Image
 import paintings
 
 DEMO = ["Mona Lisa", "The Starry Night", "The Great Wave off Kanagawa", "Girl with a Pearl Earring"]
+OUTLINE = ["...####...", ".##....##.", "#........#", "#.##..##.#", "#........#",
+           "#...##...#", "#........#", "#..####..#", ".#......#.", "..######.."]  # the prompt's face
+CYPRESS = ["....#.....", "....##....", "...###....", "...###....", "..#####...",
+           ".######...", ".#######..", ".#######..", "#########.", "##########"]  # an old cached blob
+BLOB = ["##########"] * 10
+TINY = ["..####...."]
 
 def test_fix_grid_strings():
     g = paintings.fix_grid(["#.#", "..#"])
@@ -16,6 +22,14 @@ def test_fix_grid_strings():
 def test_fix_grid_numbers():
     g = paintings.fix_grid([[1, 0, 1]] * 12)
     assert len(g) == 10 and g[9][:3] == [1, 0, 1]
+
+def test_grid_problems():
+    g = paintings.fix_grid
+    assert paintings.grid_problems(g(OUTLINE)) == []
+    assert paintings.grid_problems(g(CYPRESS)) == ["solid block"]
+    assert paintings.grid_problems(g(BLOB)) == ["too many balls", "solid block"]
+    assert paintings.grid_problems(g(TINY)) == ["too few balls", "too small"]
+    assert paintings.grid_problems(g([])) == ["empty"]
 
 def test_crop_square():
     img = Image.new("RGB", (100, 200), "red")
