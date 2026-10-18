@@ -1,4 +1,7 @@
 import os, re, json, glob, threading, requests
+from io import BytesIO
+from concurrent.futures import ThreadPoolExecutor
+from PIL import Image
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
@@ -78,10 +81,23 @@ def analyze(image_bytes, mime, title, summary):
     return data
 
 def fix_grid(grid):
-    """Force exactly 10x10 of 0/1, whatever the model returned."""
-    rows = [[1 if v else 0 for v in list(row)[:10]] for row in list(grid)[:10]]
+    """Force exactly 10x10 of 0/1, whatever the model returned (numbers or '#'/'.' strings)."""
+    rows = [[1 if v in (1, "1", "#") else 0 for v in list(row)[:10]] for row in list(grid)[:10]]
     rows = [r + [0] * (10 - len(r)) for r in rows]
     return rows + [[0] * 10 for _ in range(10 - len(rows))]
+
+def crop_square(img, bbox, pad=0.15):
+    """Cut bbox out of img, padded and widened to a square so shapes aren't stretched on the board."""
+    w, h = img.size
+    x0, y0, x1, y1 = bbox[0] * w, bbox[1] * h, bbox[2] * w, bbox[3] * h
+    side = max(x1 - x0, y1 - y0) * (1 + 2 * pad)
+    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+    return img.crop([round(cx - side / 2), round(cy - side / 2), round(cx + side / 2), round(cy + side / 2)])
+
+def jpeg(img):
+    buf = BytesIO()
+    img.convert("RGB").save(buf, "JPEG", quality=90)
+    return buf.getvalue()
 
 def to_location(bbox):
     cx, cy = (bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2
