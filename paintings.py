@@ -12,7 +12,7 @@ except Exception:  # nothing here depends on the screen
         pass
 
 load_dotenv()
-UA = {"User-Agent": "TactileArt/0.1 (LA Hacks hackathon; https://github.com/AustinCLieu/LAHACKSAI_NEED_A_NAME_LMAO)"}  # Wikimedia blocks generic agents
+UA = {"User-Agent": "ArtForAll/0.1 (LA Hacks hackathon; https://github.com/AustinCLieu/LAHACKSAI_NEED_A_NAME_LMAO)"}  # Wikimedia blocks generic agents
 CACHE = "cache"
 os.makedirs(CACHE, exist_ok=True)
 _lock = threading.Lock()

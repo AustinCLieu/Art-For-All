@@ -1,9 +1,8 @@
 # Design decisions: the audience screen
 
-This is the record of how we redesigned the audience screen of our tactile art guide for LA Hacks 2026
+This is the record of how we redesigned the audience screen of ArtForAll for LA Hacks 2026
 (Paper's design challenge), and why each choice was made. Codes such as `V01` point into our reference
-log, [`inspiration.md`](inspiration.md). The product has no final name yet; "Tactile Art Guide" on the
-screen is a placeholder wordmark.
+log, [`inspiration.md`](inspiration.md). The product is called ArtForAll.
 
 Sources: the spec (`docs/superpowers/specs/2026-10-17-audience-screen-revamp-design.md`), the Paper file
 exported to [`paper/`](paper/), the tokens in `screen/src/design/tokens.css` and the strings in
@@ -73,7 +72,7 @@ Note: `npm test` in `screen/` needs Node 22.6 or newer (it runs the TypeScript t
 5. **The choice.** A, with B's typographic discipline.
 6. **Paper.** We designed it in Paper alongside the code: story, research, design system,
    components, screens and the flow storyboard. Export:
-   [`paper/tactile-art-guide-design.pdf`](paper/tactile-art-guide-design.pdf) (20 pages, plus one PNG per
+   [`paper/artforall-design.pdf`](paper/artforall-design.pdf) (20 pages, plus one PNG per
    page in [`paper/`](paper/)). The PDF is assembled from the page images, so its text can't be
    selected. Some detail text in the Paper screens is mockup copy we wrote for the design (the agent
    detail lines in the drawer and the Starry Night captions), not output from the live app.
@@ -256,4 +255,3 @@ the board is made of balls.
 
 When the tour moves on, the spotlight glides to the next part, its cells light up, and they fly across
 the screen as dots and land on the board as balls in the painting's own colours. We designed it in
-Paper alongside the code; the file is in our repo at `docs/design/paper/tactile-art-guide-design.pdf`.

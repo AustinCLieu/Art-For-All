@@ -1,4 +1,4 @@
-# Tactile Art Guide (LA Hacks AI Hackathon)
+# ArtForAll (LA Hacks AI Hackathon)
 
 Blind users explore famous paintings by voice and touch. An ElevenLabs voice agent leads a guided
 tour of a painting, part by part. A 10x10 board of balls raises the shape of the part being discussed.

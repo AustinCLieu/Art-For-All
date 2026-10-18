@@ -154,7 +154,7 @@ Expected: `# pass 1`, `# fail 0` (an ExperimentalWarning about type stripping is
 
 ```css
 /* "Lantern Water": the teamLab Planets water room at night. Every colour is an object in that room.
-   Token names match the Paper file "Tactile Art Guide — Design"; change both together. */
+   Token names match the Paper file "ArtForAll — Design"; change both together. */
 :root {
   color-scheme: dark;
 
@@ -271,7 +271,7 @@ kbd {
 ```ts
 // Every string the audience screen shows. Tone: a museum wall label, never a dashboard.
 
-export const WORDMARK = "Tactile Art Guide"; // placeholder until the team picks the real name
+export const WORDMARK = "ArtForAll";
 
 export const COPY = {
   live: "Live",
@@ -829,7 +829,7 @@ git commit -m "screen: pure helpers for painting colours, scenes, speech, tour a
 
 ### Task 4: Paper file, tokens and the Story page
 
-**Files:** the Paper file "Tactile Art Guide — Design" (created via MCP). No repo files.
+**Files:** the Paper file "ArtForAll — Design" (created via MCP). No repo files.
 
 **Interfaces:**
 - Consumes: `screen/src/design/tokens.css` (Task 2) as the single source of token values.
@@ -845,7 +845,7 @@ finish_working_on_nodes).
 
 - [ ] **Step 2: Create the file and pages**
 
-`create_file` named `Tactile Art Guide — Design`. Name page 1 `1 · Story` and add pages `2 · Research`,
+`create_file` named `ArtForAll — Design`. Name page 1 `1 · Story` and add pages `2 · Research`,
 `3 · Design system`, `4 · Components`, `5 · Screens`, `6 · Borderless flow`.
 
 - [ ] **Step 3: Create the tokens**
@@ -1080,11 +1080,11 @@ Screenshot every artboard, write the verdicts, fix, then `finish_working_on_node
 ### Task 9: Export the Paper file into the repo
 
 **Files:**
-- Create: `docs/design/paper/*.png`, `docs/design/paper/tactile-art-guide-design.pdf`
+- Create: `docs/design/paper/*.png`, `docs/design/paper/artforall-design.pdf`
 
 - [ ] **Step 1:** `export` each artboard as PNG at 1x into `docs/design/paper/`, named
   `<page-number>-<artboard-name-kebab>.png` (e.g. `5-touring-mona-lisa.png`).
-- [ ] **Step 2:** `export_combined_pdf` of all pages to `docs/design/paper/tactile-art-guide-design.pdf`.
+- [ ] **Step 2:** `export_combined_pdf` of all pages to `docs/design/paper/artforall-design.pdf`.
 - [ ] **Step 3:** `ls docs/design/paper` and confirm one PNG per artboard plus the PDF.
 - [ ] **Step 4: Commit**
 
@@ -2198,7 +2198,7 @@ git commit -m "screen: match Paper designs; after screenshots"
    became a spotlight plus a flowing transition.
 3. **How we worked.** Audit of the 5 old sections and their states → 147 Mobbin references in 9 sections
    (link `inspiration.md`) → 7 patterns → 3 directions → chosen direction → Paper file (link
-   `paper/tactile-art-guide-design.pdf`) → code that matches it.
+   `paper/artforall-design.pdf`) → code that matches it.
 4. **Judging criteria → decisions.** A table with the columns: criterion | decision | evidence. Rows:
    - Hierarchy: light is the only hierarchy; one lantern accent means "now"; display/label scale contrast.
    - Legibility: AAA contrast ratios (16.7:1, 8.8:1); 13px floor; captions newest-largest; sized for 3m.
@@ -2225,7 +2225,7 @@ git commit -m "screen: match Paper designs; after screenshots"
    captions, ball grid `role="img"` with a raised count.
 9. **Devpost: "Design" section (ready to paste).** 150–250 words in plain first-person-plural prose
    covering story, process, system, signature moment and craft. Link the Paper file only if the team
-   has made a public share link; otherwise point to `docs/design/paper/tactile-art-guide-design.pdf`.
+   has made a public share link; otherwise point to `docs/design/paper/artforall-design.pdf`.
 
 - [ ] **Step 2: Check it.** Every image path exists (`ls` each). No claims about things that weren't done
   (for example, only mention projector testing if it happened).

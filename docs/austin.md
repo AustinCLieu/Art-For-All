@@ -46,7 +46,7 @@ from google import genai
 from google.genai import types
 
 load_dotenv()
-UA = {"User-Agent": "TactileArt/0.1 (LA Hacks hackathon; your-email)"}  # Wikimedia blocks generic agents
+UA = {"User-Agent": "ArtForAll/0.1 (LA Hacks hackathon; your-email)"}  # Wikimedia blocks generic agents
 CACHE = "cache"
 os.makedirs(CACHE, exist_ok=True)
 _lock = threading.Lock()

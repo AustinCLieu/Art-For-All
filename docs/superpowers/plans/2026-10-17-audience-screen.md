@@ -570,7 +570,7 @@ git commit -m "screen.py: serve the audience screen and a no-API demo mode"
 
 ```json
 {
-  "name": "tactile-art-screen",
+  "name": "artforall-screen",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -639,7 +639,7 @@ export default defineConfig({
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tactile Art Guide</title>
+    <title>ArtForAll</title>
   </head>
   <body>
     <div id="root"></div>
@@ -781,7 +781,7 @@ export function App() {
     <div className="app">
       <header className="top">
         <div>
-          <h1>Tactile Art Guide</h1>
+          <h1>ArtForAll</h1>
           <p className="tagline">Audience view: what the visitor hears and feels, live.</p>
         </div>
         <span className={`pill ${online ? "on" : "off"}`}>{online ? "Live" : "Waiting for main.py"}</span>
@@ -1514,7 +1514,7 @@ git commit -m "main.py: mirror the tour on the audience screen (never blocks the
 
 Run: `python screen.py --demo` (leave it running), then open `http://127.0.0.1:8000` in Chrome.
 Expected:
-- Header: "Tactile Art Guide" and a green `Live` pill.
+- Header: "ArtForAll" and a green `Live` pill.
 - Left: the painting with a gold box on the current part and the rest dimmed; the parts list with the
   current one highlighted.
 - Center: "Touch board, simulated", the section name, balls rising one row at a time when the section

@@ -1,4 +1,4 @@
-# Tactile Art Guide
+# ArtForAll
 
 **A voice-guided museum tour that blind visitors can feel.** Name any famous painting and a voice guide
 walks you through it part by part, while a 10x10 board of raised balls forms the shape of each part

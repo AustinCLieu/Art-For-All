@@ -145,10 +145,10 @@ Run:
 
 ```bash
 source .venv/bin/activate
-python -c "import os, sentry_sdk; from dotenv import load_dotenv; load_dotenv(); sentry_sdk.init(dsn=os.getenv('SENTRY_DSN')); sentry_sdk.capture_message('Tactile Art: Sentry test'); sentry_sdk.flush(); print('sent')"
+python -c "import os, sentry_sdk; from dotenv import load_dotenv; load_dotenv(); sentry_sdk.init(dsn=os.getenv('SENTRY_DSN')); sentry_sdk.capture_message('ArtForAll: Sentry test'); sentry_sdk.flush(); print('sent')"
 ```
 
-Expected: it prints `sent`, and within a minute an issue titled "Tactile Art: Sentry test" appears under Issues in Sentry.
+Expected: it prints `sent`, and within a minute an issue titled "ArtForAll: Sentry test" appears under Issues in Sentry.
 
 - [ ] **Step 4: Send a real tool error through `main.py`**
 
@@ -186,7 +186,7 @@ The MLH "Best domain name from GoDaddy" prize usually comes with a free-domain c
 - [ ] **Step 2: Pick and register a name**
 
 The name should be short, easy to say aloud, and about the project. Check availability on GoDaddy. Some ideas:
-- `tactileart` or `touchthepainting`
+- `artforall` or `touchthepainting`
 - `feeltheart` or `artbytouch`
 - `paintingsbytouch`
 

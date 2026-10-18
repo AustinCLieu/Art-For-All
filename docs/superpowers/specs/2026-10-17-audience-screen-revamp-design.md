@@ -174,7 +174,7 @@ Not changing: `screen.py`, the `/api/state` JSON, `test_screen.py`, the `vite.co
 
 ## 6. Paper deliverables
 
-New Paper file "Tactile Art Guide — Design", one page per item:
+New Paper file "ArtForAll — Design", one page per item:
 1. **Story**: teamLab, the problem, the audience.
 2. **Research**: 12–15 STRONG references with take/leave notes, the 7 patterns, the 3 directions and the choice.
 3. **Design system**: Paper tokens identical to tokens.css, swatches with scene objects and contrast ratios,
@@ -221,4 +221,4 @@ Exports (PNG per page plus a combined PDF) go to `docs/design/paper/`.
 ## 9. Out of scope
 
 Clicking to change parts, settings, a theme toggle, a light mode, backend or contract changes, the final
-product name (WORDMARK stays a placeholder until the team picks one).
+.

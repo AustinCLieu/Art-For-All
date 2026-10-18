@@ -1,4 +1,4 @@
-# Tactile Art Guide — LA Hacks Build Plan
+# ArtForAll — LA Hacks Build Plan
 
 Oct 17, 2026 · Austin Lieu
 
@@ -22,7 +22,7 @@ If Wikipedia has no matching painting or no image, `open_painting` returns `foun
 Keep everything flat in the root so the imports in `main.py` work with no package setup, and commit the four demo paintings in `cache/`.
 
 ```text
-tactile-art/
+artforall/
 ├── CLAUDE.md            # shared contract
 ├── .env / .env.example  # keys (never commit .env)
 ├── requirements.txt

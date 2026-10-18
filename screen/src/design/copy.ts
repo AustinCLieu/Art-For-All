@@ -1,6 +1,6 @@
 // Every string the audience screen shows. Tone: a museum wall label, never a dashboard.
 
-export const WORDMARK = "Tactile Art Guide"; // placeholder until the team picks the real name
+export const WORDMARK = "ArtForAll";
 
 export const COPY = {
   live: "Live",
