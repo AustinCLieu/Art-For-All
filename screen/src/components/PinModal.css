@@ -11,5 +11,5 @@
 .pins__foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--spacing-4) var(--spacing-6); }
 .pins__slider { display: inline-flex; align-items: center; gap: var(--spacing-4); color: var(--color-paper-dim); }
 .pins__slider input { width: 220px; accent-color: var(--color-lantern); }
-.pins__value { color: var(--color-paper); min-width: 18ch; }
+.pins__value { color: var(--color-paper); min-width: 28ch; white-space: nowrap; }
 .pins__note { color: var(--color-paper-dim); text-transform: none; letter-spacing: 0.02em; }
