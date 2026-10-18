@@ -5,9 +5,11 @@
 /* Landscape paintings take the full width, so the label wraps underneath them. */
 .col--art { flex-direction: row; flex-wrap: wrap; align-items: flex-end; align-content: flex-end; gap: var(--spacing-5) var(--spacing-8); }
 .col--art .stage { flex: none; max-width: 100%; align-items: flex-end; }
-.col--art .stage__clip img { max-height: calc(100vh - 220px); }
+@media (min-width: 1101px) {
+  .col--art .stage__clip img { max-height: calc(100vh - 220px); }
+  .col--art .stage--wide .stage__clip img { max-height: calc(100vh - 470px); }
+}
 .col--art .placard { max-width: 440px; padding-bottom: var(--spacing-1); }
-.col--art .stage--wide .stage__clip img { max-height: calc(100vh - 470px); }
 .col--touch { gap: var(--spacing-7); }
 @media (max-width: 1100px) {
   .app { height: auto; min-height: 100vh; grid-template-columns: 1fr; grid-template-rows: auto; }
