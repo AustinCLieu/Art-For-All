@@ -10,7 +10,7 @@
   .col--art .stage--wide .stage__clip img { max-height: calc(100vh - 470px); }
 }
 .col--art .placard { max-width: 440px; padding-bottom: var(--spacing-1); }
-.col--touch { gap: var(--spacing-7); }
+.col--touch { gap: var(--spacing-6); }
 @media (max-width: 1100px) {
   .app { height: auto; min-height: 100vh; grid-template-columns: 1fr; grid-template-rows: auto; }
   .captions { max-height: 60vh; }
@@ -21,8 +21,8 @@
 @media (max-height: 800px) and (min-width: 1101px) {
   .app { row-gap: var(--spacing-4); }
   .col--touch { gap: var(--spacing-5); }
-  .board__grid { width: min(100%, 38vh); }
-  .board__numeral { font-size: 200px; }
+  .board { grid-template-columns: min(52%, 32vh) minmax(0, 1fr); }
+  .board__numeral { font-size: 120px; }
   .col--art .stage__clip img { max-height: calc(100vh - 200px); }
   .col--art .stage--wide .stage__clip img { max-height: calc(100vh - 420px); }
   .placard__title { font-size: 48px; }

@@ -20,6 +20,7 @@ export const COPY = {
   ofTheCanvas: "of the canvas",
   guide: "Guide",
   visitor: "Visitor",
+  visitorAsked: "Visitor said",
   speech: { speaking: "speaking", listening: "listening", thinking: "thinking" },
   drawerTitle: "Behind the scenes",
   onTheWire: "On the wire",

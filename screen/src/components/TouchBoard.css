@@ -1,8 +1,13 @@
-.board { position: relative; isolation: isolate; display: grid; justify-items: start; gap: var(--spacing-2); padding-top: var(--spacing-6); }
-.board__grid { width: min(100%, 44vh); margin-bottom: var(--spacing-4); }
-.board__numeral { position: absolute; z-index: -1; right: 0; top: 50%; transform: translateY(-55%); font-family: var(--font-serif); font-size: var(--text-numeral); line-height: 1; color: transparent; -webkit-text-stroke: 1px var(--color-paper-faint); opacity: 0.55; pointer-events: none; }
+/* Grid on the left, the part's name beside it: frees the lower half of the column for captions. */
+.board { position: relative; isolation: isolate; display: grid; grid-template-columns: min(52%, 36vh) minmax(0, 1fr); grid-template-rows: 1fr auto auto auto; column-gap: var(--spacing-6); row-gap: var(--spacing-2); justify-items: start; padding-top: var(--spacing-6); }
+.board__grid { grid-column: 1; grid-row: 1 / -1; width: 100%; align-self: end; }
+.board__label, .board__name, .board__where { grid-column: 2; }
+.board__label { grid-row: 2; }
+.board__name { grid-row: 3; }
+.board__where { grid-row: 4; }
+.board__numeral { position: absolute; z-index: -1; right: 0; top: var(--spacing-6); font-family: var(--font-serif); font-size: calc(var(--text-numeral) * 0.6); line-height: 1; color: transparent; -webkit-text-stroke: 1px var(--color-paper-faint); opacity: 0.55; pointer-events: none; }
 .board__badge { position: absolute; top: 0; right: 0; color: var(--color-paper-dim); }
 .board__label { margin: 0; color: var(--color-lantern); }
 .board__name { margin: 0; font-family: var(--font-serif); font-weight: 400; font-size: var(--text-title); line-height: 1.05; }
 .board__where { margin: 0; color: var(--color-paper-dim); }
-@media (max-width: 1100px) { .board__grid { width: min(100%, 420px); } }
+@media (max-width: 1100px) { .board { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; } .board__grid, .board__label, .board__name, .board__where { grid-column: 1; grid-row: auto; } .board__grid { width: min(100%, 420px); margin-bottom: var(--spacing-4); } }

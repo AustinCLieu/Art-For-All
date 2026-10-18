@@ -13,9 +13,9 @@
   --color-moss: #8cc48a;       /* drawer: done */
   --color-koi: #ff6b4a;        /* drawer: failed */
 
-  --font-serif: "Instrument Serif", Georgia, serif;
-  --font-sans: "Instrument Sans Variable", "Instrument Sans", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, monospace;
+  --font-serif: "DM Sans Variable", "DM Sans", system-ui, sans-serif;
+  --font-sans: "DM Sans Variable", "DM Sans", system-ui, sans-serif;
+  --font-mono: "DM Sans Variable", "DM Sans", system-ui, sans-serif;
   --font-weight-regular: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
@@ -25,11 +25,13 @@
   --text-display: clamp(60px, 4.1667vw, 80px);
   --text-title: clamp(36px, 2.5vw, 48px);
   --text-kicker: clamp(22px, 1.4583vw, 28px);
-  --text-caption-now: clamp(24px, 1.5625vw, 30px);
+  --text-caption-now: clamp(32px, 2.2917vw, 44px);
+  --text-caption-past: clamp(20px, 1.3542vw, 26px);
   --text-body: clamp(17px, 1.0417vw, 20px);
   --text-label: clamp(13px, 0.7292vw, 14px);
   --leading-display: 1;
-  --leading-caption-now: 1.333;
+  --leading-caption-now: 1.25;
+  --leading-caption-past: 1.35;
   --leading-body: 1.5;
   --tracking-display: -0.02em;
   --tracking-label: 0.14em;

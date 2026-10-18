@@ -1,9 +1,27 @@
-.captions { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: flex-end; gap: var(--spacing-4); overflow: hidden; -webkit-mask-image: linear-gradient(to bottom, transparent 10px, #000 34px); mask-image: linear-gradient(to bottom, transparent 10px, #000 34px); }
-.caption { margin: 0; display: grid; gap: var(--spacing-1); }
+/* Lyrics-style (Spotify transcript, ElevenReader): the newest turn takes the space it needs, up to all of it;
+   older turns get what is left and fade out the top. */
+.captions { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: flex-end; gap: var(--spacing-6); overflow: hidden; }
+.captions__past { flex: 0 1000 auto; min-height: 0; display: flex; flex-direction: column; justify-content: flex-end; gap: var(--spacing-5); overflow: hidden; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 64px); mask-image: linear-gradient(to bottom, transparent 0, #000 64px); }
+.caption { margin: 0; display: grid; gap: var(--spacing-2); flex: none; }
 .caption__who { display: flex; align-items: center; gap: var(--spacing-2); color: var(--color-paper-dim); }
 .caption__state { color: var(--color-lantern); }
-.caption__text { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; color: var(--color-paper-dim); }
-.caption--age0 .caption__text { -webkit-line-clamp: 3; font-size: var(--text-caption-now); line-height: var(--leading-caption-now); font-weight: var(--font-weight-medium); color: var(--color-paper); }
-.caption--age2 { opacity: 0.7; }
-.caption--age3 { opacity: 0.45; }
-@media (max-height: 800px) and (min-width: 1101px) { .caption--age0 .caption__text { -webkit-line-clamp: 2; } }
+.caption__text { display: block; font-size: var(--text-caption-past); line-height: var(--leading-caption-past); color: var(--color-paper-dim); }
+.captions__past .caption__text { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.caption--user .caption__text { color: color-mix(in srgb, var(--color-lantern) 75%, transparent); }
+.caption--age2 { opacity: 0.45; }
+/* The visitor's last words, pinned above the guide's answer however long it scrolls. */
+.caption--asked { flex: none; margin-bottom: auto; padding: var(--spacing-3) var(--spacing-4); border-left: 3px solid var(--color-lantern); background: color-mix(in srgb, var(--color-lantern) 8%, transparent); border-radius: 0 6px 6px 0; animation: caption-in var(--dur-spot) var(--ease-light) both; }
+.caption--asked .caption__who { color: var(--color-lantern); }
+.caption--asked .caption__text { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; color: var(--color-lantern); }
+
+/* Shrinks (and scrolls) so the pinned question above it is never pushed off screen. */
+.caption--now { flex: 0 1 auto; max-height: 100%; min-height: 0; display: flex; flex-direction: column; animation: caption-in var(--dur-spot) var(--ease-light) both; }
+.caption__window { display: block; min-height: 0; overflow: hidden; }
+.caption--now .caption__text { font-size: var(--text-caption-now); line-height: var(--leading-caption-now); font-weight: var(--font-weight-semibold); letter-spacing: -0.01em; color: var(--color-paper); }
+.caption--now.caption--user .caption__text { color: var(--color-lantern); }
+/* Too long to fit: scroll through it at speaking pace. */
+.caption__window--scrolls { -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 28px, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to bottom, transparent 0, #000 28px, #000 calc(100% - 28px), transparent); }
+.caption__window--scrolls .caption__text { animation: caption-read var(--read) linear 0.8s both; }
+@keyframes caption-in { from { opacity: 0; transform: translateY(16px); } }
+@keyframes caption-read { to { transform: translateY(var(--scroll)); } }
+@media (prefers-reduced-motion: reduce) { .caption--now, .caption__window--scrolls .caption__text { animation: none; } }
