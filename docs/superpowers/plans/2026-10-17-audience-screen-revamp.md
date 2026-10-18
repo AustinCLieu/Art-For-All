@@ -1104,7 +1104,7 @@ git commit -m "docs: Paper design file exports (story, research, system, compone
 - Consumes: Task 3 modules.
 - Produces:
   - `usePaintingPixels(src: string | null): Pixels | null`
-  - `useSpeaker(lines: Line[], thinking: boolean): Speech`
+  - `useSpeaker(lines: Line[] | null, thinking: boolean): Speech` (null = state not loaded yet; the first loaded transcript is the baseline)
   - `useVisited(title: string | null, number: number | null): number[]`
   - `useFlow(title: string | null, section: Section | null): { flowFor: Section | null; held: boolean; landed: () => void }`
   - `useSessionClock(online: boolean): string`
@@ -2050,7 +2050,8 @@ export function App() {
     () => (pixels && section ? cellColors(pixels, section.bbox) : null),
     [pixels, bboxKey], // bboxKey, not section: polls create a new section object with the same bbox
   );
-  const speech = useSpeaker(state?.transcript ?? [], state?.activity.gemini.status === "working");
+  // null until the first poll lands, so the transcript already on screen at page open isn't "speaking"
+  const speech = useSpeaker(state ? state.transcript : null, state?.activity.gemini.status === "working");
   const visited = useVisited(painting?.title ?? null, section?.number ?? null);
   const { flowFor, held, landed } = useFlow(painting?.title ?? null, section);
   const frameRef = useRef<HTMLDivElement>(null);
