@@ -7,7 +7,7 @@
   "sections": [
     {
       "number": 1,
-      "name": "Mona Lisa",
+      "name": "her figure",
       "bbox": [
         0.03,
         0.085,
@@ -677,11 +677,11 @@
     }
   ],
   "guide_notes": {
-    "Mona Lisa": "Your fingers are on the whole seated figure, a half-length woman turned about three-quarters toward you, her forearms resting across each other at the bottom edge so her hands stack low at the centre. Trace upward from those crossed hands and you meet the broad triangle of her torso and the soft round of her shoulders, widening to a dark veil that runs off the left and right edges. She is far smaller than most people expect: the panel measures only about 77 by 53 centimetres, roughly a large sheet of paper, and it is painted in oil on a thin wooden board of poplar rather than on canvas, which is why the Louvre keeps it behind glass.",
-    "her eyes": "Move your fingertips to the upper face and you find two almond-shaped hollows set level with each other, smooth and unframed, with no ridge of eyebrow or lash above them to catch your nail, just a soft graded shadow that slides straight up into the forehead. The lids are heavy and half-lowered, and where you trace the outer corners they dissolve rather than end, blurred by Leonardo's smoke-like sfumato. Her eyes carry no eyebrows or eyelashes at all, a detail that has puzzled scholars for centuries because it is still unclear whether Leonardo never painted them or whether they were gently lost during an old cleaning.",
-    "her enigmatic smile": "Below the nose, run a fingertip along the mouth: the lips are level and relaxed, their corners not carved as sharp creases but melted into a shallow, ambiguous shadow that spreads outward. The upper lip's edge is deliberately soft, so your finger cannot find one clean line to follow, and the smile is raised more by a haze of shading above the lip than by any drawn curve. That is why her expression shifts with your distance: research by Margaret Livingstone shows that when you look straight at her mouth it reads as serious, and only when your gaze drifts away does the smile appear, because the shadowed corners are caught by the eye's periphery.",
-    "the winding path and bridge": "Shift your fingers to the middle distance, just past her right shoulder, where you find a pale ribbon of road curving away from you and, beside it, a low stone bridge with a row of small arches stepping across a river. The path is a raised, meandering line that narrows as it recedes, while the bridge sits as a compact band of bumps with a flat top spanning a darker channel. A Tuscan historian has argued that this is no imaginary bridge: he identified it as the Romito di Laterina bridge over the Arno in Arezzo province, matching the four arches visible in the painting.",
-    "the misty mountains": "Lift your attention to the far background, above the road and bridge, where your fingertips meet a series of low rounded ridges climbing toward the top corners and then fading into a smooth, almost featureless haze. The nearer peaks are the crispest, and as they recede they flatten out, a deliberate trick of aerial perspective in which distance is shown by blurring detail and cooling the colour toward blue. One scholar, Martin Kemp, reads the water-and-rock masses on the right of this background not as calm mountains but as a surging deluge, a tidal wave about to break into the valley behind her."
+    "her figure": "This is her whole figure: a round head at the top with two eyes and a mouth, then her shoulders and body widening below. The painting is small, about 77 by 53 centimetres, and it is painted on a thin poplar panel, not canvas.",
+    "her eyes": "The two short lines across the top mark her brow, with an eye below each one and the line of her nose running down between them. In the painting itself she has no clear eyebrows or eyelashes, and scholars still argue whether Leonardo left them out or they were lost in an old cleaning.",
+    "her enigmatic smile": "Near the top is the tip of her nose; below it, the curve that turns up at both ends is her smile, and the lower curve is her chin. Research by Margaret Livingstone found the smile shows up most when you look away from her mouth, because its shadowed corners are seen best from the corner of the eye.",
+    "the winding path and bridge": "At the bottom right, the short upright bars are the arches of a stone bridge, and the lines winding above and to the left are the road. A Tuscan historian has identified it as the Romito di Laterina bridge over the Arno, in the province of Arezzo.",
+    "the misty mountains": "Along the top are small jagged peaks, and below them a larger peak rises to a point. Leonardo made the far mountains hazy and bluish so they seem to fall away into the distance, a technique called aerial perspective."
   },
   "museum_facts": [
     "The Louvre identifies the sitter as Lisa Gherardini, wife of Florentine silk merchant Francesco del Giocondo; her name gives the painting its Italian title, La Gioconda.",

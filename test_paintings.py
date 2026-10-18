@@ -8,7 +8,11 @@ names = sys.argv[1:] or ["Mona Lisa", "mona lisa by leonardo da vinci", "asdfgh"
 for name in names:
     start = time.time()
     p = load_painting(name)
-    print(f"\n=== {name!r} ({time.time() - start:.1f}s) ===")
+    took = time.time() - start
+    print(f"\n=== {name!r} ({took:.1f}s) ===")
+    if not sys.argv[1:]:  # the default run checks the brief: aliases hit the cache, nonsense is None
+        assert (p is None) == (name == "asdfgh"), name
+        assert p is None or (p["title"] == "Mona Lisa" and took < 0.1), (name, took)
     if not p:
         print("None")
         continue

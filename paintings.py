@@ -57,21 +57,31 @@ def slug(text):
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
 
 def core(text):
-    """'The Starry Night by Van Gogh' -> 'starry night'"""
+    """'The Starry Night by Van Gogh' -> 'starry night'; 'Girl with the Pearl Earring' -> 'girl with pearl earring'"""
     text = re.sub(r"\s+by\s+.*$", "", text.lower().strip())
-    return re.sub(r"^the\s+", "", text)
+    text = re.sub(r"\b(the|a|an)\b", " ", text)
+    return " ".join(text.split())
 
 def save_painting(p):
+    path = f"{CACHE}/{slug(p['title'])}.json"
     with _lock:
-        with open(f"{CACHE}/{slug(p['title'])}.json", "w") as f:
-            json.dump(dict(p), f, indent=1)  # copy: Creao and Browser Use threads may add keys meanwhile
+        data = json.loads(json.dumps(p))  # deep copy: Creao and Browser Use threads may add keys meanwhile
+        with open(path + ".tmp", "w") as f:
+            json.dump(data, f, indent=1)
+        os.replace(path + ".tmp", path)  # atomic: a reader sees the old file or the new one, never half
 
 def from_cache(name):
     want = core(name)
+    if not want:
+        return None
     for path in glob.glob(f"{CACHE}/*.json"):
-        with open(path) as f:
-            p = json.load(f)
-        title = core(p["title"])
+        try:
+            with open(path) as f:
+                p = json.load(f)
+            title = core(p["title"])
+        except Exception as e:  # one bad file must not break every lookup
+            print(f"skipped bad cache file {path}: {e!r}")
+            continue
         if title in want or want in title:
             return p
     return None
@@ -82,7 +92,8 @@ def find_on_wikipedia(name):
     if not hits.get("pages"):
         return None
     key = hits["pages"][0]["key"]
-    summary = http.get(f"https://en.wikipedia.org/api/rest_v1/page/summary/{key}", timeout=T).json()
+    summary = http.get("https://en.wikipedia.org/api/rest_v1/page/summary/" + requests.utils.quote(key, safe=""),
+                       timeout=T).json()
     img = http.get("https://en.wikipedia.org/w/api.php", timeout=T, params={
         "action": "query", "titles": key, "prop": "pageimages",
         "piprop": "thumbnail", "pithumbsize": 1600, "format": "json"}).json()
@@ -93,7 +104,7 @@ def find_on_wikipedia(name):
     return {"title": summary["title"], "summary": summary.get("extract", ""), "image_url": url}
 
 def ask_gemini(image_bytes, mime, prompt, thinking):
-    client = genai.Client()  # reads GEMINI_API_KEY
+    client = genai.Client(http_options=types.HttpOptions(timeout=45_000))  # reads GEMINI_API_KEY; ms, so a stall can't hang open_painting
     resp = client.models.generate_content(
         model="gemini-3-flash-preview",
         contents=[types.Part.from_bytes(data=image_bytes, mime_type=mime), prompt],
@@ -122,6 +133,8 @@ def draw(crop_bytes, title, s):
 
 def fix_grid(grid):
     """Force exactly 10x10 of 0/1, whatever the model returned (numbers or '#'/'.' strings)."""
+    if isinstance(grid, str):  # one newline-joined string instead of a list of rows
+        grid = grid.split()
     rows = [[1 if v in (1, "1", "#") else 0 for v in list(row)[:10]] for row in list(grid)[:10]]
     rows = [r + [0] * (10 - len(r)) for r in rows]
     return rows + [[0] * 10 for _ in range(10 - len(rows))]
@@ -172,6 +185,7 @@ def fetch_painting(name):
         with open(path) as f:
             return json.load(f)
     resp = http.get(wiki["image_url"], timeout=T)
+    resp.raise_for_status()  # a 403/429 page is not an image
     mime = resp.headers.get("Content-Type", "image/jpeg").split(";")[0]
     activity("gemini", "working", f"Picking the parts of {wiki['title']}")
     data = analyze(resp.content, mime, wiki["title"], wiki["summary"])
@@ -181,7 +195,7 @@ def fetch_painting(name):
     sections = []
     for s in data["sections"][:10]:  # caps parallel Gemini calls and tour length
         try:
-            y0, x0, y1, x1 = [v / 1000 for v in s["box_2d"]]
+            y0, x0, y1, x1 = [max(0, min(1000, v)) / 1000 for v in s["box_2d"]]  # clamp: off-image boxes
             bbox = [min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1)]
             sections.append({"name": s["name"], "bbox": bbox, "location": to_location(bbox),
                              "description": s["description"]})

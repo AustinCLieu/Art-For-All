@@ -7,7 +7,7 @@
  "sections": [
   {
    "number": 1,
-   "name": "The Swirling Sky",
+   "name": "the swirling sky",
    "bbox": [
     0.0,
     0.0,
@@ -141,7 +141,7 @@
   },
   {
    "number": 2,
-   "name": "The Crescent Moon",
+   "name": "the crescent moon",
    "bbox": [
     0.78,
     0.02,
@@ -275,7 +275,7 @@
   },
   {
    "number": 3,
-   "name": "The Cypress Tree",
+   "name": "the cypress tree",
    "bbox": [
     0.12,
     0.045,
@@ -409,7 +409,7 @@
   },
   {
    "number": 4,
-   "name": "The Village and Church",
+   "name": "the village and church",
    "bbox": [
     0.38,
     0.61,
@@ -549,9 +549,9 @@
   "Van Gogh painted this nighttime scene in several sessions during the day, using vivid blues and yellows to heighten its expressive mood."
  ],
  "guide_notes": {
-  "The Swirling Sky": "Under your fingertips the upper part of the relief rolls in long, continuous ridges that curve across the surface like slow waves, one band folding into the next without a single straight line to follow. Feel how the raised strokes are short and slightly ridged, laid side by side and sometimes overlapping, so the whole field feels combed and restless rather than smooth. This is the night sky, which fills about three-quarters of the painting and presses down toward the quiet town below. The waves are not cloud or smoke but paint: Van Gogh built them from countless short brushstrokes laid on thickly, and pigment analysis has confirmed he mixed ultramarine and cobalt blue to make this deep, agitated field.",
-  "The Crescent Moon": "Move to the upper right corner and you will find a bright, raised crescent, a thin sliver with a broad open curve, sitting inside a wide circular disc of concentric rings. Trace outward from the crescent's point and your finger crosses ring after ring of slightly raised arcs, like ripples spreading from a dropped stone. The crescent and its rings are the brightest, warmest-touched area of the relief, standing out against the cooler surrounding sky. Van Gogh's moon is deliberately not astronomically accurate, records show the real moon was waning gibbous that June, and one scholar proposed the glowing halo may be a leftover of the fuller moon he first intended to paint.",
-  "The Cypress Tree": "At the left foreground a tall dark form rises almost the full height of the relief, close enough that your fingers can trace it as a single vertical mass. It tapers and twists upward like a flame, its edges broken into short wavy strokes rather than a clean outline, and it is markedly taller and nearer than anything around it. This is a cypress tree, painted in deep burnt umber and blue-black, and it stands as a bridge between the earthbound town and the spinning sky. In Mediterranean tradition the cypress is a tree of graveyards and mourning; Van Gogh called them beautiful of line and compared their proportions to an Egyptian obelisk.",
-  "The Village and Church": "Now run your fingers along the lower third of the relief, where the surface turns calm and orderly after the sky. Feel the low blocky shapes of small houses packed close together, each outlined with a firmer ridge, and rising from among them a single pointed spire that juts up sharply into the hills behind. A few tiny, slightly raised rectangles suggest lit windows, and the spire is the one feature that pierces the skyline. This village could not actually be seen from Van Gogh's asylum window, he based it on a sketch made from a hillside, and the steeple is more Dutch than Provencal, echoing the churches of his childhood."
+  "the swirling sky": "The raised line is a spiral: follow it from the outside and it winds in toward the middle, like the great swirl in the sky. Van Gogh built the sky from thick, short brushstrokes of ultramarine and cobalt blue.",
+  "the crescent moon": "The moon is the upright crescent on the left of the board, curved like the letter C and open to the right. Records show the real moon that June was nearly full, so Van Gogh painted it as a crescent on purpose.",
+  "the cypress tree": "The cypress is the tall flame shape, a single point at the top widening all the way down to the bottom of the board. Van Gogh admired cypresses for their lines and compared their proportions to an Egyptian obelisk.",
+  "the village and church": "The thin line pointing up at the top is the church spire, and below it the village spreads into a wide base of rooftops. Van Gogh could not see this village from his window, and the steeple looks more like a Dutch church from his childhood than one in Provence."
  }
 }

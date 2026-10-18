@@ -1,7 +1,10 @@
 # Offline tests for the two-step painting pipeline. No network or API key needed.
+import glob, json, os
 from io import BytesIO
 from PIL import Image
 import paintings
+
+DEMO = ["Mona Lisa", "The Starry Night", "The Great Wave off Kanagawa", "Girl with a Pearl Earring"]
 
 def test_fix_grid_strings():
     g = paintings.fix_grid(["#.#", "..#"])
@@ -31,7 +34,71 @@ def test_jpeg():
     data = paintings.jpeg(Image.new("RGB", (8, 8)))
     assert Image.open(BytesIO(data)).format == "JPEG"
 
-import os
+def test_fix_grid_one_string():
+    g = paintings.fix_grid("#.#\n..#")
+    assert g[0][:3] == [1, 0, 1] and g[1][:3] == [0, 0, 1] and len(g) == 10
+
+def test_to_location():
+    cells = {(0.1, 0.1): "top left", (0.5, 0.1): "top center", (0.9, 0.1): "top right",
+             (0.1, 0.5): "center left", (0.5, 0.5): "center", (0.9, 0.5): "center right",
+             (0.1, 0.9): "bottom left", (0.5, 0.9): "bottom center", (0.9, 0.9): "bottom right"}
+    for (x, y), want in cells.items():
+        assert paintings.to_location([x, y, x, y]) == want, (x, y)
+
+def test_core():
+    assert paintings.core("The Starry Night by Van Gogh") == "starry night"
+    assert paintings.core("girl with the pearl earring") == paintings.core("Girl with a Pearl Earring")
+
+def test_demo_paintings_load_without_network():
+    """The four demo paintings must come from cache/ instantly, even with Wi-Fi and Gemini down."""
+    def offline(*a, **k):
+        raise AssertionError("network used for a demo painting")
+    old = paintings.http.get, paintings.ask_gemini
+    paintings.http.get = paintings.ask_gemini = offline
+    try:
+        for name in DEMO + ["mona lisa by leonardo da vinci", "starry night", "the great wave",
+                            "girl with the pearl earring"]:
+            p = paintings.load_painting(name)
+            assert p and p["sections"], name
+        assert paintings.from_cache("") is None
+    finally:
+        paintings.http.get, paintings.ask_gemini = old
+
+def test_bad_cache_file_is_skipped():
+    path = "cache/zz-broken.json"
+    with open(path, "w") as f:
+        f.write('{"title": "Zz Bro')  # as if a save were cut off half way
+    try:
+        assert paintings.from_cache("Mona Lisa")["title"] == "Mona Lisa"
+    finally:
+        os.remove(path)
+
+def test_save_painting_is_atomic():
+    p = {"title": "Zz Save Test", "sections": [], "guide_notes": {"a": "b"}}
+    try:
+        paintings.save_painting(p)
+        with open("cache/zz-save-test.json") as f:
+            assert json.load(f) == p
+        assert not os.path.exists("cache/zz-save-test.json.tmp")
+    finally:
+        os.remove("cache/zz-save-test.json")
+
+def test_demo_cache_is_valid():
+    """The schema in CLAUDE.md, checked on every cached painting."""
+    for path in glob.glob("cache/*.json"):
+        p = json.load(open(path))
+        assert os.path.basename(path) == paintings.slug(p["title"]) + ".json", path
+        assert os.path.exists(p["image"]), p["image"]
+        assert [s["number"] for s in p["sections"]] == list(range(1, len(p["sections"]) + 1)), path
+        for s in p["sections"]:
+            x0, y0, x1, y1 = s["bbox"]
+            assert 0 <= x0 < x1 <= 1 and 0 <= y0 < y1 <= 1, (path, s["name"])
+            assert s["location"] == paintings.to_location(s["bbox"]), (path, s["name"])
+            assert len(s["grid"]) == 10 and all(len(r) == 10 and set(r) <= {0, 1} for r in s["grid"])
+            assert any(map(any, s["grid"])), (path, s["name"])
+        assert set(p.get("guide_notes") or {}) <= {s["name"] for s in p["sections"]}, path
+        facts = p.get("museum_facts") or []
+        assert all(isinstance(f, str) and "*" not in f for f in facts), path
 
 def test_fetch_painting():
     """fetch_painting crops each section, draws them in parallel, drops failures and renumbers."""
@@ -42,6 +109,8 @@ def test_fetch_painting():
     class Resp:
         content = image
         headers = {"Content-Type": "image/png"}
+        def raise_for_status(self):
+            pass
 
     prompts = []
     def fake_gemini(image_bytes, mime, prompt, thinking):
@@ -87,6 +156,8 @@ def test_fetch_painting_drops_bad_sections():
     class Resp:
         content = buf.getvalue()
         headers = {"Content-Type": "image/png"}
+        def raise_for_status(self):
+            pass
 
     def fake_gemini(image_bytes, mime, prompt, thinking):
         if "This crop is" not in prompt:
