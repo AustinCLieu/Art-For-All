@@ -12,6 +12,10 @@ Goal: the simplest thing that works for the demo. Don't add features that aren't
   lookup (Wikipedia + one Gemini call + cache), the live Creao tour writer, and the one-time
   Browser Use / Creao script. Brief: `docs/austin.md`
 - `board.py`, `send_frame.py`, `sim.py` - Teammate 3. Serial link to the board (+ optional simulation).
+- `screen.py`, `screen/`, `test_screen.py` - Austin. Optional audience screen at http://127.0.0.1:8000:
+  the conversation, the board (mirrored or simulated) and what each sponsor's agent is doing. The tour
+  never depends on it. `screen/dist/` is built and committed; after UI changes run
+  `cd screen && npm install && npm run build`.
 - `firmware/` - hardware partner.
 - Change the contract below only after telling the whole team.
 
@@ -61,7 +65,10 @@ Goal: the simplest thing that works for the demo. Don't add features that aren't
 - Setup once: `brew install portaudio`, `python3 -m venv .venv`, `source .venv/bin/activate`,
   `pip install -r requirements.txt`
 - Demo: `source .venv/bin/activate && python main.py` (Ctrl+C ends the conversation)
-- Tests are plain scripts, no pytest: `python test_main.py`, `python test_paintings.py`
+- Tests are plain scripts, no pytest: `python test_main.py`, `python test_pipeline.py`,
+  `python test_screen.py`, `python test_paintings.py` (live, uses Gemini)
+- Audience screen: `python main.py` starts it; open http://127.0.0.1:8000. Without any API:
+  `python screen.py --demo`
 
 ## Rules
 - Demo paintings (must load instantly from cache): Mona Lisa, The Starry Night,

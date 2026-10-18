@@ -113,6 +113,7 @@ plus `museum_facts` and `guide_notes`.
 | `prepare_demo.py` | One-time script that adds facts and notes to the demo paintings |
 | `board.py`, `send_frame.py` | Serial link to the ball board (falls back to printing with `BOARD=sim`). TODO: not pushed yet |
 | `cache/` | The four demo paintings (JSON + image), which load instantly |
+| `screen.py`, `screen/` | Audience screen (React + TypeScript) at http://127.0.0.1:8000: the conversation, the board (mirrored, or simulated without hardware), the painting with the current part boxed, and what Gemini, Creao and Browser Use are doing. Optional: the tour runs the same without it |
 | `stubs.py`, `test_main.py`, `test_paintings.py`, `check.py` | Stubs, tests, and a script that draws each part's box on the painting |
 
 ## Run it
@@ -121,6 +122,7 @@ plus `museum_facts` and `guide_notes`.
 python3 -m venv .venv && source .venv/bin/activate   # macOS: brew install portaudio first
 pip install -r requirements.txt   # then create .env with the keys below
 python main.py          # talk to it; Ctrl+C ends the conversation
+                        # audience screen: http://127.0.0.1:8000 (python screen.py --demo runs it without APIs)
 ```
 
 `.env` keys: `AGENT_ID`, `ELEVENLABS_API_KEY`, `GEMINI_API_KEY`, `BROWSER_USE_API_KEY`,
@@ -128,7 +130,8 @@ python main.py          # talk to it; Ctrl+C ends the conversation
 `SERIAL_PORT`. With `BOARD=sim` the shapes print in the terminal, so you can try it without the
 hardware.
 
-Tests: `python test_main.py` and `python test_paintings.py`.
+Tests: `python test_main.py`, `python test_pipeline.py` and `python test_screen.py` (offline), and
+`python test_paintings.py` (live).
 
 ## Limitations and what's next
 
