@@ -18,17 +18,23 @@ def test_fix_grid_numbers():
     assert len(g) == 10 and g[9][:3] == [1, 0, 1]
 
 def test_crop_square():
-    img = Image.new("RGB", (100, 200))
+    img = Image.new("RGB", (100, 200), "red")
     c = paintings.crop_square(img, [0.2, 0.1, 0.4, 0.2])  # 20x20 px box at (20, 20)
-    assert c.size[0] == c.size[1] == 26  # 20 * (1 + 2 * 0.15)
-    tall = paintings.crop_square(img, [0.0, 0.0, 0.1, 0.5])  # 10x100 px box
-    assert tall.size[0] == tall.size[1] == 130
+    assert c.size == (22, 22)  # 20 * (1 + 2 * 0.05)
+    tall = paintings.crop_square(img, [0.0, 0.0, 0.1, 0.5])  # 10x100 px box at the image's left edge
+    assert tall.size == (105, 105)  # clipped to the image, then letterboxed
+    assert tall.getpixel((tall.width // 2, 50)) == (255, 0, 0)  # the part, in the middle
+    assert tall.getpixel((tall.width - 1, 50)) == (128, 128, 128)  # gray bar, not more painting
 
 def test_crop_square_degenerate():
     img = Image.new("RGB", (200, 100))
     for bbox in ([0.6, 0.6, 0.4, 0.4], [0.5, 0.5, 0.5001, 0.5001]):  # inverted, sub-pixel
         c = paintings.crop_square(img, bbox)
-        assert c.size[0] == c.size[1] and c.size[0] >= 8
+        assert c.size[0] == c.size[1] and c.size[0] >= 8 and c.mode == "RGB"
+
+def test_grid_prompt_asks_for_only_the_part():
+    p = paintings.GRID_PROMPT.format(name="her eyes", title="Mona Lisa", description="d")
+    assert "Draw only her eyes" in p and "Gray bars" in p
 
 def test_jpeg():
     data = paintings.jpeg(Image.new("RGB", (8, 8)))

@@ -33,10 +33,12 @@ Return JSON: {{"artist": "...", "year": "...", "sections": [...]}} where each se
 If the image is not this painting, return {{"sections": []}}."""
 
 GRID_PROMPT = """This crop is "{name}" from {title}: {description}
-A blind person will feel it on a 10x10 board of raised balls. Don't trace the pixels. First decide
-what this is and the clearest way fingers could recognize it, then draw that.
+Gray bars at the edges are padding, not painting.
+A blind person will feel it on a 10x10 board of raised balls. Draw only {name}, nothing around it,
+and make it fill the board. Don't trace the pixels. First decide what this is and the clearest way
+fingers could recognize it, then draw that.
 - Outlines and key features, not solid blobs: a filled shape feels like a flat block.
-- About 15-50 raised balls, using most of the board.
+- About 15-50 raised balls, reaching across at least 7 rows or 7 columns.
 - A person is a head on shoulders and a body, never a triangle. A face shows its eyes and mouth.
 - Row 0 is the top, column 0 is the left.
 Examples (# raised, . flat):
@@ -139,14 +141,20 @@ def fix_grid(grid):
     rows = [r + [0] * (10 - len(r)) for r in rows]
     return rows + [[0] * 10 for _ in range(10 - len(rows))]
 
-def crop_square(img, bbox, pad=0.15):
-    """Cut bbox out of img, padded and widened to a square so shapes aren't stretched on the board."""
+def crop_square(img, bbox, pad=0.05):
+    """Cut bbox out of img with a little padding and center it on a gray square: the shape isn't
+    stretched on the board, and neighboring parts of the painting stay out of the drawing."""
     w, h = img.size
     x0, x1 = sorted((bbox[0] * w, bbox[2] * w))
     y0, y1 = sorted((bbox[1] * h, bbox[3] * h))
-    side = max(max(x1 - x0, y1 - y0) * (1 + 2 * pad), 8)
+    bw, bh = max(x1 - x0, 1) * (1 + 2 * pad), max(y1 - y0, 1) * (1 + 2 * pad)
     cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
-    return img.crop([round(cx - side / 2), round(cy - side / 2), round(cx + side / 2), round(cy + side / 2)])
+    part = img.crop([max(0, round(cx - bw / 2)), max(0, round(cy - bh / 2)),
+                     min(w, round(cx + bw / 2)), min(h, round(cy + bh / 2))]).convert("RGB")
+    side = max(part.width, part.height, 8)
+    out = Image.new("RGB", (side, side), (128, 128, 128))
+    out.paste(part, ((side - part.width) // 2, (side - part.height) // 2))
+    return out
 
 def jpeg(img):
     buf = BytesIO()
