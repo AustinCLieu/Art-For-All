@@ -36,7 +36,7 @@ def core(text):
 def save_painting(p):
     with _lock:
         with open(f"{CACHE}/{slug(p['title'])}.json", "w") as f:
-            json.dump(p, f, indent=1)
+            json.dump(dict(p), f, indent=1)  # copy: Creao and Browser Use threads may add keys meanwhile
 
 def from_cache(name):
     want = core(name)
