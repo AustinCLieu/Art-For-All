@@ -14,6 +14,7 @@ Goal: the simplest thing that works for the demo. Don't add features that aren't
   writer, live Browser Use museum facts, the one-time Browser Use / Creao script, and the 100x100
   heightmaps for the screen's 10,000-pin simulation (`docs/relief.md`). Brief: `docs/austin.md`
 - `board.py`, `test_board.py` - Austin. G-code over USB to the board's Marlin firmware.
+  Brief (hardware, firmware, calibration, rules): `docs/board.md`
 - `screen.py`, `screen/`, `test_screen.py` - Austin. Optional audience screen at http://127.0.0.1:8000:
   the conversation, the board (mirrored or simulated) and what each sponsor's agent is doing. The tour
   never depends on it. `screen/dist/` is built and committed; after UI changes run
