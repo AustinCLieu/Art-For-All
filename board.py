@@ -1,6 +1,6 @@
-# The 10x10 pin board: an SKR Pico running Marlin (firmware/) moves a head with three solenoids in a row
-# (one column apart) under the grid on two belts, and fires those under cells that should be up.
-# Pins go back down by hand.
+# The 10x10 pin board: an SKR Pico running Marlin (firmware/) moves a head under the grid on two belts.
+# The head has three solenoids under one bar: for each cell that should be up, all three fire together,
+# PRESSES times, to push that one pin up. Pins go back down by hand.
 # Env: BOARD=sim|serial, SERIAL_PORT (e.g. /dev/tty.usbmodem1101 or COM5)
 # Test on the real board: python board.py corners|border|checker
 import os, time
@@ -8,17 +8,18 @@ import serial
 
 # Head position in mm (Marlin's M114) under three cells: row 0 col 0, row 0 col 9 and row 9 col 0.
 # Row 0 = edge farthest from the user, col 0 = user's left. Measure them: firmware/README.md.
-CELL_0_0 = None  # e.g. (12.0, 8.0)
-CELL_0_9 = None
-CELL_9_0 = None
+# Oct 18, +X = user's right, +Y = away from the user, pins 5 mm apart (a 45 x 45 mm grid):
+CELL_0_0 = (45, 62)    # top left, derived (same X as the bottom left, same Y as the top right)
+CELL_0_9 = (90, 62)    # top right, measured
+CELL_9_0 = (45, 17)    # bottom left, measured
 MAX_X = 130      # end of the X rail in mm (measured by hand): no endstops, so board.py refuses to go past it
 MAX_Y = 150      # end of the Y rail in mm (measured by hand)
 STEPS_PER_MM = (80, 80)  # X, Y; sent on connect, so fixing it needs no reflash (firmware/README.md)
 SPEED = 18000    # mm/min between cells (Marlin caps it at DEFAULT_MAX_FEEDRATE, 300 mm/s)
-FANS = (0, 1, 2) # Marlin fan of each solenoid, user's left to right (board FAN1, FAN2, FAN3 connectors).
-                 # Solenoid 0 is the reference: CELL_* positions are measured with it under the cell.
-PULSE_MS = 50   # how long the solenoid stays out
-RELEASE_MS = 30  # lets the plunger drop back before the head moves on
+FANS = (0, 1, 2) # Marlin fan of each solenoid (board FAN1, FAN2, FAN3 connectors); all push the same pin
+PRESSES = 3      # pushes per pin
+PULSE_MS = 50    # how long the solenoids stay out
+RELEASE_MS = 30  # lets the plungers drop back before the next push or the next cell
 
 _port = None
 
@@ -33,28 +34,19 @@ def cell_xy(row, col):
         raise ValueError(f"Cell {row},{col} is at X{x:g} Y{y:g}, outside the rails (0 to X{MAX_X} Y{MAX_Y})")
     return round(x, 2), round(y, 2)
 
-def stops(row):
-    """[(column under solenoid 0, [solenoids to fire])] left to right; never past the last full stop."""
-    last = 10 - len(FANS)  # 7: the head never goes further right, so no solenoid hangs past the grid
-    groups = {}
-    for c in range(10):
-        if row[c]:
-            s = min(c - c % len(FANS), last)
-            groups.setdefault(s, []).append(c - s)
-    return sorted(groups.items())
-
 def gcode(grid):
     lines = []
+    push = [*[f"M106 P{f} S255" for f in FANS],  # all three together: one line each, milliseconds apart
+            f"G4 P{PULSE_MS}",
+            *[f"M107 P{f}" for f in FANS],
+            f"G4 P{RELEASE_MS}"] * PRESSES
     for r, row in enumerate(grid):
-        row_stops = stops(row)
-        for c, fire in (row_stops if r % 2 == 0 else reversed(row_stops)):  # snake order: shortest path
-            x, y = cell_xy(r, c)
-            lines += [f"G0 X{x:g} Y{y:g} F{SPEED}",
-                      "M400",  # Marlin only loosely syncs the fan output with moves: wait for the head
-                      *[f"M106 P{FANS[i]} S255" for i in fire],  # together: one line each, milliseconds apart
-                      f"G4 P{PULSE_MS}",
-                      *[f"M107 P{FANS[i]}" for i in fire],
-                      f"G4 P{RELEASE_MS}"]
+        for c in (range(10) if r % 2 == 0 else range(9, -1, -1)):  # snake order: shortest path
+            if row[c]:
+                x, y = cell_xy(r, c)
+                lines += [f"G0 X{x:g} Y{y:g} F{SPEED}",
+                          "M400",  # Marlin only loosely syncs the fan output with moves: wait for the head
+                          *push]
     return lines + [f"G0 X0 Y0 F{SPEED}"]  # park in the zero corner; Marlin boots believing it is there
 
 def _send(line):

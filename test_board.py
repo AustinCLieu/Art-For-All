@@ -37,24 +37,20 @@ def test_cells_past_the_rail_end_are_refused():
     finally:
         board.MAX_Y = saved
 
-def test_stops_cover_three_columns_each():
-    # Solenoid 0 is under the stop's column; solenoids 1 and 2 are one and two columns to its right.
-    assert board.stops([1, 1, 0, 0, 0, 1, 0, 0, 0, 1]) == [(0, [0, 1]), (3, [2]), (7, [2])]
-    assert board.stops([0] * 10) == []
-    assert board.stops([1] * 10) == [(0, [0, 1, 2]), (3, [0, 1, 2]), (6, [0, 1, 2]), (7, [2])]
-
-def test_gcode_fires_solenoids_together_in_snake_order():
+def test_every_pin_gets_all_solenoids_pushed_three_times():
     grid = [[0] * 10 for _ in range(10)]
-    grid[0][0] = grid[0][1] = grid[0][2] = 1  # one stop, all three fire
-    grid[1][0] = grid[1][9] = 1               # odd row: right stop first
+    grid[0][0] = grid[0][9] = grid[1][0] = grid[1][9] = 1
     lines = board.gcode(grid)
     on = [f"M106 P{f} S255" for f in board.FANS]
     off = [f"M107 P{f}" for f in board.FANS]
-    assert lines[:10] == [f"G0 X10 Y10 F{board.SPEED}", "M400", *on, f"G4 P{board.PULSE_MS}", *off,
-                          f"G4 P{board.RELEASE_MS}"]
+    push = [*on, f"G4 P{board.PULSE_MS}", *off, f"G4 P{board.RELEASE_MS}"]
+    assert board.PRESSES == 3
+    assert lines[:2] == [f"G0 X10 Y10 F{board.SPEED}", "M400"]
+    assert lines[2:2 + len(push) * 3] == push * 3  # three pushes, all solenoids together each time
     moves = [l for l in lines if l.startswith("G0")]
-    assert moves == [f"G0 X{x} Y{y} F{board.SPEED}" for x, y in ((10, 10), (80, 20), (10, 20), (0, 0))]
-    assert lines.count(f"G4 P{board.PULSE_MS}") == 3  # one shared pulse per stop
+    assert moves[:4] == [f"G0 X{x} Y{y} F{board.SPEED}" for x, y in ((10, 10), (100, 10), (100, 20), (10, 20))]
+    assert moves[-1] == f"G0 X0 Y0 F{board.SPEED}"  # parks in the corner
+    assert lines.count(f"G4 P{board.PULSE_MS}") == 4 * 3  # 4 pins, 3 pushes each
 
 def test_empty_grid_only_parks():
     assert board.gcode([[0] * 10] * 10) == [f"G0 X0 Y0 F{board.SPEED}"]
