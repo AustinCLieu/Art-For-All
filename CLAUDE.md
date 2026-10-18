@@ -62,9 +62,11 @@ Goal: the simplest thing that works for the demo. Don't add features that aren't
   simulation (gray = pin height 0-255, and the painting's colour per pin). Format: `docs/relief.md`.
 
 ### Board (Marlin G-code over USB, 115200 baud)
-- An SKR Pico running Marlin moves a solenoid (on FAN0) under the 10x10 pins on two belts; no endstops.
-- Per raised cell, in snake order: `G0 X.. Y..`, `M400`, `M106 S255`, `G4 P50`, `M107`; each line waits
-  for Marlin's `ok`. Afterwards the head parks at `X0 Y0`.
+- An SKR Pico running Marlin moves a head with three solenoids in a row (one column apart, on the FAN1,
+  FAN2, FAN3 connectors = Marlin fans 0, 1, 2) under the 10x10 pins on two belts; no endstops.
+- Each row is split into stops at columns 0, 3, 6, 7, in snake order. Per stop: `G0 X.. Y..`, `M400`,
+  `M106 P<fan> S255` for each solenoid under a raised cell, `G4 P50`, `M107 P<fan>` for each; each line
+  waits for Marlin's `ok`. Afterwards the head parks at `X0 Y0`.
 - Pins go back down by hand. `show_grid` only raises pins.
 
 ## Environment (`.env`, never commit)

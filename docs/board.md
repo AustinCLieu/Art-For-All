@@ -10,7 +10,8 @@ the moving machine. Next: hand test and calibration on Harvey's Mac, then a real
   unless someone presses the board flat first.
 - **Controller:** BigTreeTech SKR Pico V1.0 (RP2040 chip, 4 built-in TMC2209 drivers in UART mode).
   Manual and diagrams: github.com/bigtreetech/SKR-Pico.
-- **Solenoid:** 12 V DC, 210 mA, wired to **FAN0** (GPIO 17). Fan on = solenoid out: `M106 S255`, `M107`.
+- **Solenoids:** three, 12 V DC, 210 mA each, in a row along X, one column apart, on the FAN1, FAN2 and
+  FAN3 connectors. Marlin numbers fans from 0: FAN1 = `M106 P0`, FAN2 = `P1`, FAN3 = `P2` (tested Oct 18).
   The fan ports pass through the supply voltage and have flyback protection, so no extra diode is needed.
 - **Power:** 12 V supply into the screw terminals. USB alone powers only the chip, not motors or solenoid.
 - **No endstops.** Marlin boots believing the head is at X0 Y0, so the head must sit in the zero corner
@@ -31,9 +32,10 @@ the moving machine. Next: hand test and calibration on Harvey's Mac, then a real
 - `BOARD=sim` prints the shape. `BOARD=serial` talks G-code to Marlin on `SERIAL_PORT` at 115200 baud.
 - On connect: `M84 S0` (motors keep holding; Marlin releases them after 2 idle minutes otherwise),
   `M92 X.. Y..` from `STEPS_PER_MM`, `G90`, `G0 X0 Y0` (back to the corner if main.py restarted mid-shape).
-- Per raised cell, in snake order: `G0 X.. Y..`, `M400`, `M106 S255`, `G4 P50`, `M107`, `G4 P30`.
-  `M400` matters: Marlin only loosely syncs the fan output with moves, so without it the solenoid fires early.
-  Afterwards the head parks at `X0 Y0`.
+- Each row is split into stops at columns 0, 3, 6, 7 (the stop at 7 only fires solenoid 2, for column 9),
+  in snake order. Per stop: `G0 X.. Y..`, `M400`, `M106 P<fan> S255` for each solenoid under a raised cell,
+  `G4 P50`, then `M107 P<fan>` for each, `G4 P30`. `M400` matters: Marlin only loosely syncs the fan
+  output with moves, so without it the solenoids fire early. Afterwards the head parks at `X0 Y0`.
 - Every line waits for Marlin's `ok`, skipping `echo:busy` lines. Silence for 5 s or an `Error` raises;
   the port is dropped and the next shape reconnects. `main.py` catches the error, so the voice tour goes on.
 - `CELL_0_0`, `CELL_0_9`, `CELL_9_0` are `None` until measured. `show_grid` refuses to move until they are
