@@ -9,7 +9,7 @@
   gap: var(--spacing-2);
   padding: var(--spacing-5) var(--margin-x) var(--spacing-3);
   pointer-events: none;
-  background: linear-gradient(to top, rgb(8 9 11 / 0.85), transparent);
+  background: linear-gradient(to top, color-mix(in srgb, var(--color-ink) 85%, transparent), transparent);
 }
 .render__text { display: flex; justify-content: space-between; color: var(--color-paper-dim); }
 .render__count { color: var(--color-lantern); }

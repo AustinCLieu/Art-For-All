@@ -17,7 +17,7 @@ export function RenderProgress({ render }: { render: Render }) {
         <span>{preparing ? COPY.renderPreparing : COPY.renderLabel}</span>
         {!preparing && <span className="render__count">{render.done} / {render.total}</span>}
       </div>
-      <div className="render__track" aria-hidden>
+      <div className="render__track" aria-hidden={true}>
         <div className="render__fill" style={{ "--p": fraction } as CSSProperties} />
       </div>
     </div>
