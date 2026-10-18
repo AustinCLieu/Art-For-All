@@ -6,11 +6,13 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 try:
-    from screen import activity, render  # audience screen; optional
+    from screen import activity, render, preview  # audience screen; optional
 except Exception:  # nothing here depends on the screen
     def activity(*args, **kwargs):
         pass
     def render(*args, **kwargs):
+        pass
+    def preview(*args, **kwargs):
         pass
 try:
     from relief import make_all as make_reliefs, save as save_relief, warm as warm_reliefs  # 10,000-pin heightmaps
@@ -391,7 +393,16 @@ def start_reliefs(p):
                 _reliefs_running.discard(p["title"])
     threading.Thread(target=run, daemon=True).start()
 
+def _discard(image_path):
+    """Remove the early-written image when the painting turns out unusable. Never raises."""
+    preview(None)  # nothing to show; drop any preview pointing at this file
+    try:
+        os.remove(image_path)
+    except OSError:
+        pass
+
 def fetch_painting(name):
+    preview(None)  # a new lookup: clear any stale preview from a previous one
     activity("gemini", "working", f"Looking up {name}")
     wiki = find_painting(name)
     if not wiki:
@@ -405,13 +416,14 @@ def fetch_painting(name):
     resp = http.get(wiki["image_url"], timeout=T)
     resp.raise_for_status()  # a 403/429 page is not an image
     mime = resp.headers.get("Content-Type", "image/jpeg").split(";")[0]
+    image_path = f"{CACHE}/{slug(wiki['title'])}.jpg"
+    with open(image_path, "wb") as f:  # write now so the audience sees the painting while its parts are drawn
+        f.write(resp.content)
+    preview(image_path, wiki["title"])  # the image goes up on the screen immediately, before the grids
     activity("gemini", "working", f"Picking the parts of {wiki['title']}")
     data = analyze(resp.content, mime, wiki["title"], wiki["summary"])
-    if not data.get("sections"):
-        return None  # the image wasn't the painting
-    image_path = f"{CACHE}/{slug(wiki['title'])}.jpg"
     sections = []
-    for s in data["sections"][:10]:  # caps parallel Gemini calls and tour length
+    for s in data.get("sections", [])[:10]:  # caps parallel Gemini calls and tour length
         try:
             y0, x0, y1, x1 = [max(0, min(1000, v)) / 1000 for v in s["box_2d"]]  # clamp: off-image boxes
             bbox = [min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1)]
@@ -420,15 +432,15 @@ def fetch_painting(name):
         except Exception as e:  # one bad section must not sink the painting
             print(f"skipped bad section {s!r}: {e!r}")
     if not sections:
+        _discard(image_path)  # the image wasn't the painting (or had no usable parts): no stray file
         return None
     activity("gemini", "working", f"Drawing {len(sections)} shapes in parallel")
     grids = draw_all(Image.open(BytesIO(resp.content)), wiki["title"], sections)
     kept = [(s, g) for s, g in zip(sections, grids) if g and any(map(any, g))]
     if not kept:
+        _discard(image_path)
         return None
     sections = [{"number": i, **s, "grid": g} for i, (s, g) in enumerate(kept, start=1)]
-    with open(image_path, "wb") as f:  # only after parsing worked, so a failure leaves no stray files
-        f.write(resp.content)
     p = {"title": wiki["title"], "artist": data.get("artist", ""), "year": data.get("year", ""),
          "summary": wiki["summary"], "image": image_path, "sections": sections}
     save_painting(p)

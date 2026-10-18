@@ -20,6 +20,7 @@ _transcript = []                        # [{"role": "user" | "agent", "text": st
 _live = {"painting": None, "index": 0}  # the same dict main.py holds, so Creao and Browser Use results show up
 _activity = {}                          # (source, painting title or None) -> {"status", "detail"}
 _render = {"phase": "idle", "done": 0, "total": 0}  # 10,000-pin reliefs: one global progress bar
+_preview = {"image": None, "title": ""}  # a painting's image while its parts are still being drawn
 _last_error = [""]                      # snapshot runs every 300 ms per tab: print each error once
 
 def say(role, text):
@@ -48,6 +49,7 @@ def show_on_screen(painting, index):
     try:
         with _lock:
             _live.update(painting=painting, index=index)
+            _preview.update(image=None, title="")  # the full painting is up now; the preview is done
     except Exception as e:
         print(f"screen.show_on_screen failed: {e!r}")
 
@@ -68,6 +70,14 @@ def render(phase, done=0, total=0):
             _render.update(entry)
     except Exception as e:
         print(f"screen.render failed: {e!r}")
+
+def preview(image_path, title=""):
+    """Show a painting's image while Gemini is still drawing its parts; pass None to clear. Never raises."""
+    try:
+        with _lock:
+            _preview.update(image=image_path, title=str(title))
+    except Exception as e:
+        print(f"screen.preview failed: {e!r}")
 
 def _agent_chip(p, source, key, noun):
     a = _activity.get((source, p.get("title")))
@@ -103,12 +113,14 @@ def _views(p, i):
 def snapshot():
     """Everything the page draws, as JSON-ready data. Never raises."""
     out = {"hardware": os.getenv("BOARD", "sim") == "serial", "transcript": [], "painting": None,
-           "section": None, "render": {"phase": "idle", "done": 0, "total": 0},
+           "section": None, "render": {"phase": "idle", "done": 0, "total": 0}, "preview": None,
            "activity": {k: dict(IDLE) for k in ("elevenlabs", "gemini", "creao", "browser_use")}}
     try:
         with _lock:
             p, i = _live["painting"], _live["index"]
             out["render"] = dict(_render)
+            pv = _cache_url(_preview["image"])
+            out["preview"] = {"image": pv, "title": _preview["title"]} if pv else None
             out["transcript"] = [dict(line) for line in _transcript]
             out["activity"]["elevenlabs"] = ({"status": "done", "detail": "In conversation"} if _transcript
                                              else {"status": "idle", "detail": "Waiting for the visitor"})
@@ -195,6 +207,7 @@ def demo(port=PORT):
             p = json.load(f)
         say("user", f"Show me {p['title']}.")
         activity("gemini", "working", f"Looking up {p['title']}")
+        preview(p.get("image"), p["title"])  # the image shows while the parts are "drawn"
         time.sleep(2)
         activity("gemini", "done", f"{p['title']}: ready from cache")
         total = len(p["sections"])

@@ -8,6 +8,7 @@ def reset():
         screen._activity.clear()
         screen._live.update(painting=None, index=0)
         screen._render.update(phase="idle", done=0, total=0)
+        screen._preview.update(image=None, title="")
 
 def mona():
     return copy.deepcopy(stubs.MONA_LISA)
@@ -83,6 +84,20 @@ def test_render_progress():
     assert screen.snapshot()["render"] == {"phase": "rendering", "done": 2, "total": 4}
     screen.render("done", 4, 4)
     assert screen.snapshot()["render"] == {"phase": "done", "done": 4, "total": 4}
+
+def test_preview():
+    reset()
+    assert screen.snapshot()["preview"] is None
+    screen.preview("cache/mona-lisa.jpg", "Mona Lisa")
+    pv = screen.snapshot()["preview"]
+    assert pv["image"].startswith("/cache/mona-lisa.jpg?v=") and pv["title"] == "Mona Lisa"  # versioned, like reliefs
+    screen.preview("cache/missing.png", "Gone")
+    assert screen.snapshot()["preview"] is None  # a missing file is no preview, not a broken image
+    screen.preview("cache/mona-lisa.jpg", "Mona Lisa")
+    screen.show_on_screen(mona(), 0)
+    assert screen.snapshot()["preview"] is None  # the full painting is up: the preview is cleared
+    screen.preview(None)
+    assert screen.snapshot()["preview"] is None
 
 def test_never_raises():
     reset()

@@ -59,7 +59,7 @@ export function App() {
       {state && <RenderProgress render={state.render} />}
       {scene === "offline" && <IdleScreen offline />}
       {scene === "idle" && <IdleScreen offline={false} />}
-      {scene === "looking-up" && state && <LookingUp detail={state.activity.gemini.detail} />}
+      {scene === "looking-up" && state && <LookingUp detail={state.activity.gemini.detail} image={state.preview?.image ?? null} />}
       {scene === "touring" && state && painting && (
         <>
           <div className="col col--art">

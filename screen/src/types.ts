@@ -44,12 +44,19 @@ export interface Render {
   total: number;
 }
 
+// A painting's image shown while Gemini is still drawing its parts (null when there's nothing pending).
+export interface Preview {
+  image: string;
+  title: string;
+}
+
 export interface State {
   hardware: boolean;
   transcript: Line[];
   painting: Painting | null;
   section: Section | null;
   render: Render;
+  preview: Preview | null;
   activity: {
     elevenlabs: Activity;
     gemini: Activity;
