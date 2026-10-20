@@ -4,7 +4,7 @@
 walks you through it part by part, while a 10x10 board of raised balls forms the shape of each part
 under your fingers.
 
-> LA Hacks 2026 · Main track: TODO · Domain: TODO
+> LA Hacks 2026 · Main track: Beyond the Digital
 
 ## The problem
 
@@ -76,9 +76,6 @@ part is ("at the top right"), and the pattern is what the board raises.
 ### Sentry: no silent failures during a live demo
 The ElevenLabs SDK swallows exceptions raised inside client tools. [`main.py`](main.py) wraps each tool,
 so any error is reported to Sentry with a full stack trace before the agent hears about it.
-
-### GoDaddy
-Project domain: TODO
 
 ## How it works
 
